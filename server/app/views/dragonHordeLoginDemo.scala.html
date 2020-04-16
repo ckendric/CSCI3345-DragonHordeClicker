@@ -1,0 +1,25 @@
+@()
+
+@DHCmain("Dragon Horde: Login") {
+
+    <div id="login">
+        <h2>Dragon Horde</h2>
+        <p>Dragon Horde is a networked clicker game where you're a dragon, and you're hoarding things.</p>
+        <p>Grow your hoard, upgrade your piles, and steal from the horde of other players!</p>
+        <h3>Login</h3>
+
+        <form method="post" action="@routes.Application.dragonHordeDemoPage">
+        <p>
+            <label for="user">Username:</label><br> 
+            <input type="text" name="username"></input><br>
+            <label for="pass">Password:</label><br>
+            <input type="password" name="password"></input><br>
+            <input type="submit" value="Enter the Horde!"></input>
+        </p>
+        </form>
+
+        <p>Don't have a hoard yet? <a href="">Sign up here!</a></p>
+
+    </div>
+
+}

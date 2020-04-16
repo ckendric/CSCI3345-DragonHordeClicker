@@ -1,0 +1,26 @@
+@(title: String)(content: Html)
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <title>@title</title>
+    <link rel="stylesheet" media="screen" href="@routes.Assets.versioned("stylesheets/DHCmain.css")">
+    <link rel="shortcut icon" type="image/png" href="@routes.Assets.versioned("images/DHCfavicon.png")">
+    <link href="https://fonts.googleapis.com/css?family=Righteous|Roboto&display=swap" rel="stylesheet">
+
+    <!-- Libraries for React -->
+    <script src="https://unpkg.com/react@@16/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@@16/umd/react-dom.development.js" crossorigin></script>
+  </head>
+  <style>
+    body {
+      background-image: url("@routes.Assets.versioned("images/DHCbackground.jpg")");
+      background-size: cover;
+    }
+  </style>
+  <body>
+    @content
+    @scalajs.html.scripts("client", routes.Assets.versioned(_).toString, name => getClass.getResource(s"/public/$name") != null)
+  </body>
+</html>
