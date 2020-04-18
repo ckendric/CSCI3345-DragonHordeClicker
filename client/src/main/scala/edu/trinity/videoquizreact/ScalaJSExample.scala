@@ -17,5 +17,7 @@ object ScalaJSExample {
       dom.document.getElementById("root")
     )
 
+    if (dom.document.getElementById("dragonHorde") != null)
+      DragonHorde.init()
   }
 }
