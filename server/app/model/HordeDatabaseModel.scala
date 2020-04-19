@@ -27,8 +27,8 @@ class HordeDatabaseModel(db: Database)(implicit ec: ExecutionContext) {
         }
     }
 
-    def getUserInfo(username:Int):Future[String] = Future.successful("hi")
-    def getHoardInfo(username:Int):Future[String] = Future.successful("hi")
+    def getUserInfo(userid:Int):Future[String] = Future.successful("hi")
+    def getHoardInfo(userid:Int):Future[String] = Future.successful("hi")
     def getStealingInfo(username:String):Future[String] = Future.successful("hi")
     def loadUserInfo(username:String, userid:Int, info:String):Future[Int] = Future.successful(1)
     def loadHoardInfo(username:String, userid:Int, info:String):Future[Int] = Future.successful(1)
