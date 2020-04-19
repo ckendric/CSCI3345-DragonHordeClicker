@@ -13,15 +13,20 @@ CREATE TABLE hoard (
     hoard_id SERIAL PRIMARY KEY,
     user_id int4 NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     hoardType int NOT NULL,
+    cost int NOT NULL,
     hoardLevel int NOT NULL,
     hoardItems real NOT NULL,
     productionSpeed real NOT NULL,
-    goldConversionRate real NOT NULL
+    goldConversionRate real NOT NULL,
+
 );
+-- cost is how much is costs to level up the hoard
 
 CREATE TABLE hoardUpgrade (
     hoardUpgrade_id SERIAL PRIMARY KEY,
-    description varchar(1000),
+    hoard_id int4 NOT NULL REFERENCES hoard(id) ON DELETE CASCADE,
+    description varchar(10000),
+    cost int NOT NULL,
     unlocked boolean NOT NULL,
     additave real NOT NULL,
     multiplier real NOT NULL,
@@ -35,9 +40,3 @@ CREATE TABLE hoardUpgrade (
 -- goldMultiplier: multiplier for the gold conversion rate of a hoard
 --      value of less than 1 usually
 --      if upgrade does not influence gold conversion, set to 0
-
-CREATE TABLE hoardHoardUpgrade (
-    hoard_id int4 NOT NULL REFERENCES hoard(id) ON DELETE CASCADE,
-    hoardUpgrade_id int4 NOT NULL REFERENCES hoardUpgrade(id) ON DELETE CASCADE
-);
--- link table between hoard and hoardUpgrade
