@@ -9,11 +9,11 @@ POST       /validateUser                 controllers.Application.validateUser
 POST       /createUser                   controllers.Application.createUser
 GET        /logout                       controllers.Application.logout
 GET        /getUserInfo                  controllers.Application.getUserInfo
-GET        /getHordeInfo                 controllers.Application.getHordeInfo
+GET        /getHoardInfo                 controllers.Application.getHoardInfo
 GET        /getStealingInfo              controllers.Application.getStealingInfo
 POST       /loadUserInfo                 controllers.Application.loadUserInfo
 POST       /loadStealingInfo             controllers.Application.loadStealingInfo
-POST       /loadHordeInfo                controllers.Application.loadHordeInfo
+POST       /loadHoardInfo                controllers.Application.loadHoardInfo
 POST       /stealFromUser                controllers.Application.stealFromUser
 GET        /resetUser                    controllers.Application.resetUser   
 
