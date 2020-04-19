@@ -8,7 +8,14 @@ GET        /login                        controllers.Application.login
 POST       /validateUser                 controllers.Application.validateUser
 POST       /createUser                   controllers.Application.createUser
 GET        /logout                       controllers.Application.logout
-GET        /getAllInfo                   controllers.Application.getAllInfo
+GET        /getUserInfo                  controllers.Application.getUserInfo
+GET        /getHordeInfo                 controllers.Application.getHordeInfo
+GET        /getStealingInfo              controllers.Application.getStealingInfo
+POST       /loadUserInfo                 controllers.Application.loadUserInfo
+POST       /loadStealingInfo             controllers.Application.loadStealingInfo
+POST       /loadHordeInfo                controllers.Application.loadHordeInfo
+POST       /stealFromUser                controllers.Application.stealFromUser
+GET        /resetUser                    controllers.Application.resetUser   
 
 # Prefix must match `play.assets.urlPrefix`
 GET        /assets/*file                 controllers.Assets.at(file)
