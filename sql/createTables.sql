@@ -20,9 +20,9 @@ CREATE TABLE hoard (
     hoardType int NOT NULL,
     cost int NOT NULL,
     hoardLevel int NOT NULL,
-    hoardItems real NOT NULL,
-    productionSpeed real NOT NULL,
-    goldConversionRate real NOT NULL,
+    hoardItems double precision NOT NULL,
+    productionSpeed double precision NOT NULL,
+    goldConversionRate double precision NOT NULL,
     unlocked boolean NOT NULL
 );
 -- cost is how much is costs to level up the hoard
@@ -33,9 +33,9 @@ CREATE TABLE hoardUpgrade (
     description varchar(10000),
     cost int NOT NULL,
     unlocked boolean NOT NULL,
-    additave real NOT NULL,
-    multiplier real NOT NULL,
-    goldMultiplier real NOT NULL
+    additave double precision NOT NULL,
+    multiplier double precision NOT NULL,
+    goldMultiplier double precision NOT NULL
 );
 -- additave: for the initial upgrade that starts auto-generation. 
 --      if the upgrade is for auto generation it will add its value to the initial 0 production speed of a hoard

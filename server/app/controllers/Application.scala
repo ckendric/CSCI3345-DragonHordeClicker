@@ -77,8 +77,9 @@ class Application @Inject() (protected val dbConfigProvider: DatabaseConfigProvi
   def getHoardInfo = Action.async { implicit request => {
       val userIdOption = request.session.get("userid").map(userid => userid.toInt)
       val emptyInfo = "" //need to know what type that userinfo is
+      val hoardNumber = 0 //need to know which hoard's info is being requested
       userIdOption.map { userid =>
-        model.getHoardInfo(userid).map(info => Ok(Json.toJson(info)))
+        model.getHoardInfo(userid, hoardNumber).map(info => Ok(Json.toJson(info)))
       }.getOrElse(Future.successful(Ok(Json.toJson(emptyInfo))))
     }
   }

@@ -24,15 +24,15 @@ trait Tables {
    *  @param hoardtype Database column hoardtype SqlType(int4)
    *  @param cost Database column cost SqlType(int4)
    *  @param hoardlevel Database column hoardlevel SqlType(int4)
-   *  @param hoarditems Database column hoarditems SqlType(float4)
-   *  @param productionspeed Database column productionspeed SqlType(float4)
-   *  @param goldconversionrate Database column goldconversionrate SqlType(float4)
+   *  @param hoarditems Database column hoarditems SqlType(float8)
+   *  @param productionspeed Database column productionspeed SqlType(float8)
+   *  @param goldconversionrate Database column goldconversionrate SqlType(float8)
    *  @param unlocked Database column unlocked SqlType(bool) */
-  case class HoardRow(hoardId: Int, userId: Int, hoardtype: Int, cost: Int, hoardlevel: Int, hoarditems: Float, productionspeed: Float, goldconversionrate: Float, unlocked: Boolean)
+  case class HoardRow(hoardId: Int, userId: Int, hoardtype: Int, cost: Int, hoardlevel: Int, hoarditems: Double, productionspeed: Double, goldconversionrate: Double, unlocked: Boolean)
   /** GetResult implicit for fetching HoardRow objects using plain SQL queries */
-  implicit def GetResultHoardRow(implicit e0: GR[Int], e1: GR[Float], e2: GR[Boolean]): GR[HoardRow] = GR{
+  implicit def GetResultHoardRow(implicit e0: GR[Int], e1: GR[Double], e2: GR[Boolean]): GR[HoardRow] = GR{
     prs => import prs._
-    HoardRow.tupled((<<[Int], <<[Int], <<[Int], <<[Int], <<[Int], <<[Float], <<[Float], <<[Float], <<[Boolean]))
+    HoardRow.tupled((<<[Int], <<[Int], <<[Int], <<[Int], <<[Int], <<[Double], <<[Double], <<[Double], <<[Boolean]))
   }
   /** Table description of table hoard. Objects of this class serve as prototypes for rows in queries. */
   class Hoard(_tableTag: Tag) extends profile.api.Table[HoardRow](_tableTag, "hoard") {
@@ -50,12 +50,12 @@ trait Tables {
     val cost: Rep[Int] = column[Int]("cost")
     /** Database column hoardlevel SqlType(int4) */
     val hoardlevel: Rep[Int] = column[Int]("hoardlevel")
-    /** Database column hoarditems SqlType(float4) */
-    val hoarditems: Rep[Float] = column[Float]("hoarditems")
-    /** Database column productionspeed SqlType(float4) */
-    val productionspeed: Rep[Float] = column[Float]("productionspeed")
-    /** Database column goldconversionrate SqlType(float4) */
-    val goldconversionrate: Rep[Float] = column[Float]("goldconversionrate")
+    /** Database column hoarditems SqlType(float8) */
+    val hoarditems: Rep[Double] = column[Double]("hoarditems")
+    /** Database column productionspeed SqlType(float8) */
+    val productionspeed: Rep[Double] = column[Double]("productionspeed")
+    /** Database column goldconversionrate SqlType(float8) */
+    val goldconversionrate: Rep[Double] = column[Double]("goldconversionrate")
     /** Database column unlocked SqlType(bool) */
     val unlocked: Rep[Boolean] = column[Boolean]("unlocked")
 
@@ -71,14 +71,14 @@ trait Tables {
    *  @param description Database column description SqlType(varchar), Length(10000,true), Default(None)
    *  @param cost Database column cost SqlType(int4)
    *  @param unlocked Database column unlocked SqlType(bool)
-   *  @param additave Database column additave SqlType(float4)
-   *  @param multiplier Database column multiplier SqlType(float4)
-   *  @param goldmultiplier Database column goldmultiplier SqlType(float4) */
-  case class HoardupgradeRow(hoardupgradeId: Int, hoardId: Int, description: Option[String] = None, cost: Int, unlocked: Boolean, additave: Float, multiplier: Float, goldmultiplier: Float)
+   *  @param additave Database column additave SqlType(float8)
+   *  @param multiplier Database column multiplier SqlType(float8)
+   *  @param goldmultiplier Database column goldmultiplier SqlType(float8) */
+  case class HoardupgradeRow(hoardupgradeId: Int, hoardId: Int, description: Option[String] = None, cost: Int, unlocked: Boolean, additave: Double, multiplier: Double, goldmultiplier: Double)
   /** GetResult implicit for fetching HoardupgradeRow objects using plain SQL queries */
-  implicit def GetResultHoardupgradeRow(implicit e0: GR[Int], e1: GR[Option[String]], e2: GR[Boolean], e3: GR[Float]): GR[HoardupgradeRow] = GR{
+  implicit def GetResultHoardupgradeRow(implicit e0: GR[Int], e1: GR[Option[String]], e2: GR[Boolean], e3: GR[Double]): GR[HoardupgradeRow] = GR{
     prs => import prs._
-    HoardupgradeRow.tupled((<<[Int], <<[Int], <<?[String], <<[Int], <<[Boolean], <<[Float], <<[Float], <<[Float]))
+    HoardupgradeRow.tupled((<<[Int], <<[Int], <<?[String], <<[Int], <<[Boolean], <<[Double], <<[Double], <<[Double]))
   }
   /** Table description of table hoardupgrade. Objects of this class serve as prototypes for rows in queries. */
   class Hoardupgrade(_tableTag: Tag) extends profile.api.Table[HoardupgradeRow](_tableTag, "hoardupgrade") {
@@ -96,12 +96,12 @@ trait Tables {
     val cost: Rep[Int] = column[Int]("cost")
     /** Database column unlocked SqlType(bool) */
     val unlocked: Rep[Boolean] = column[Boolean]("unlocked")
-    /** Database column additave SqlType(float4) */
-    val additave: Rep[Float] = column[Float]("additave")
-    /** Database column multiplier SqlType(float4) */
-    val multiplier: Rep[Float] = column[Float]("multiplier")
-    /** Database column goldmultiplier SqlType(float4) */
-    val goldmultiplier: Rep[Float] = column[Float]("goldmultiplier")
+    /** Database column additave SqlType(float8) */
+    val additave: Rep[Double] = column[Double]("additave")
+    /** Database column multiplier SqlType(float8) */
+    val multiplier: Rep[Double] = column[Double]("multiplier")
+    /** Database column goldmultiplier SqlType(float8) */
+    val goldmultiplier: Rep[Double] = column[Double]("goldmultiplier")
 
     /** Foreign key referencing Hoard (database name hoardupgrade_hoard_id_fkey) */
     lazy val hoardFk = foreignKey("hoardupgrade_hoard_id_fkey", hoardId, Hoard)(r => r.hoardId, onUpdate=ForeignKeyAction.NoAction, onDelete=ForeignKeyAction.Cascade)
