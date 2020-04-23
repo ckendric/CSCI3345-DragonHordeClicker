@@ -15,6 +15,7 @@ import scala.concurrent.ExecutionContext
 import play.api.libs.json.JsSuccess
 import scala.scalajs.js.annotation.JSExportTopLevel
 import scalajs.js
+import models.ReadsAndWrites._
 
 object DragonHorde {
 
@@ -23,19 +24,27 @@ object DragonHorde {
     val csrfToken = document.getElementById("csrfToken").asInstanceOf[html.Input].value
     val createRoute = document.getElementById("createRoute").asInstanceOf[html.Input].value
     val validateRoute = document.getElementById("validateRoute").asInstanceOf[html.Input].value
+    val logoutRoute = document.getElementById("logoutRoute").asInstanceOf[html.Input].value
+
 
     val hoardRoute = document.getElementById("hoardRoute").asInstanceOf[html.Input].value
-    val addToHoardRoute = document.getElementById("addToHoardRoute").asInstanceOf[html.Input].value
-    val addNewHoardRoute = document.getElementById("addNewHoardRoute").asInstanceOf[html.Input].value
+    val addToHordeRoute = document.getElementById("addToHordeRoute").asInstanceOf[html.Input].value
+    val addNewHordeRoute = document.getElementById("addNewHordeRoute").asInstanceOf[html.Input].value
     
-    val upgradeHoardRoute = document.getElementById("upgradeHoardRoute").asInstanceOf[html.Input].value
+    val upgradeHordeRoute = document.getElementById("upgradeHordeRoute").asInstanceOf[html.Input].value
     val upgradeEverythingRoute = document.getElementById("upgradeEverythingRoute").asInstanceOf[html.Input].value
 
     val goldRoute = document.getElementById("goldRoute").asInstanceOf[html.Input].value
     
     val userInfoRoute = document.getElementById("userInfoRoute").asInstanceOf[html.Input].value
+    val loadHordeRoute = document.getElementById("loadHordeRoute").asInstanceOf[html.Input].value
+    val loadStealingInfoRoute = document.getElementById("loadStealingInfoRoute").asInstanceOf[html.Input].value
+    val loadGoldRoute = document.getElementById("loadGoldRoute").asInstanceOf[html.Input].value
+
     val stealRoute = document.getElementById("stealRoute").asInstanceOf[html.Input].value
     val resetRoute = document.getElementById("resetRoute").asInstanceOf[html.Input].value
+
+
 
     def init(): Unit = {
         println("initializing scala.js")
@@ -43,31 +52,124 @@ object DragonHorde {
 
     @JSExportTopLevel("login")
     def login(): Unit = {
-        println("logging in scalajs... commented out")
-    //    val username = document.getElementById("loginName").asInstanceOf[html.Input].value
-    //    val password = document.getElementById("loginPass").asInstanceOf[html.Input].value
-    //    val data = models.UserData(username,password)
+        println("logging in scalajs")
+        val username = document.getElementById("loginName").asInstanceOf[html.Input].value
+        val password = document.getElementById("loginPass").asInstanceOf[html.Input].value
+        val data = models.UserData(username,password)
 
-    //    FetchJson.fetchPost(validateRoute,csrfToken, data, (bool:Boolean) => {
-    //         if (bool) {            
-    //            document.getElementById("login-section").asInstanceOf[js.Dynamic].hidden = true
-    //            document.getElementById("message-section").asInstanceOf[js.Dynamic].hidden = false
-    //            document.getElementById("login-message").innerHTML = ""
-    //            document.getElementById("create-message").innerHTML = ""
-    //            }
-    //            else {
-    //                document.getElementById("login-message").innerHTML = "Login Failed"
-    //            }
-    //    }, e => {
-    //        println("Fetch error: " + e)
-    //    })
+        FetchJson.fetchPost(validateRoute,csrfToken, data, (bool:Boolean) => {
+             if (bool) {            
+                document.getElementById("login-section").asInstanceOf[js.Dynamic].hidden = true
+                document.getElementById("message-section").asInstanceOf[js.Dynamic].hidden = false
+                document.getElementById("login-message").innerHTML = ""
+                document.getElementById("create-message").innerHTML = ""
+                loadUserInfo()
+                }
+                else {
+                    document.getElementById("login-message").innerHTML = "Login Failed"
+                }
+        }, e => {
+            println("Fetch error: " + e)
+        })
     }
 
     @JSExportTopLevel("createUser")
     def createUser(): Unit = {
-    //    val username = document.getElementById("createName").asInstanceOf[html.Input].value
-    //    val password = document.getElementById("createPass").asInstanceOf[html.Input].value
-    //    val data = models.UserData(username, password)
+        val username = document.getElementById("createName").asInstanceOf[html.Input].value
+        val password = document.getElementById("createPass").asInstanceOf[html.Input].value
+        val data = models.UserData(username, password)
+        FetchJson.fetchPost(createRoute, csrfToken, data, (bool: Boolean) => {
+        if(bool) {
+            document.getElementById("login-section").asInstanceOf[js.Dynamic].hidden = true
+            document.getElementById("message-section").asInstanceOf[js.Dynamic].hidden = false
+            document.getElementById("login-message").innerHTML = ""
+            document.getElementById("create-message").innerHTML = ""
+            document.getElementById("createName").asInstanceOf[html.Input].value = ""
+            document.getElementById("createPass").asInstanceOf[html.Input].value = ""
+            loadUserInfo()
+        } else {
+            document.getElementById("create-message").innerHTML = "User Creation Failed"
+        }
+    }, e => {
+      println("Fetch error: " + e)
+    })
+    println("creating user scalajs")
+  }
+
+  @JSExportTopLevel("logout")
+  def logout():Unit = {
+    FetchJson.fetchGet(logoutRoute, (bool:Boolean) => {
+      document.getElementById("login-section").asInstanceOf[js.Dynamic].hidden = false
+      document.getElementById("horde-section").asInstanceOf[js.Dynamic].hidden = true
+    }, e=> {
+      println("Fetch error " + e)
+    })
+  }
+
+  @JSExportTopLevel("loadUserInfo")
+  def loadUserInfo(): Unit = {
+    println("loading user info scalajs")
+    loadStealingInfo()
+    loadGold()
+    loadHordeInfo()
+  }
+
+  def loadHordeInfo(): Unit = {
+    println("loading hoards info scalajs.")
+    val ul = document.getElementById("horde-section")
+
+    //this currently just has hordes as a list of strings. I think this is okay for now, 
+    //but we should get together to see how exactly we want this
+
+    FetchJson.fetchGet(loadHordeRoute, (hordes: List[String] ) => {
+      for(horde <- hordes) {
+        val li = document.createElement("li")
+        val text = document.createTextNode(horde)
+        li.appendChild(text)
+        ul.appendChild(li)
+      }
+    }, e => {
+      println("Fetch error: " + e)
+    })
+}  
+
+  def loadStealingInfo(): Unit = {
+    println("loading stealing info scalajs.")
+    // Example from tasks 
+
+    //this would currently just display the usernames of the vitcims (all users)
+    val ul = document.getElementById("stealing-section")
+        ul.innerHTML =""
+        FetchJson.fetchGet(loadStealingInfoRoute, (victims:List[String]) => {
+            for(victim <- victims) {
+                       val li = document.createElement("li")
+                        val text = document.createTextNode("steal from: " + victim)
+                        li.appendChild(text)
+                        ul.appendChild(li)
+            }
+        }, e => {
+            println("Fetch error: " + e)
+        })
+  }
+
+  def loadGold(): Unit = {
+    println("loading gold scalajs.")
+    val txt = document.getElementById("goldAmount")
+    txt.innerHTML =""
+    FetchJson.fetchGet(loadGoldRoute, (gold:Double) => {
+      txt.innerHTML = gold.toString()
+        }, e => {
+            println("Fetch error: " + e)
+        })
+  }
+
+  @JSExportTopLevel("stealFromUser")
+  def stealFromUser(): Unit = {
+      println("stealing from user scalajs... Christine has not implemented this yet")
+    
+    //    val username = document.getElementById("user").asInstanceOf[html.Input].value
+    //    val victim = document.getElementById("victim").asInstanceOf[html.Input].value    
+    //    val data = models.StealData(username, victim)
     //    FetchJson.fetchPost(createRoute, csrfToken, data, (bool: Boolean) => {
     //    if(bool) {
     //        document.getElementById("login-section").asInstanceOf[js.Dynamic].hidden = true
@@ -83,41 +185,15 @@ object DragonHorde {
     //}, e => {
     //  println("Fetch error: " + e)
     //})
-    println("creating user scalajs... commented out")
   }
 
-  @JSExportTopLevel("loadUserInfo")
-  def loadUserInfo(): Unit = {
-    println("loading user info scalajs... Christine has not implemented this yet")
-    loadHoardsInfo()
-    loadStealingInfo()
-    loadGold()
-  }
-
-  def loadHoardsInfo(): Unit = {
-    println("loading hoards info scalajs... Christine has not implemented this yet")
-  }  
-
-  def loadStealingInfo(): Unit = {
-      println("loading stealing info scalajs... Christine has not implemented this yet")
-  }
-
-  def loadGold(): Unit = {
-    println("loading gold scalajs... Christine has not implemented this yet")
-  }
-
-  @JSExportTopLevel("stealFromUser")
-  def stealFromUser(): Unit = {
-      println("stealing from user scalajs... Christine has not implemented this yet")
-  }
-
-  @JSExportTopLevel("addToHoard")
-  def addToHoard(): Unit = {
+  @JSExportTopLevel("addToHorde")
+  def addToHorde(): Unit = {
       println("adding to hoard scalajs... Christine has not implemented this yet")
   }
 
-  @JSExportTopLevel("upgradeHoard")
-  def upgradeHoard(): Unit = {
+  @JSExportTopLevel("upgradeHorde")
+  def upgradeHorde(): Unit = {
       println("upgrading hoard scalajs... Christine has not implemented this yet")
   }
 
