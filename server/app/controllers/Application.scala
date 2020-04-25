@@ -65,6 +65,7 @@ class Application @Inject() (protected val dbConfigProvider: DatabaseConfigProvi
     }
   }
 
+  //(Option[Int], Seq[Boolean], Seq[Boolean])
   def getUserInfo = Action.async { implicit request => {
       val userIdOption = request.session.get("userid").map(userid => userid.toInt)
       val emptyInfo = "" //need to know what type that userinfo is
@@ -74,6 +75,7 @@ class Application @Inject() (protected val dbConfigProvider: DatabaseConfigProvi
     }
   }
 
+  //(Int, Int, Int, Double, Double, Double, Boolean)
   def getHoardInfo = Action.async { implicit request => {
       val userIdOption = request.session.get("userid").map(userid => userid.toInt)
       val emptyInfo = "" //need to know what type that userinfo is
@@ -163,7 +165,7 @@ class Application @Inject() (protected val dbConfigProvider: DatabaseConfigProvi
       model.resetAll(userid).map(info => Ok(Json.toJson(info)))
     }.getOrElse(Future.successful(Ok(Json.toJson(false))))
   }}
-  
+
   def logout = Action {
     Redirect(routes.Application.login()).withNewSession
   }

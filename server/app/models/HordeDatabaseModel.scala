@@ -75,6 +75,7 @@ class HordeDatabaseModel(db: Database)(implicit ec: ExecutionContext) {
             (g, h, u)
          }
     }
+    
     def getHoardInfo(userid:Int, hoardType:Int):Future[(Int, Int, Int, Double, Double, Double, Boolean)] = {
         //reult of all hoards with userid and hoardType
         val matches = db.run(Hoard.filter(hoard => hoard.userId === userid && hoard.hoardtype == hoardType).result)
