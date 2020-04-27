@@ -60,7 +60,7 @@ object DragonHorde {
         FetchJson.fetchPost(validateRoute,csrfToken, data, (bool:Boolean) => {
              if (bool) {            
                 document.getElementById("login-section").asInstanceOf[js.Dynamic].hidden = true
-                document.getElementById("message-section").asInstanceOf[js.Dynamic].hidden = false
+                document.getElementById("horde-section").asInstanceOf[js.Dynamic].hidden = false
                 document.getElementById("login-message").innerHTML = ""
                 document.getElementById("create-message").innerHTML = ""
                 loadUserInfo()
@@ -75,13 +75,14 @@ object DragonHorde {
 
     @JSExportTopLevel("createUser")
     def createUser(): Unit = {
+      println("creating user scalajs")
         val username = document.getElementById("createName").asInstanceOf[html.Input].value
         val password = document.getElementById("createPass").asInstanceOf[html.Input].value
         val data = models.UserData(username, password)
         FetchJson.fetchPost(createRoute, csrfToken, data, (bool: Boolean) => {
         if(bool) {
             document.getElementById("login-section").asInstanceOf[js.Dynamic].hidden = true
-            document.getElementById("message-section").asInstanceOf[js.Dynamic].hidden = false
+            document.getElementById("horde-section").asInstanceOf[js.Dynamic].hidden = false
             document.getElementById("login-message").innerHTML = ""
             document.getElementById("create-message").innerHTML = ""
             document.getElementById("createName").asInstanceOf[html.Input].value = ""
@@ -93,7 +94,6 @@ object DragonHorde {
     }, e => {
       println("Fetch error: " + e)
     })
-    println("creating user scalajs")
   }
 
   @JSExportTopLevel("logout")
@@ -165,46 +165,91 @@ object DragonHorde {
 
   @JSExportTopLevel("stealFromUser")
   def stealFromUser(): Unit = {
-      println("stealing from user scalajs... Christine has not implemented this yet")
+      println("stealing from user scalajs")
     
-    //    val username = document.getElementById("user").asInstanceOf[html.Input].value
-    //    val victim = document.getElementById("victim").asInstanceOf[html.Input].value    
-    //    val data = models.StealData(username, victim)
-    //    FetchJson.fetchPost(createRoute, csrfToken, data, (bool: Boolean) => {
-    //    if(bool) {
-    //        document.getElementById("login-section").asInstanceOf[js.Dynamic].hidden = true
-    //        document.getElementById("message-section").asInstanceOf[js.Dynamic].hidden = false
-    //        document.getElementById("login-message").innerHTML = ""
-    //        document.getElementById("create-message").innerHTML = ""
-    //        document.getElementById("createName").asInstanceOf[html.Input].value = ""
-    //        document.getElementById("createPass").asInstanceOf[html.Input].value = ""
-    //        loadGlobalMessages()
-    //    } else {
-    //        document.getElementById("create-message").innerHTML = "User Creation Failed"
-    //    }
-    //}, e => {
-    //  println("Fetch error: " + e)
-    //})
+        val username = document.getElementById("user").asInstanceOf[html.Input].value
+        val victim = document.getElementById("victim").asInstanceOf[html.Input].value    
+        val data = models.StealData(username, victim)
+        FetchJson.fetchPost(stealRoute, csrfToken, data, (bool: Boolean) => {
+        if(bool) {
+            println("successfully stole from " + victim)
+            loadUserInfo()
+        } else {
+            document.getElementById("create-message").innerHTML = "Stealing Failed"
+        }
+    }, e => {
+      println("Fetch error: " + e)
+    })
   }
 
   @JSExportTopLevel("addToHorde")
   def addToHorde(): Unit = {
-      println("adding to hoard scalajs... Christine has not implemented this yet")
+      println("adding to hoard scalajs...")
+      val username = document.getElementById("user").asInstanceOf[html.Input].value
+      val horde = document.getElementById("hode").asInstanceOf[html.Input].value    
+      val data = models.HordeData(username, horde)
+      FetchJson.fetchPost(addToHordeRoute, csrfToken, data, (bool: Boolean) => {
+         if(bool) {
+            println("successfully added to " + horde)
+            loadUserInfo()
+        } else {
+            document.getElementById("create-message").innerHTML = "Adding to horde Failed"
+      }
+    }, e => {
+      println("Fetch error: " + e)
+    })    
   }
 
   @JSExportTopLevel("upgradeHorde")
   def upgradeHorde(): Unit = {
-      println("upgrading hoard scalajs... Christine has not implemented this yet")
+      println("upgrading hoard scalajs...")
+      val username = document.getElementById("user").asInstanceOf[html.Input].value
+      val horde = document.getElementById("hode").asInstanceOf[html.Input].value    
+      val data = models.HordeData(username, horde)
+      FetchJson.fetchPost(upgradeHordeRoute, csrfToken, data, (bool: Boolean) => {
+         if(bool) {
+            println("successfully upgraded " + horde)
+            loadUserInfo()
+        } else {
+            document.getElementById("create-message").innerHTML = "Upgrading Horde Failed"
+      }
+    }, e => {
+      println("Fetch error: " + e)
+    })   
   }
 
   @JSExportTopLevel("upgradeEverything")
   def upgradeEverything(): Unit = {
-      println("upgrading everything scalajs... Christine has yet to implement this")
+      println("upgrading everything scalajs...")
+      val username = document.getElementById("user").asInstanceOf[html.Input].value
+      val data = models.User(username)
+      FetchJson.fetchPost(upgradeEverythingRoute, csrfToken, data, (bool: Boolean) => {
+         if(bool) {
+            println("successfully upgradded eveything")
+            loadUserInfo()
+        } else {
+            document.getElementById("create-message").innerHTML = "User Creation Failed"
+      }
+    }, e => {
+      println("Fetch error: " + e)
+    })   
   }
 
   @JSExportTopLevel("reset")
   def reset(): Unit = {
       println("resetting scalajs... Christine has yet to implement this")
+      val username = document.getElementById("user").asInstanceOf[html.Input].value
+      val data = models.User(username)
+      FetchJson.fetchPost(resetRoute, csrfToken, data, (bool: Boolean) => {
+         if(bool) {
+            println("successfully reset eveything")
+            loadUserInfo()
+        } else {
+            document.getElementById("create-message").innerHTML = "Resetting Failed"
+      }
+    }, e => {
+      println("Fetch error: " + e)
+    })   
   }
 
 }
