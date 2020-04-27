@@ -82,7 +82,7 @@ class HordeDatabaseModel(db: Database)(implicit ec: ExecutionContext) {
         matches.flatMap{ hoardRows => 
             //returns all relevant hoard data if hoard is unlocked (designated by final bool)
             if(hoardRows.head.unlocked) {
-                println(hoardRows.head.unlocked)
+                //println(hoardRows.head.unlocked)
                 Future.successful((hoardRows.head.hoardId, hoardRows.head.cost, hoardRows.head.hoardlevel, 
                                    hoardRows.head.hoarditems, hoardRows.head.productionspeed, hoardRows.head.goldconversionrate,
                                    true))
@@ -90,18 +90,48 @@ class HordeDatabaseModel(db: Database)(implicit ec: ExecutionContext) {
             //returns all 0 and unlocked=false if not unlocked
             //shouldn't ever happen I think
             else {
-                println(hoardRows.head.unlocked)
+                //println(hoardRows.head.unlocked)
                 Future.successful((0,0,0,0,0,0,false))
             }
         }
 
         
     }
-    def getStealingInfo(username:String):Future[String] = Future.successful("hi")
+
+    //returns: Future[(Seq[Int],Seq[String])]
+    //         a list of other userids and usernames, supposedly to be stolen from
+    //I think this may need to be changed later on, but the rest might be handled in stealFromUser
+    def getStealingInfo(username:String):Future[(Seq[Int], Seq[String])] = {
+
+        //var victims = db.run((for {user <- Users if user.userId == userid} yield {hoard.unlocked}).result)
+        var victimIds = db.run((for {user <- Users if !(user.username === username)} yield {user.id}).result)
+        var victimUsns = db.run((for {user <- Users if !(user.username === username)} yield {user.username}).result)
+        for{ 
+            i <- victimIds
+            u <- victimUsns
+         } yield {
+            (i,u)
+         }
+    }
+
     def loadUserInfo(username:String, userid:Int, info:String):Future[Int] = Future.successful(1)
     def loadHoardInfo(username:String, userid:Int, info:String):Future[Int] = Future.successful(1)
     def loadStealingInfo(username:String, userid:Int, info:String):Future[Int] = Future.successful(1)
+
+    //randomly picks a hoard from a user and attempts to steal from them at a given probability
+    /** Concerns:
+      * 
+      * - probability calculation
+      * - probably need to know what hoards the stealing user has (maybe I can do that?)
+      * - given that getHoardInfo currently does not tell you which hoard you are stealing from, should this
+      *       function return which hoard was stolen from in order to display?
+      *       or, should getHoardInfo be the one to pick the hoard to steal from
+      * 
+      */
     def stealFromUser(username:String, stolen:String):Future[Int] = Future.successful(1)
+
+    //this is going to be the exact opposite of create user
+    //need to figure out how to drop members of a db in code
     def resetAll(userid:Int):Future[Boolean] = Future.successful(true)
 
 
@@ -112,7 +142,10 @@ class HordeDatabaseModel(db: Database)(implicit ec: ExecutionContext) {
      *   -- includes coming up with universal upgrades
      * Test createUser
      * Verify getUserInfo with Ren
+     * Test getUserInfo
      * Test getHoardInfo
+     * Test getStealingInfo
+     * Verify getStealingInfo
      * Implement all other unimplemented functions
      * 
      */

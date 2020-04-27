@@ -90,6 +90,7 @@ class Application @Inject() (protected val dbConfigProvider: DatabaseConfigProvi
       val usernameOption = request.session.get("username")
       val emptyInfo = "" //need to know what type that userinfo is
       usernameOption.map { username =>
+        //requesting to be passed userid pls n thenk u -Quentin
         model.getStealingInfo(username).map(info => Ok(Json.toJson(info)))
       }.getOrElse(Future.successful(Ok(Json.toJson(emptyInfo))))
     }
