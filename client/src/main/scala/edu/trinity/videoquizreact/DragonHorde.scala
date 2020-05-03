@@ -37,9 +37,9 @@ object DragonHorde {
     val goldRoute = document.getElementById("goldRoute").asInstanceOf[html.Input].value
     
     val userInfoRoute = document.getElementById("userInfoRoute").asInstanceOf[html.Input].value
-    val loadHordeRoute = document.getElementById("loadHordeRoute").asInstanceOf[html.Input].value
-    val loadStealingInfoRoute = document.getElementById("loadStealingInfoRoute").asInstanceOf[html.Input].value
-    val loadGoldRoute = document.getElementById("loadGoldRoute").asInstanceOf[html.Input].value
+    val getHordeRoute = document.getElementById("loadHordeRoute").asInstanceOf[html.Input].value
+    val getStealingInfoRoute = document.getElementById("loadStealingInfoRoute").asInstanceOf[html.Input].value
+    val getGoldRoute = document.getElementById("loadGoldRoute").asInstanceOf[html.Input].value
 
     val stealRoute = document.getElementById("stealRoute").asInstanceOf[html.Input].value
     val resetRoute = document.getElementById("resetRoute").asInstanceOf[html.Input].value
@@ -107,21 +107,21 @@ object DragonHorde {
   }
 
   @JSExportTopLevel("loadUserInfo")
-  def loadUserInfo(): Unit = {
+  def getUserInfo(): Unit = {
     println("loading user info scalajs")
-    loadStealingInfo()
-    loadGold()
-    loadHordeInfo()
+    getStealingInfo()
+    getGold()
+    getHordeInfo()
   }
 
-  def loadHordeInfo(): Unit = {
+  def getHordeInfo(): Unit = {
     println("loading hoards info scalajs.")
     val ul = document.getElementById("horde-section")
 
     //this currently just has hordes as a list of strings. I think this is okay for now, 
     //but we should get together to see how exactly we want this
 
-    FetchJson.fetchGet(loadHordeRoute, (hordes: List[String] ) => {
+    FetchJson.fetchGet(getHordeRoute, (hordes: List[String] ) => {
       for(horde <- hordes) {
         val li = document.createElement("li")
         val text = document.createTextNode(horde)
@@ -133,14 +133,16 @@ object DragonHorde {
     })
 }  
 
-  def loadStealingInfo(): Unit = {
+//def get horde info: return the information of just one hoard in a tuple in horde database model.
+
+  def getStealingInfo(): Unit = {
     println("loading stealing info scalajs.")
     // Example from tasks 
 
     //this would currently just display the usernames of the vitcims (all users)
     val ul = document.getElementById("stealing-section")
         ul.innerHTML =""
-        FetchJson.fetchGet(loadStealingInfoRoute, (victims:List[String]) => {
+        FetchJson.fetchGet(getStealingInfoRoute, (victims:List[String]) => {
             for(victim <- victims) {
                        val li = document.createElement("li")
                         val text = document.createTextNode("steal from: " + victim)
@@ -152,11 +154,11 @@ object DragonHorde {
         })
   }
 
-  def loadGold(): Unit = {
+  def getGold(): Unit = {
     println("loading gold scalajs.")
     val txt = document.getElementById("goldAmount")
     txt.innerHTML =""
-    FetchJson.fetchGet(loadGoldRoute, (gold:Double) => {
+    FetchJson.fetchGet(getGoldRoute, (gold:Double) => {
       txt.innerHTML = gold.toString()
         }, e => {
             println("Fetch error: " + e)
