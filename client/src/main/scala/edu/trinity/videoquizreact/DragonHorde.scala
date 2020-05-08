@@ -37,14 +37,21 @@ object DragonHorde {
     val goldRoute = document.getElementById("goldRoute").asInstanceOf[html.Input].value
     
     val userInfoRoute = document.getElementById("userInfoRoute").asInstanceOf[html.Input].value
-    val getHordeRoute = document.getElementById("loadHordeRoute").asInstanceOf[html.Input].value
-    val getStealingInfoRoute = document.getElementById("loadStealingInfoRoute").asInstanceOf[html.Input].value
-    val getGoldRoute = document.getElementById("loadGoldRoute").asInstanceOf[html.Input].value
+    val getAllHordesRoute = document.getElementById("getAllHoresRoute").asInstanceOf[html.Input].value
+    val getHordeRoute = document.getElementById("getHordeRoute").asInstanceOf[html.Input].value
+    val getStealingInfoRoute = document.getElementById("getStealingInfoRoute").asInstanceOf[html.Input].value
+    val getGoldRoute = document.getElementById("getGoldRoute").asInstanceOf[html.Input].value
 
     val stealRoute = document.getElementById("stealRoute").asInstanceOf[html.Input].value
     val resetRoute = document.getElementById("resetRoute").asInstanceOf[html.Input].value
 
 
+
+
+    var itemStored = 0
+    var itemIncrement = 0
+
+    case class HordeInfo(id: Int, cost:Int, level:Int, items: Double, productionSpeed: Double, goldConversion: Double)
 
     def init(): Unit = {
         println("initializing scala.js")
@@ -114,14 +121,14 @@ object DragonHorde {
     getHordeInfo()
   }
 
-  def getHordeInfo(): Unit = {
+  def getAllHordesInfo(): Unit = {
     println("loading hoards info scalajs.")
     val ul = document.getElementById("horde-section")
 
     //this currently just has hordes as a list of strings. I think this is okay for now, 
     //but we should get together to see how exactly we want this
 
-    FetchJson.fetchGet(getHordeRoute, (hordes: List[String] ) => {
+    FetchJson.fetchGet(getAllHordesRoute, (hordes: List[String] ) => {
       for(horde <- hordes) {
         val li = document.createElement("li")
         val text = document.createTextNode(horde)
@@ -133,6 +140,12 @@ object DragonHorde {
     })
 }  
 
+def getHordeInfo(): Unit = {
+  println("loading one hoards info scalajs")
+  FetchJson.fetchGet(getHordeRoute, (horde: HordeInfo) => {
+    itemStored = horde.items
+  })
+}
 //def get horde info: return the information of just one hoard in a tuple in horde database model.
 
   def getStealingInfo(): Unit = {
@@ -159,7 +172,7 @@ object DragonHorde {
     val txt = document.getElementById("goldAmount")
     txt.innerHTML =""
     FetchJson.fetchGet(getGoldRoute, (gold:Double) => {
-      txt.innerHTML = gold.toString()
+      txt.innerHTML =  gold.toString()
         }, e => {
             println("Fetch error: " + e)
         })
@@ -184,12 +197,16 @@ object DragonHorde {
     })
   }
 
+  //need to figure out how to do timing thing
   @JSExportTopLevel("addToHorde")
   def addToHorde(): Unit = {
       println("adding to hoard scalajs...")
       val username = document.getElementById("user").asInstanceOf[html.Input].value
-      val horde = document.getElementById("hode").asInstanceOf[html.Input].value    
+      val horde = document.getElementById("horde").asInstanceOf[html.Input].value    
       val data = models.HordeData(username, horde)
+
+      document.getElementById("hordeItems").innerHTML = itemStored.toString
+      //if (timer == its time to update database)
       FetchJson.fetchPost(addToHordeRoute, csrfToken, data, (bool: Boolean) => {
          if(bool) {
             println("successfully added to " + horde)
