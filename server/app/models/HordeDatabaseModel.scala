@@ -69,8 +69,8 @@ class HordeDatabaseModel(db: Database)(implicit ec: ExecutionContext) {
         
     private val hoardUpgradeCosts = List[Int](25, 300, 4000, 7000, 20000, 100000)
         //might be a double
-    private val hoardUpgradeNewSpeeds = List[Int](1, 4, 4, 7, 12, 20)
-    private val hoardUpgradeGoldMultipliers = List[Int](1, 1, 2, 1, 1, 1)
+    private val hoardUpgradeNewSpeeds = List[Double](1, 4, 4, 7, 12, 20)
+    private val hoardUpgradeGoldMultipliers = List[Double](1, 1, 2, 1, 1, 1)
 
 
     //universal upgrades
@@ -145,22 +145,26 @@ class HordeDatabaseModel(db: Database)(implicit ec: ExecutionContext) {
         Future.successful(true)
     }
 
-    def getUserInfo(userid:Int):Future[(Option[Int], Seq[Boolean], Seq[Boolean])] =
+    def getUserInfo(userid:Int):Future[(Option[Int], Seq[Boolean])] =
     {
         //get basic user data
             //currently an option, could not be
         var gold = db.run((for {user <- Users if user.id === userid} yield {user.gold}).result).map(userRows => userRows.headOption)
-        //unlocked hoards
-        var hoards = db.run((for {hoard <- Hoard if hoard.userId == userid} yield {hoard.unlocked}).result)
         //unlocked universal upgrades
         var upgrades = db.run((for {uUpgrade <- Univupgrades if uUpgrade.userId == userid} yield {uUpgrade.unlocked}).result)
         for{ 
             g <- gold
-            h <- hoards
             u <- upgrades
          } yield {
-            (g, h, u)
+            (g, u)
          }
+    }
+
+    def getAllHordesInfo(userid:Int):Future[Seq[Boolean]] =
+    {
+        //unlocked hoards
+        var hoards = db.run((for {hoard <- Hoard if hoard.userId == userid} yield {hoard.unlocked}).result)
+        for{ h <- hoards } yield { h }
     }
     
     //returns: Future[(Int, Int, Int, Double, Double, Double, Boolean)]
@@ -228,13 +232,13 @@ class HordeDatabaseModel(db: Database)(implicit ec: ExecutionContext) {
      * 
      * Test validateUser
      * Finish createUser
-     *   -- includes coming up with universal upgrades
+     *   -- refactor universal upgrades
      * Test createUser
      * Verify getUserInfo with Ren
      * Test getUserInfo
+     * Add HoardUpgrades to getHoardInfo
      * Test getHoardInfo
      * Test getStealingInfo
-     * Verify getStealingInfo
      * Implement all other unimplemented functions
      * 
      */
