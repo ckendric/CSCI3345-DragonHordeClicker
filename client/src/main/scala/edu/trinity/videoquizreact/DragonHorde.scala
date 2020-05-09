@@ -16,6 +16,8 @@ import play.api.libs.json.JsSuccess
 import scala.scalajs.js.annotation.JSExportTopLevel
 import scalajs.js
 import models.ReadsAndWrites._
+import java.util.concurrent._
+import netscape.javascript.JSException
 
 object DragonHorde {
 
@@ -27,22 +29,23 @@ object DragonHorde {
     val logoutRoute = document.getElementById("logoutRoute").asInstanceOf[html.Input].value
 
 
-    val hoardRoute = document.getElementById("hoardRoute").asInstanceOf[html.Input].value
+    val loadHordeRoute = document.getElementById("loadHordeRoute").asInstanceOf[html.Input].value
     val addToHordeRoute = document.getElementById("addToHordeRoute").asInstanceOf[html.Input].value
     val addNewHordeRoute = document.getElementById("addNewHordeRoute").asInstanceOf[html.Input].value
+    val addGoldRoute = document.getElementById("addGoldRoute").asInstanceOf[html.Input].value
     
     val upgradeHordeRoute = document.getElementById("upgradeHordeRoute").asInstanceOf[html.Input].value
-    val upgradeEverythingRoute = document.getElementById("upgradeEverythingRoute").asInstanceOf[html.Input].value
+    val upgradeUniversalRoute = document.getElementById("upgradeUniversalRoute").asInstanceOf[html.Input].value
 
     val goldRoute = document.getElementById("goldRoute").asInstanceOf[html.Input].value
     
     val userInfoRoute = document.getElementById("userInfoRoute").asInstanceOf[html.Input].value
-    val getAllHordesRoute = document.getElementById("getAllHoresRoute").asInstanceOf[html.Input].value
-    val getHordeRoute = document.getElementById("getHordeRoute").asInstanceOf[html.Input].value
+    val getAllHordesRoute = document.getElementById("getAllHordesRoute").asInstanceOf[html.Input].value
+    val getHordeInfoRoute = document.getElementById("getHordeInfoRoute").asInstanceOf[html.Input].value
     val getStealingInfoRoute = document.getElementById("getStealingInfoRoute").asInstanceOf[html.Input].value
     val getGoldRoute = document.getElementById("getGoldRoute").asInstanceOf[html.Input].value
 
-    val stealRoute = document.getElementById("stealRoute").asInstanceOf[html.Input].value
+    val loadStealRoute = document.getElementById("loadStealRoute").asInstanceOf[html.Input].value
     val resetRoute = document.getElementById("resetRoute").asInstanceOf[html.Input].value
 
 
@@ -50,6 +53,25 @@ object DragonHorde {
 
     var itemStored = 0
     var itemIncrement = 0
+
+
+    //delayed and timed updating to database... how to get this to start when people log in?
+    val ex = new ScheduledThreadPoolExecutor(1)
+    val autoUpdate = new Runnable { 
+      def run() = (itemStored += itemIncrement*100) 
+    }
+    val f = ex.scheduleAtFixedRate(autoUpdate, 1, 1, TimeUnit.SECONDS)
+    f.cancel(false)
+
+    val exec = new ScheduledExecutorService(2)
+    val loadUpdate = new Runnable { 
+      def run() = loadHordeData()
+    }
+    val t = exec.scheduleAtFixedRate(loadUpdate, 30, 30, TimeUnit.SECONDS)
+    t.cancel(false)
+
+
+
 
     case class HordeInfo(id: Int, cost:Int, level:Int, items: Double, productionSpeed: Double, goldConversion: Double)
 
@@ -70,7 +92,7 @@ object DragonHorde {
                 document.getElementById("horde-section").asInstanceOf[js.Dynamic].hidden = false
                 document.getElementById("login-message").innerHTML = ""
                 document.getElementById("create-message").innerHTML = ""
-                loadUserInfo()
+                getUserInfo()
                 }
                 else {
                     document.getElementById("login-message").innerHTML = "Login Failed"
@@ -142,8 +164,9 @@ object DragonHorde {
 
 def getHordeInfo(): Unit = {
   println("loading one hoards info scalajs")
-  FetchJson.fetchGet(getHordeRoute, (horde: HordeInfo) => {
+  FetchJson.fetchGet(getHordeInfoRoute, (horde: HordeInfo) => {
     itemStored = horde.items
+    itemIncrement = horde.level * 100
   })
 }
 //def get horde info: return the information of just one hoard in a tuple in horde database model.
@@ -167,6 +190,7 @@ def getHordeInfo(): Unit = {
         })
   }
 
+  //gets the user's gold amount
   def getGold(): Unit = {
     println("loading gold scalajs.")
     val txt = document.getElementById("goldAmount")
@@ -178,14 +202,21 @@ def getHordeInfo(): Unit = {
         })
   }
 
+  //loadUserInfo
+  //loadHordeInfo
+
+  //how much gold they have, what hoards they have -- info with all hoards, universal upgrades.
+
+
+  //loads info to database when a user clicks on somebody to steal from
   @JSExportTopLevel("stealFromUser")
-  def stealFromUser(): Unit = {
+  def loadSteal(): Unit = {
       println("stealing from user scalajs")
     
         val username = document.getElementById("user").asInstanceOf[html.Input].value
         val victim = document.getElementById("victim").asInstanceOf[html.Input].value    
         val data = models.StealData(username, victim)
-        FetchJson.fetchPost(stealRoute, csrfToken, data, (bool: Boolean) => {
+        FetchJson.fetchPost(loadStealRoute, csrfToken, data, (bool: Boolean) => {
         if(bool) {
             println("successfully stole from " + victim)
             loadUserInfo()
@@ -197,7 +228,28 @@ def getHordeInfo(): Unit = {
     })
   }
 
-  //need to figure out how to do timing thing
+
+  //should be sure to also save the gold amount into the database in the controller
+  @JSExportTopLevel("addGold")
+  def addGold(): Unit = {
+    println("loading gold scalajs")
+    val username = document.getElementById("user").asInstanceOf[html.Input].value
+    val data = models.UserData(username)
+    loadHordeInfo()
+
+    FetchJson.fetchPost(addGoldRoute, data, (bool: Boolean) => {
+      if (bool) {
+        getUserInfo()
+      }
+      else {
+        println("adding gold failed")
+      }
+    }, e => {
+      prtinlnt("Fetch error: " + e)
+    })
+  }
+
+  //updates interface when user clicks on adding to a horde
   @JSExportTopLevel("addToHorde")
   def addToHorde(): Unit = {
       println("adding to hoard scalajs...")
@@ -205,9 +257,24 @@ def getHordeInfo(): Unit = {
       val horde = document.getElementById("horde").asInstanceOf[html.Input].value    
       val data = models.HordeData(username, horde)
 
+      itemsStored += 1
+      document.getElementById("hordeItems").innerHTML = itemStored.toString
+      
+  }
+
+
+  //updates database at increments
+  @JSExportTopLevel("loadHorde")
+  def loadHorde(): Unit = {
+      println("adding to hoard scalajs...")
+      val username = document.getElementById("user").asInstanceOf[html.Input].value
+      val horde = document.getElementById("horde").asInstanceOf[html.Input].value    
+      val data = models.HordeData(username, horde)
+
+      itemsStored += 1
       document.getElementById("hordeItems").innerHTML = itemStored.toString
       //if (timer == its time to update database)
-      FetchJson.fetchPost(addToHordeRoute, csrfToken, data, (bool: Boolean) => {
+      FetchJson.fetchPost(loadHordeRoute, csrfToken, data, (bool: Boolean) => {
          if(bool) {
             println("successfully added to " + horde)
             loadUserInfo()
@@ -219,6 +286,8 @@ def getHordeInfo(): Unit = {
     })    
   }
 
+
+  //tells the databasae that the user wants to perform
   @JSExportTopLevel("upgradeHorde")
   def upgradeHorde(): Unit = {
       println("upgrading hoard scalajs...")
@@ -237,12 +306,13 @@ def getHordeInfo(): Unit = {
     })   
   }
 
+  //tells the database that the user wants to perform a universal upgrade
   @JSExportTopLevel("upgradeEverything")
-  def upgradeEverything(): Unit = {
+  def upgradeUniversal(): Unit = {
       println("upgrading everything scalajs...")
       val username = document.getElementById("user").asInstanceOf[html.Input].value
       val data = models.User(username)
-      FetchJson.fetchPost(upgradeEverythingRoute, csrfToken, data, (bool: Boolean) => {
+      FetchJson.fetchPost(upgradeUniversalRoute, csrfToken, data, (bool: Boolean) => {
          if(bool) {
             println("successfully upgradded eveything")
             loadUserInfo()
@@ -254,6 +324,7 @@ def getHordeInfo(): Unit = {
     })   
   }
 
+  //tells the database that the user wants to reset their database
   @JSExportTopLevel("reset")
   def reset(): Unit = {
       println("resetting scalajs... Christine has yet to implement this")
