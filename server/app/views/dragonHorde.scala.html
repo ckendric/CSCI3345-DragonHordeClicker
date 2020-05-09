@@ -98,4 +98,29 @@
 				</div>
 		</div>
 </div>
+
+<input type="hidden" id="csrfToken" value="@helper.CSRF.getToken.value">
+<input type="hidden" id="createRoute" value="@routes.Application.createUser">
+<input type="hidden" id="validateRoute" value="@routes.Application.validateUser">
+<input type="hidden" id="logoutRoute" value="@routes.Application.logout">
+
+<input type="hidden" id="loadHordeRoute" value="@routes.Application.loadHoardInfo">
+<input type="hidden" id="addToHordeRoute" value="">
+<input type="hidden" id="addNewHordeRoute" value="">
+<input type="hidden" id="addGoldRoute" value="">
+
+<input type="hidden" id="upgradeHordeRoute" value="">
+<input type="hidden" id="upgradeUniversalRoute" value="">
+
+<input type="hidden" id="goldRoute" value="">
+
+<input type="hidden" id="userInfoRoute" value="@routes.Application.getUserInfo">
+<input type="hidden" id="getAllHordesRoute" value="@routes.Application.getAllHoardsInfo">
+<input type="hidden" id="getHordeInfoRoute" value="@routes.Application.getHoardInfo">
+<input type="hidden" id="getStealingInfoRoute" value="@routes.Application.getStealingInfo">
+<input type="hidden" id="getGoldRoute" value="">
+
+<input type="hidden" id="loadStealRoute" value="@routes.Application.loadStealingInfo">
+<input type="hidden" id="resetRoute" value="@routes.Application.resetUser">
+
 }
