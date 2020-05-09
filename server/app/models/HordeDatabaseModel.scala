@@ -76,6 +76,8 @@ class HordeDatabaseModel(db: Database)(implicit ec: ExecutionContext) {
          }
     }
     
+    //returns: Future[(Int, Int, Int, Double, Double, Double, Boolean)]
+    //    get all information for one of the user's hoards when said hoard is selected
     def getHoardInfo(userid:Int, hoardType:Int):Future[(Int, Int, Int, Double, Double, Double, Boolean)] = {
         //reult of all hoards with userid and hoardType
         val matches = db.run(Hoard.filter(hoard => hoard.userId === userid && hoard.hoardtype == hoardType).result)
@@ -114,6 +116,7 @@ class HordeDatabaseModel(db: Database)(implicit ec: ExecutionContext) {
          }
     }
 
+    
     def loadUserInfo(username:String, userid:Int, info:String):Future[Int] = Future.successful(1)
     def loadHoardInfo(username:String, userid:Int, info:String):Future[Int] = Future.successful(1)
     def loadStealingInfo(username:String, userid:Int, info:String):Future[Int] = Future.successful(1)
@@ -121,11 +124,10 @@ class HordeDatabaseModel(db: Database)(implicit ec: ExecutionContext) {
     //randomly picks a hoard from a user and attempts to steal from them at a given probability
     /** Concerns:
       * 
-      * - probability calculation
+      * - probability calculation: randomise how many items to be stolen
+      * - gaussian random multiplied by how much in the hoard
       * - probably need to know what hoards the stealing user has (maybe I can do that?)
-      * - given that getHoardInfo currently does not tell you which hoard you are stealing from, should this
-      *       function return which hoard was stolen from in order to display?
-      *       or, should getHoardInfo be the one to pick the hoard to steal from
+      * - reurn how much was stolen from which hoard
       * 
       */
     def stealFromUser(username:String, stolen:String):Future[Int] = Future.successful(1)
