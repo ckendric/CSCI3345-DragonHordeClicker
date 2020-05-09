@@ -88,8 +88,9 @@ object DragonHorde {
 
         FetchJson.fetchPost(validateRoute,csrfToken, data, (bool:Boolean) => {
              if (bool) {            
-                document.getElementById("login-section").asInstanceOf[js.Dynamic].hidden = true
-                document.getElementById("horde-section").asInstanceOf[js.Dynamic].hidden = false
+                document.getElementById("login").asInstanceOf[js.Dynamic].hidden = true
+                document.getElementById("createUser").asInstanceOf[js.Dynamic].hidden = true
+                document.getElementById("dragonHorde").asInstanceOf[js.Dynamic].hidden = false
                 document.getElementById("login-message").innerHTML = ""
                 document.getElementById("create-message").innerHTML = ""
                 getUserInfo()
@@ -110,8 +111,8 @@ object DragonHorde {
         val data = models.UserData(username, password)
         FetchJson.fetchPost(createRoute, csrfToken, data, (bool: Boolean) => {
         if(bool) {
-            document.getElementById("login-section").asInstanceOf[js.Dynamic].hidden = true
-            document.getElementById("horde-section").asInstanceOf[js.Dynamic].hidden = false
+            document.getElementById("login").asInstanceOf[js.Dynamic].hidden = true
+            document.getElementById("dragonHorde").asInstanceOf[js.Dynamic].hidden = false
             document.getElementById("login-message").innerHTML = ""
             document.getElementById("create-message").innerHTML = ""
             document.getElementById("createName").asInstanceOf[html.Input].value = ""
