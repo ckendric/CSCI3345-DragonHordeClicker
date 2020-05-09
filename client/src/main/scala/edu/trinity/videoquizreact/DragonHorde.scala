@@ -114,7 +114,7 @@ object DragonHorde {
             document.getElementById("login").asInstanceOf[js.Dynamic].hidden = true
             document.getElementById("dragonHorde").asInstanceOf[js.Dynamic].hidden = false
             document.getElementById("createUser").asInstanceOf[js.Dynamic].hidden = true
-            loadUserInfo()
+            getUserInfo()
         } else {
             document.getElementById("create-message").innerHTML = "User Creation Failed"
         }
@@ -143,13 +143,12 @@ object DragonHorde {
     getAllHordesInfo()
     getHordeUpgrades()
 
-    FetchJson.fetchGet(getUserInfoRoute, (gold: Int, universalUpgrade: List[String]) => {
+    FetchJson.fetchGet(getUserInfoRoute, ((gold: Int, universalUpgrade: List[String])) => {
       document.getElementById("gold").innerHTML = gold.toString
       for (upgrades <- universalUpgrade) {
         val li = document.createElement("li")
-        val text = document.createTextNode()
+        val text = document.createTextNode(upgrades)
       }
-
     }, e => {
       println("Fetch error: " + e)
     }) 
@@ -180,7 +179,9 @@ def getHordeUpgrades(): Unit = {
 
   FetchJson.fetchGet(getHordeUpgradesRoute, (upgrades: List[String]) => {
     println("got it. How do we want to display it")
-  })
+  }, e => {
+      println("Fetch error: " + e)
+    })
 }
 
 def getHordeInfo(): Unit = {
@@ -189,7 +190,9 @@ def getHordeInfo(): Unit = {
     itemStored = horde.items
     itemIncrement = horde.productionSpeed
     goldConv = horde.goldConversion
-  })
+  }, e => {
+      println("Fetch error: " + e)
+    })
 }
 //def get horde info: return the information of just one hoard in a tuple in horde database model.
 
@@ -313,7 +316,7 @@ def getHordeInfo(): Unit = {
       println("upgrading hoard scalajs...")
       val username = document.getElementById("user").asInstanceOf[html.Input].value
       val horde = document.getElementById("hode").asInstanceOf[html.Input].value    
-      val data = models.HordeData(username, horde)
+      val data = models.HordeData(username, horde, itemStored)
       FetchJson.fetchPost(upgradeHordeRoute, csrfToken, data, (bool: Boolean) => {
          if(bool) {
             println("successfully upgraded " + horde)
