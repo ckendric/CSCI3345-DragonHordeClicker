@@ -68,38 +68,35 @@ trait Tables {
   /** Entity class storing rows of table Hoardupgrade
    *  @param hoardupgradeId Database column hoardupgrade_id SqlType(serial), AutoInc, PrimaryKey
    *  @param hoardId Database column hoard_id SqlType(int4)
-   *  @param description Database column description SqlType(varchar), Length(10000,true), Default(None)
+   *  @param upgradeno Database column upgradeno SqlType(int4)
    *  @param cost Database column cost SqlType(int4)
    *  @param unlocked Database column unlocked SqlType(bool)
-   *  @param additave Database column additave SqlType(float8)
-   *  @param multiplier Database column multiplier SqlType(float8)
+   *  @param newspeed Database column newspeed SqlType(float8)
    *  @param goldmultiplier Database column goldmultiplier SqlType(float8) */
-  case class HoardupgradeRow(hoardupgradeId: Int, hoardId: Int, description: Option[String] = None, cost: Int, unlocked: Boolean, additave: Double, multiplier: Double, goldmultiplier: Double)
+  case class HoardupgradeRow(hoardupgradeId: Int, hoardId: Int, upgradeno: Int, cost: Int, unlocked: Boolean, newspeed: Double, goldmultiplier: Double)
   /** GetResult implicit for fetching HoardupgradeRow objects using plain SQL queries */
-  implicit def GetResultHoardupgradeRow(implicit e0: GR[Int], e1: GR[Option[String]], e2: GR[Boolean], e3: GR[Double]): GR[HoardupgradeRow] = GR{
+  implicit def GetResultHoardupgradeRow(implicit e0: GR[Int], e1: GR[Boolean], e2: GR[Double]): GR[HoardupgradeRow] = GR{
     prs => import prs._
-    HoardupgradeRow.tupled((<<[Int], <<[Int], <<?[String], <<[Int], <<[Boolean], <<[Double], <<[Double], <<[Double]))
+    HoardupgradeRow.tupled((<<[Int], <<[Int], <<[Int], <<[Int], <<[Boolean], <<[Double], <<[Double]))
   }
   /** Table description of table hoardupgrade. Objects of this class serve as prototypes for rows in queries. */
   class Hoardupgrade(_tableTag: Tag) extends profile.api.Table[HoardupgradeRow](_tableTag, "hoardupgrade") {
-    def * = (hoardupgradeId, hoardId, description, cost, unlocked, additave, multiplier, goldmultiplier) <> (HoardupgradeRow.tupled, HoardupgradeRow.unapply)
+    def * = (hoardupgradeId, hoardId, upgradeno, cost, unlocked, newspeed, goldmultiplier) <> (HoardupgradeRow.tupled, HoardupgradeRow.unapply)
     /** Maps whole row to an option. Useful for outer joins. */
-    def ? = ((Rep.Some(hoardupgradeId), Rep.Some(hoardId), description, Rep.Some(cost), Rep.Some(unlocked), Rep.Some(additave), Rep.Some(multiplier), Rep.Some(goldmultiplier))).shaped.<>({r=>import r._; _1.map(_=> HoardupgradeRow.tupled((_1.get, _2.get, _3, _4.get, _5.get, _6.get, _7.get, _8.get)))}, (_:Any) =>  throw new Exception("Inserting into ? projection not supported."))
+    def ? = ((Rep.Some(hoardupgradeId), Rep.Some(hoardId), Rep.Some(upgradeno), Rep.Some(cost), Rep.Some(unlocked), Rep.Some(newspeed), Rep.Some(goldmultiplier))).shaped.<>({r=>import r._; _1.map(_=> HoardupgradeRow.tupled((_1.get, _2.get, _3.get, _4.get, _5.get, _6.get, _7.get)))}, (_:Any) =>  throw new Exception("Inserting into ? projection not supported."))
 
     /** Database column hoardupgrade_id SqlType(serial), AutoInc, PrimaryKey */
     val hoardupgradeId: Rep[Int] = column[Int]("hoardupgrade_id", O.AutoInc, O.PrimaryKey)
     /** Database column hoard_id SqlType(int4) */
     val hoardId: Rep[Int] = column[Int]("hoard_id")
-    /** Database column description SqlType(varchar), Length(10000,true), Default(None) */
-    val description: Rep[Option[String]] = column[Option[String]]("description", O.Length(10000,varying=true), O.Default(None))
+    /** Database column upgradeno SqlType(int4) */
+    val upgradeno: Rep[Int] = column[Int]("upgradeno")
     /** Database column cost SqlType(int4) */
     val cost: Rep[Int] = column[Int]("cost")
     /** Database column unlocked SqlType(bool) */
     val unlocked: Rep[Boolean] = column[Boolean]("unlocked")
-    /** Database column additave SqlType(float8) */
-    val additave: Rep[Double] = column[Double]("additave")
-    /** Database column multiplier SqlType(float8) */
-    val multiplier: Rep[Double] = column[Double]("multiplier")
+    /** Database column newspeed SqlType(float8) */
+    val newspeed: Rep[Double] = column[Double]("newspeed")
     /** Database column goldmultiplier SqlType(float8) */
     val goldmultiplier: Rep[Double] = column[Double]("goldmultiplier")
 

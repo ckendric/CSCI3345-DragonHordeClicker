@@ -30,18 +30,14 @@ CREATE TABLE hoard (
 CREATE TABLE hoardUpgrade (
     hoardUpgrade_id SERIAL PRIMARY KEY,
     hoard_id int4 NOT NULL REFERENCES hoard(hoard_id) ON DELETE CASCADE,
-    description varchar(10000),
+    upgradeNo int NOT NULL,
     cost int NOT NULL,
     unlocked boolean NOT NULL,
-    additave double precision NOT NULL,
-    multiplier double precision NOT NULL,
+    newSpeed double precision NOT NULL,
     goldMultiplier double precision NOT NULL
 );
--- additave: for the initial upgrade that starts auto-generation. 
---      if the upgrade is for auto generation it will add its value to the initial 0 production speed of a hoard
---      otherwise it will be 0
--- multiplier: for any multipliers to production speed.
---      if the hoard does not influence upgrade speed, set to 0
+-- newSpeed: the new production speed that will be assigned when the upgrade is unlocked
+--      universal upgrade speed must be re-multipled out
 -- goldMultiplier: multiplier for the gold conversion rate of a hoard
 --      value of less than 1 usually
 --      if upgrade does not influence gold conversion, set to 0
