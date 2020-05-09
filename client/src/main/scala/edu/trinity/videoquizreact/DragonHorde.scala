@@ -150,6 +150,8 @@ object DragonHorde {
         val text = document.createTextNode()
       }
 
+    }, e => {
+      println("Fetch error: " + e)
     }) 
   }
 
