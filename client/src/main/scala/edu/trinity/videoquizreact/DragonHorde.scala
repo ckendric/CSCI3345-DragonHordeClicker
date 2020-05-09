@@ -17,6 +17,7 @@ import scala.scalajs.js.annotation.JSExportTopLevel
 import scalajs.js
 import models.ReadsAndWrites._
 import java.util.concurrent._
+import scalajs.js.timers
 
 object DragonHorde {
 
@@ -52,10 +53,11 @@ object DragonHorde {
 
 
     var itemStored = 0
-    var itemIncrement = 0
-    var goldConv = 0
+    var itemIncrement = 0.0
+    var goldConv = 0.0
     var goldTotal = 0
 
+    
 
     //delayed and timed updating to database... how to get this to start when people log in?
     //val ex = new ScheduledThreadPoolExecutor(1)
@@ -75,7 +77,7 @@ object DragonHorde {
 
 
 
-    case class HordeInfo(id: Int, cost:Int, level:Int, items: Double, productionSpeed: Double, goldConversion: Double)
+
 
     def init(): Unit = {
         println("initializing scala.js")
@@ -143,11 +145,11 @@ object DragonHorde {
     getAllHordesInfo()
     getHordeUpgrades()
 
-    FetchJson.fetchGet(getUserInfoRoute, ((gold: Int, universalUpgrade: List[String])) => {
-      document.getElementById("gold").innerHTML = gold.toString
-      for (upgrades <- universalUpgrade) {
+    FetchJson.fetchGet(getUserInfoRoute, (gold: (Int, List[String])) => {
+      document.getElementById("gold").innerHTML = gold._1.toString
+      for (upgrade <- gold._2) {
         val li = document.createElement("li")
-        val text = document.createTextNode(upgrades)
+        val text = document.createTextNode(upgrade)
       }
     }, e => {
       println("Fetch error: " + e)
@@ -182,14 +184,17 @@ def getHordeUpgrades(): Unit = {
   }, e => {
       println("Fetch error: " + e)
     })
+
 }
+
+//(id: Int, cost:Int, level:Int, items: Double, productionSpeed: Double, goldConversion: Double)
 
 def getHordeInfo(): Unit = {
   println("loading one hoards info scalajs")
-  FetchJson.fetchGet(getHordeInfoRoute, (horde: HordeInfo) => {
-    itemStored = horde.items
-    itemIncrement = horde.productionSpeed
-    goldConv = horde.goldConversion
+  FetchJson.fetchGet(getHordeInfoRoute, (horde: (Int, Int, Int, Double, Double, Double)) => {
+    itemStored = horde._3
+    itemIncrement = horde._5
+    goldConv = horde._6
   }, e => {
       println("Fetch error: " + e)
     })
@@ -220,7 +225,7 @@ def getHordeInfo(): Unit = {
     println("loading gold scalajs.")
     val txt = document.getElementById("goldAmount")
     txt.innerHTML =""
-    FetchJson.fetchGet(getGoldRoute, (gold:Double) => {
+    FetchJson.fetchGet(getGoldRoute, (gold:Int) => {
       goldTotal = gold
       txt.innerHTML =  gold.toString()
         }, e => {
@@ -242,7 +247,7 @@ def getHordeInfo(): Unit = {
         FetchJson.fetchPost(loadStealRoute, csrfToken, data, (bool: Boolean) => {
         if(bool) {
             println("successfully stole from " + victim)
-            loadUserInfo()
+            getUserInfo()
         } else {
             document.getElementById("create-message").innerHTML = "Stealing Failed"
         }
@@ -261,10 +266,10 @@ def getHordeInfo(): Unit = {
     getHordeInfo()
     var gold = goldTotal
     //amount of gold we should have
-    gold += (itemStored * goldConv)
+    gold += (itemStored * goldConv).toInt
     itemStored = 0
     val data = models.GoldData(username,gold)
-    FetchJson.fetchPost(addGoldRoute, data, (bool: Boolean) => {
+    FetchJson.fetchPost(addGoldRoute, csrfToken,data, (bool: Boolean) => {
       if (bool) {
         getUserInfo()
       }
@@ -272,7 +277,7 @@ def getHordeInfo(): Unit = {
         println("adding gold failed")
       }
     }, e => {
-      prtinlnt("Fetch error: " + e)
+        println("Fetch error: " + e)
     })
   }
 
@@ -282,7 +287,7 @@ def getHordeInfo(): Unit = {
       println("adding to hoard scalajs...")
       val username = document.getElementById("user").asInstanceOf[html.Input].value
       val horde = document.getElementById("horde").asInstanceOf[html.Input].value    
-      itemsStored += 1
+      itemStored += 1
       document.getElementById("hordeItems").innerHTML = itemStored.toString
       
   }
@@ -300,7 +305,7 @@ def getHordeInfo(): Unit = {
       FetchJson.fetchPost(loadHordeRoute, csrfToken, data, (bool: Boolean) => {
          if(bool) {
             println("successfully added to " + horde)
-            loadUserInfo()
+            getUserInfo()
         } else {
             document.getElementById("create-message").innerHTML = "Adding to horde Failed"
       }
@@ -320,7 +325,7 @@ def getHordeInfo(): Unit = {
       FetchJson.fetchPost(upgradeHordeRoute, csrfToken, data, (bool: Boolean) => {
          if(bool) {
             println("successfully upgraded " + horde)
-            loadUserInfo()
+            getUserInfo()
         } else {
             document.getElementById("create-message").innerHTML = "Upgrading Horde Failed"
       }
@@ -338,7 +343,7 @@ def getHordeInfo(): Unit = {
       FetchJson.fetchPost(upgradeUniversalRoute, csrfToken, data, (bool: Boolean) => {
          if(bool) {
             println("successfully upgradded eveything")
-            loadUserInfo()
+            getUserInfo()
         } else {
             document.getElementById("create-message").innerHTML = "User Creation Failed"
       }
@@ -356,7 +361,7 @@ def getHordeInfo(): Unit = {
       FetchJson.fetchPost(resetRoute, csrfToken, data, (bool: Boolean) => {
          if(bool) {
             println("successfully reset eveything")
-            loadUserInfo()
+            getUserInfo()
         } else {
             document.getElementById("create-message").innerHTML = "Resetting Failed"
       }

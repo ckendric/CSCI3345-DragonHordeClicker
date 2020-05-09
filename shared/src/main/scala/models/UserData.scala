@@ -8,6 +8,8 @@ case class GoldData(username: String, gold: Int)
 case class HordeData(username: String, hordeName: String, items: Int)
 case class User(username: String)
 case class StealData(username: String, victim: String)
+case class HordeInfo(id: Int, cost:Int, level:Int, items: Double, productionSpeed: Double, goldConversion: Double)
+case class UserInfo(gold: Int,  universalUpgrade: List[String])
 
 object ReadsAndWrites {
     implicit val UserReads = Json.reads[User]
@@ -22,4 +24,8 @@ object ReadsAndWrites {
     implicit val StealDataReads = Json.reads[StealData]
     implicit val GoldDataWrites = Json.writes[GoldData]
     implicit val GoldDataReads = Json.reads[GoldData]
+    implicit val HordeInfoWrites = Json.reads[HordeInfo]
+    implicit val HordeInfoReads = Json.reads[HordeInfo]
+    implicit val UserInfoWrites = Json.reads[UserInfo]
+    implicit val UserInfoReads = Json.reads[UserInfo]
 }
