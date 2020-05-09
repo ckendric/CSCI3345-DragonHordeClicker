@@ -5,7 +5,7 @@ import play.api.libs.json.Json
 case class UserData(username: String, password: String)
 case class UserInfoData(username: String, gold: Double, hordes: List[String])
 case class GoldData(username: String, gold: Int)
-case class HordeData(username: String, hordeName: String)
+case class HordeData(username: String, hordeName: String, items: Int)
 case class User(username: String)
 case class StealData(username: String, victim: String)
 

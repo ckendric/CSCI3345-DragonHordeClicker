@@ -29,7 +29,6 @@ object DragonHorde {
 
 
     val loadHordeRoute = document.getElementById("loadHordeRoute").asInstanceOf[html.Input].value
-    val addToHordeRoute = document.getElementById("addToHordeRoute").asInstanceOf[html.Input].value
     val addNewHordeRoute = document.getElementById("addNewHordeRoute").asInstanceOf[html.Input].value
     val addGoldRoute = document.getElementById("addGoldRoute").asInstanceOf[html.Input].value
     
@@ -278,8 +277,6 @@ def getHordeInfo(): Unit = {
       println("adding to hoard scalajs...")
       val username = document.getElementById("user").asInstanceOf[html.Input].value
       val horde = document.getElementById("horde").asInstanceOf[html.Input].value    
-      val data = models.HordeData(username, horde)
-
       itemsStored += 1
       document.getElementById("hordeItems").innerHTML = itemStored.toString
       
@@ -287,14 +284,12 @@ def getHordeInfo(): Unit = {
 
 
   //updates database at increments
-  @JSExportTopLevel("loadHorde")
   def loadHorde(): Unit = {
       println("adding to hoard scalajs...")
       val username = document.getElementById("user").asInstanceOf[html.Input].value
       val horde = document.getElementById("horde").asInstanceOf[html.Input].value    
-      val data = models.HordeData(username, horde)
+      val data = models.HordeData(username, horde, itemStored)
 
-      itemsStored += 1
       document.getElementById("hordeItems").innerHTML = itemStored.toString
       //if (timer == its time to update database)
       FetchJson.fetchPost(loadHordeRoute, csrfToken, data, (bool: Boolean) => {
