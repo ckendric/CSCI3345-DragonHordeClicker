@@ -20,12 +20,13 @@ class Application @Inject() (protected val dbConfigProvider: DatabaseConfigProvi
   private val model = new HordeDatabaseModel(db)
 
   def index = Action { implicit request =>
-    Ok(views.html.dragonHordeLoginDemo())
+    Ok(views.html.dragonHorde())
   }
-
+/*
   def login = Action { implicit request =>
     Ok(views.html.dragonHordeLoginDemo())
   }
+*/
 
   implicit val userDataReads = Json.reads[UserData]
 
@@ -168,7 +169,7 @@ class Application @Inject() (protected val dbConfigProvider: DatabaseConfigProvi
   }}
 
   def logout = Action {
-    Redirect(routes.Application.login()).withNewSession
+    Redirect(routes.Application.index()).withNewSession
   }
 
   def dragonHordeLoginDemo = Action {
