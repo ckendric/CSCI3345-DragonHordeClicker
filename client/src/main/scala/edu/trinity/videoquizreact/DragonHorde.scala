@@ -17,7 +17,6 @@ import scala.scalajs.js.annotation.JSExportTopLevel
 import scalajs.js
 import models.ReadsAndWrites._
 import java.util.concurrent._
-import netscape.javascript.JSException
 
 object DragonHorde {
 
@@ -44,6 +43,8 @@ object DragonHorde {
     val getHordeInfoRoute = document.getElementById("getHordeInfoRoute").asInstanceOf[html.Input].value
     val getStealingInfoRoute = document.getElementById("getStealingInfoRoute").asInstanceOf[html.Input].value
     val getGoldRoute = document.getElementById("getGoldRoute").asInstanceOf[html.Input].value
+    val getHordeUpgradesRoute = document.getElementById("getHordeUpgradesRoute").asInstanceOf[html.Input].value
+    val getUserInfoRoute = document.getElementById("getUserInfoRoute").asInstanceOf[html.Input].value
 
     val loadStealRoute = document.getElementById("loadStealRoute").asInstanceOf[html.Input].value
     val resetRoute = document.getElementById("resetRoute").asInstanceOf[html.Input].value
@@ -53,22 +54,24 @@ object DragonHorde {
 
     var itemStored = 0
     var itemIncrement = 0
+    var goldConv = 0
+    var goldTotal = 0
 
 
     //delayed and timed updating to database... how to get this to start when people log in?
-    val ex = new ScheduledThreadPoolExecutor(1)
-    val autoUpdate = new Runnable { 
-      def run() = (itemStored += itemIncrement*100) 
-    }
-    val f = ex.scheduleAtFixedRate(autoUpdate, 1, 1, TimeUnit.SECONDS)
-    f.cancel(false)
+    //val ex = new ScheduledThreadPoolExecutor(1)
+    //val autoUpdate = new Runnable { 
+    //  def run() = (itemStored += itemIncrement*100) 
+    //}
+    //val f = ex.scheduleAtFixedRate(autoUpdate, 1, 1, TimeUnit.SECONDS)
+    //f.cancel(false)
 
-    val exec = new ScheduledExecutorService(2)
-    val loadUpdate = new Runnable { 
-      def run() = loadHordeData()
-    }
-    val t = exec.scheduleAtFixedRate(loadUpdate, 30, 30, TimeUnit.SECONDS)
-    t.cancel(false)
+    //val exec = new ScheduledExecutorService(2)
+    //val loadUpdate = new Runnable { 
+    //  def run() = loadHordeData()
+    //}
+    //val t = exec.scheduleAtFixedRate(loadUpdate, 30, 30, TimeUnit.SECONDS)
+    //t.cancel(false)
 
 
 
@@ -91,8 +94,6 @@ object DragonHorde {
                 document.getElementById("login").asInstanceOf[js.Dynamic].hidden = true
                 document.getElementById("createUser").asInstanceOf[js.Dynamic].hidden = true
                 document.getElementById("dragonHorde").asInstanceOf[js.Dynamic].hidden = false
-                document.getElementById("login-message").innerHTML = ""
-                document.getElementById("create-message").innerHTML = ""
                 getUserInfo()
                 }
                 else {
@@ -113,10 +114,7 @@ object DragonHorde {
         if(bool) {
             document.getElementById("login").asInstanceOf[js.Dynamic].hidden = true
             document.getElementById("dragonHorde").asInstanceOf[js.Dynamic].hidden = false
-            document.getElementById("login-message").innerHTML = ""
-            document.getElementById("create-message").innerHTML = ""
-            document.getElementById("createName").asInstanceOf[html.Input].value = ""
-            document.getElementById("createPass").asInstanceOf[html.Input].value = ""
+            document.getElementById("createUser").asInstanceOf[js.Dynamic].hidden = true
             loadUserInfo()
         } else {
             document.getElementById("create-message").innerHTML = "User Creation Failed"
@@ -129,19 +127,31 @@ object DragonHorde {
   @JSExportTopLevel("logout")
   def logout():Unit = {
     FetchJson.fetchGet(logoutRoute, (bool:Boolean) => {
-      document.getElementById("login-section").asInstanceOf[js.Dynamic].hidden = false
-      document.getElementById("horde-section").asInstanceOf[js.Dynamic].hidden = true
+      document.getElementById("login").asInstanceOf[js.Dynamic].hidden = false
+      document.getElementById("dragonHorde").asInstanceOf[js.Dynamic].hidden = true
+      document.getElementById("createUser").asInstanceOf[js.Dynamic].hidden = false
     }, e=> {
       println("Fetch error " + e)
     })
   }
 
-  @JSExportTopLevel("loadUserInfo")
+
+  @JSExportTopLevel("getUserInfo")
   def getUserInfo(): Unit = {
     println("loading user info scalajs")
     getStealingInfo()
-    getGold()
-    getHordeInfo()
+
+    getAllHordesInfo()
+    getHordeUpgrades()
+
+    FetchJson.fetchGet(getUserInfoRoute, (gold: Int, universalUpgrade: List[String]) => {
+      document.getElementById("gold").innerHTML = gold.toString
+      for (upgrades <- universalUpgrade) {
+        val li = document.createElement("li")
+        val text = document.createTextNode()
+      }
+
+    }) 
   }
 
   def getAllHordesInfo(): Unit = {
@@ -161,13 +171,23 @@ object DragonHorde {
     }, e => {
       println("Fetch error: " + e)
     })
-}  
+}
+
+def getHordeUpgrades(): Unit = {
+  println("getting the horde upgrades")
+  // however we want to represent them
+
+  FetchJson.fetchGet(getHordeUpgradesRoute, (upgrades: List[String]) => {
+    println("got it. How do we want to display it")
+  })
+}
 
 def getHordeInfo(): Unit = {
   println("loading one hoards info scalajs")
   FetchJson.fetchGet(getHordeInfoRoute, (horde: HordeInfo) => {
     itemStored = horde.items
-    itemIncrement = horde.level * 100
+    itemIncrement = horde.productionSpeed
+    goldConv = horde.goldConversion
   })
 }
 //def get horde info: return the information of just one hoard in a tuple in horde database model.
@@ -197,14 +217,12 @@ def getHordeInfo(): Unit = {
     val txt = document.getElementById("goldAmount")
     txt.innerHTML =""
     FetchJson.fetchGet(getGoldRoute, (gold:Double) => {
+      goldTotal = gold
       txt.innerHTML =  gold.toString()
         }, e => {
             println("Fetch error: " + e)
         })
   }
-
-  //loadUserInfo
-  //loadHordeInfo
 
   //how much gold they have, what hoards they have -- info with all hoards, universal upgrades.
 
@@ -231,13 +249,17 @@ def getHordeInfo(): Unit = {
 
 
   //should be sure to also save the gold amount into the database in the controller
+  //should calculate the amount of gold.
   @JSExportTopLevel("addGold")
   def addGold(): Unit = {
     println("loading gold scalajs")
     val username = document.getElementById("user").asInstanceOf[html.Input].value
-    val data = models.UserData(username)
-    loadHordeInfo()
-
+    getHordeInfo()
+    var gold = goldTotal
+    //amount of gold we should have
+    gold += (itemStored * goldConv)
+    itemStored = 0
+    val data = models.GoldData(username,gold)
     FetchJson.fetchPost(addGoldRoute, data, (bool: Boolean) => {
       if (bool) {
         getUserInfo()
