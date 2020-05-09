@@ -187,8 +187,34 @@ class HordeDatabaseModel(db: Database)(implicit ec: ExecutionContext) {
                 Future.successful((0,0,0,0,0,0,false))
             }
         }
+    }
+
+    def getHoardUpgradesInfo(userid:Int, hoardType:Int):Future[Seq[(Int, Int, Int, Boolean, Double, Double)]] =
+    {
+        //val matches = db.run(Hoard.filter(hoard => hoard.userId === userid && hoard.hoardtype == hoardType).result)
+        var i = 0;
+        //first get proper hoard ID
+        val hoardID = db.run((for {hoard <- Hoard if hoard.userId === userid && hoard.hoardtype == hoardType} yield {hoard.hoardId}).result)
+        val matches = hoardID.flatMap { ids => db.run(Hoardupgrade.filter(upgrade => upgrade.hoardId === ids.head).result)}
+
+
+        //delete I think
+        var upgrades = db.run((for {uUpgrade <- Univupgrades if uUpgrade.userId == userid} yield {uUpgrade.unlocked}).result)
 
         
+        Future.sequence(for(i <- 1 to 6) 
+        yield {matches.flatMap{ upgradeRows => Future.successful((upgradeRows(i).hoardupgradeId, 
+                                                                  upgradeRows(i).upgradeno, 
+                                                                  upgradeRows(i).cost, 
+                                                                  upgradeRows(i).unlocked, 
+                                                                  upgradeRows(i).newspeed, 
+                                                                  upgradeRows(i).goldmultiplier))}})
+        /*for{
+            m <- matches
+        } yield {
+             (m.hoardupgradeId, m.head.upgradeno, m.head.cost, m.head.unlocked, m.head.newspeed, m.head.goldmultiplier) 
+            }*/
+        //Future.successful(true)
     }
 
     //returns: Future[(Seq[Int],Seq[String])]
@@ -234,9 +260,8 @@ class HordeDatabaseModel(db: Database)(implicit ec: ExecutionContext) {
      * Finish createUser
      *   -- refactor universal upgrades
      * Test createUser
-     * Verify getUserInfo with Ren
      * Test getUserInfo
-     * Add HoardUpgrades to getHoardInfo
+     * create getHoardUpgrades
      * Test getHoardInfo
      * Test getStealingInfo
      * Implement all other unimplemented functions
