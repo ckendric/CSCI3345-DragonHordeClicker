@@ -22,11 +22,6 @@ class Application @Inject() (protected val dbConfigProvider: DatabaseConfigProvi
   def index = Action { implicit request =>
     Ok(views.html.dragonHorde())
   }
-/*
-  def login = Action { implicit request =>
-    Ok(views.html.dragonHordeLoginDemo())
-  }
-*/
 
   implicit val userDataReads = Json.reads[UserData]
 
@@ -76,10 +71,10 @@ class Application @Inject() (protected val dbConfigProvider: DatabaseConfigProvi
     }
   }
 
-  //(Int, Int, Int, Double, Double, Double, Boolean)
+  //HordeInfo(id: Int, cost:Int, level:Int, items: Double, productionSpeed: Double, goldConversion: Double)
   def getHoardInfo = Action.async { implicit request => {
       val userIdOption = request.session.get("userid").map(userid => userid.toInt)
-      val emptyInfo = "" //need to know what type that userinfo is
+      val emptyInfo = (0,0,0,0.0,0.0,0.0) //need to know what type that userinfo is
       val hoardNumber = 0 //need to know which hoard's info is being requested
       userIdOption.map { userid =>
         model.getHoardInfo(userid, hoardNumber).map(info => Ok(Json.toJson(info)))
@@ -87,9 +82,18 @@ class Application @Inject() (protected val dbConfigProvider: DatabaseConfigProvi
     }
   }
 
+  def getAllHoardsInfo = Action.async { implicit request => {
+      val userIdOption = request.session.get("userid").map(userid => userid.toInt)
+      val emptyInfo = List[String]() //need to know what type that userinfo is
+      userIdOption.map { userid =>
+        model.getAllHoardsInfo(userid, hoardNumber).map(info => Ok(Json.toJson(info)))
+      }.getOrElse(Future.successful(Ok(Json.toJson(emptyInfo))))
+    }
+  }
+
   def getStealingInfo = Action.async { implicit request => {
       val usernameOption = request.session.get("username")
-      val emptyInfo = "" //need to know what type that userinfo is
+      val emptyInfo = List[String]() //need to know what type that userinfo is
       usernameOption.map { username =>
         //requesting to be passed userid pls n thenk u -Quentin
         model.getStealingInfo(username).map(info => Ok(Json.toJson(info)))
@@ -152,7 +156,7 @@ class Application @Inject() (protected val dbConfigProvider: DatabaseConfigProvi
     val usernameOption = request.session.get("username")
     usernameOption.map { username =>
       request.body.asJson.map { body =>
-        Json.fromJson[String](body) match {
+        Json.fromJson[Boolean](body) match {
           case JsSuccess(stealUser, path) => //might change what steal info is
             model.stealFromUser(username,stealUser).map(count => Ok(Json.toJson(count > 0)))
           case e @ JsError(_) => Future.successful(Redirect(routes.Application.index()))
