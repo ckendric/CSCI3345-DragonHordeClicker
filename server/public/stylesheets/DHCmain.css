@@ -22,7 +22,7 @@ input {
     font-family: 'Roboto', sans-serif;
 }
 
-#login {
+#login, #createUser {
     position: absolute;
     left: 50%;
     top: 50%;
