@@ -145,8 +145,7 @@ class HordeDatabaseModel(db: Database)(implicit ec: ExecutionContext) {
         Future.successful(true)
     }
 
-    def getUserInfo(userid:Int):Future[(Option[Int], Seq[Boolean])] =
-    {
+    def getUserInfo(userid:Int):Future[(Option[Int], Seq[Boolean])] = {
         //get basic user data
             //currently an option, could not be
         var gold = db.run((for {user <- Users if user.id === userid} yield {user.gold}).result).map(userRows => userRows.headOption)
@@ -160,8 +159,7 @@ class HordeDatabaseModel(db: Database)(implicit ec: ExecutionContext) {
          }
     }
 
-    def getAllHordesInfo(userid:Int):Future[Seq[Boolean]] =
-    {
+    def getAllHordesInfo(userid:Int):Future[Seq[Boolean]] = {
         //unlocked hoards
         var hoards = db.run((for {hoard <- Hoard if hoard.userId == userid} yield {hoard.unlocked}).result)
         for{ h <- hoards } yield { h }
@@ -189,18 +187,12 @@ class HordeDatabaseModel(db: Database)(implicit ec: ExecutionContext) {
         }
     }
 
-    def getHoardUpgradesInfo(userid:Int, hoardType:Int):Future[Seq[(Int, Int, Int, Boolean, Double, Double)]] =
-    {
+    def getHoardUpgradesInfo(userid:Int, hoardType:Int):Future[Seq[(Int, Int, Int, Boolean, Double, Double)]] = {
         //val matches = db.run(Hoard.filter(hoard => hoard.userId === userid && hoard.hoardtype == hoardType).result)
         var i = 0;
         //first get proper hoard ID
         val hoardID = db.run((for {hoard <- Hoard if hoard.userId === userid && hoard.hoardtype == hoardType} yield {hoard.hoardId}).result)
         val matches = hoardID.flatMap { ids => db.run(Hoardupgrade.filter(upgrade => upgrade.hoardId === ids.head).result)}
-
-
-        //delete I think
-        var upgrades = db.run((for {uUpgrade <- Univupgrades if uUpgrade.userId == userid} yield {uUpgrade.unlocked}).result)
-
         
         Future.sequence(for(i <- 1 to 6) 
         yield {matches.flatMap{ upgradeRows => Future.successful((upgradeRows(i).hoardupgradeId, 
@@ -209,12 +201,6 @@ class HordeDatabaseModel(db: Database)(implicit ec: ExecutionContext) {
                                                                   upgradeRows(i).unlocked, 
                                                                   upgradeRows(i).newspeed, 
                                                                   upgradeRows(i).goldmultiplier))}})
-        /*for{
-            m <- matches
-        } yield {
-             (m.hoardupgradeId, m.head.upgradeno, m.head.cost, m.head.unlocked, m.head.newspeed, m.head.goldmultiplier) 
-            }*/
-        //Future.successful(true)
     }
 
     //returns: Future[(Seq[Int],Seq[String])]
@@ -233,11 +219,6 @@ class HordeDatabaseModel(db: Database)(implicit ec: ExecutionContext) {
          }
     }
 
-    
-    def loadUserInfo(username:String, userid:Int, info:String):Future[Int] = Future.successful(1)
-    def loadHoardInfo(username:String, userid:Int, info:String):Future[Int] = Future.successful(1)
-    def loadStealingInfo(username:String, userid:Int, info:String):Future[Int] = Future.successful(1)
-
     //randomly picks a hoard from a user and attempts to steal from them at a given probability
     /** Concerns:
       * 
@@ -247,7 +228,96 @@ class HordeDatabaseModel(db: Database)(implicit ec: ExecutionContext) {
       * - reurn how much was stolen from which hoard
       * 
       */
-    def stealFromUser(username:String, stolen:String):Future[Int] = Future.successful(1)
+    def stealFromUser(userid:Int, username:String, stolen:String):Future[(String, Int)] = {
+        
+        Future.successful(1)
+    }
+
+    def addGold(userid:Int, username:String, newGold:Int):Future[Int] = {
+        val gold = for { u <- Users if user.id === userid} yield u.gold
+        gold.update(newGold).run
+        Future.successful(1)
+    }
+
+    def loadHoardInfo(username:String, userid:Int, items:Int):Future[Int] = {
+        Future.successful(1)
+    }
+
+    /** Process:
+      * 
+      * What I get passed:
+      * 
+      */
+    def upgradeUniversal(userid:Int, username:String, dEFINE:Int):Future[Int] = {
+        Future.successful(1)
+    }
+
+    /** Process:
+      * 1. set new production speed
+      *     -this gets a bit complicated as the speed is also affected by what level the hoard is. The process should be as follows:
+      *         a. reassign the pruction speed to the production speed specified by the upgrade (i.e. the second speed upgrade is 4)
+      *         b. next recalculate the multipliers based on the hoard's level. So take the reassigned speed (i.e. 4) and 
+      *            multiply it by the level of the hoard multiplier * 1.1
+      *            HOWEVER: if the hoard level is currently 0 (the starting hoard level), then do not perform this step
+      *     - a third step might be necessary if we account for the fact that some universal upgrades affect production speed
+      * 2. multiply the hoard's gold conversion rate by the conversion rate multiplier (in most cases, it will be 1)
+      * 3. decrement # of hoard items in the current hoard
+      *     -I think it's hoard items. If these upgrades cost gold, you will have to pass me updated gold as well
+      * 4. set hoardUpgrade unlocked = false
+      * 
+      * What I get passed:
+      * 1. hoardId
+      * 2. hoard productionSpeed
+      * 3. hoard goldConversionRate
+      * 4. upgradeId
+      * 5. upgrade's unlocked boolean value (though I could probably just assume this as True) 
+      * 
+      */
+    def upgradeHoard(userid:Int, username:String, hoardId:Int, newSpeed:Double, newConversionRate:Double, upgradeId:Int, unlocked:Boolean):Future[Int] = {
+        Future.successful(1)
+    }
+
+    /** Process:
+      * 1. increase hoardLevel by 1
+      * 2. multiply production speed of hoard by 1.1
+      * 3. multiply hoard cost by 1.35
+      * 4. decrement gold based on how much it costs to level a hoard up
+      * 
+      * What I get passed:
+      * 1. hoardId
+      * 2. hoardLevel
+      * 3. productionSpeed
+      * 4. hoardCost
+      * 5. user's gold
+      */
+    def levelUpHoard(userid:Int, username:String, hoardId:Int, hoardLv:Int, newSpeed:Double, newCost:Int, newGold:Int):Future[Int] = {
+        Future.successful(1)
+    }
+
+    /** Process:
+      * 1. set unlocked to true on the next hoard up
+      * 2. decrement gold based on how much it costs to buy the new hoard
+      * 
+      * What I get passed:
+      * 1. hoardId
+      *     - you might not have info about the next hoard up since I don't pass info on non-unlocked hoardes
+      *     - therefore you might just have to pass me the current highest hoard+1 for the hoardtype(below)
+      *     - then just call a getHoardInfo to get the new shit
+      * 2. hoardType
+      * 3. unlocked of new hoard (can also probably assume true)
+      * 4. user's gold
+      * 
+      */
+    def unlockNewHoard(userid:Int, username:String, hoardId:Int, hoardType:Int, unlocked:Boolean, newGold:Int):Future[Int] = {
+        Future.successful(1)
+    }
+
+
+    def loadUserInfo(username:String, userid:Int, info:String):Future[Int] = Future.successful(1)
+    
+    def loadStealingInfo(username:String, userid:Int, info:String):Future[Int] = Future.successful(1)
+
+    
 
     //this is going to be the exact opposite of create user
     //need to figure out how to drop members of a db in code
@@ -256,15 +326,16 @@ class HordeDatabaseModel(db: Database)(implicit ec: ExecutionContext) {
 
     /**TO DO:
      * 
+     * make hoard cost into a double
+     * make gold a double
+     * 
      * Test validateUser
-     * Finish createUser
-     *   -- refactor universal upgrades
      * Test createUser
      * Test getUserInfo
-     * create getHoardUpgrades
+     * Test getHoardUpgrades
      * Test getHoardInfo
      * Test getStealingInfo
      * Implement all other unimplemented functions
      * 
-     */
+     */  
 }
