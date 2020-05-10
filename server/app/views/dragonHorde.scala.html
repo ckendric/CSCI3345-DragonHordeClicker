@@ -1,6 +1,6 @@
 @()(implicit request: RequestHeader, flash: Flash)
 
-@main("Dragon Horde Clicker"){
+@DHCmain("Dragon Horde Clicker"){
 	<div id="login">
 		<h2>Dragon Horde</h2>
 		<p>Dragon Horde is a networked clicker game where you're a dragon, and you're hoarding things.</p>
@@ -92,6 +92,8 @@
 		</div>
 </div>
 
+<input type="hidden" id="dragonHorde" value="">
+<input type="hidden" id="hoardID" value="">
 <input type="hidden" id="csrfToken" value="@helper.CSRF.getToken.value">
 <input type="hidden" id="createRoute" value="@routes.Application.createUser">
 <input type="hidden" id="validateRoute" value="@routes.Application.validateUser">
