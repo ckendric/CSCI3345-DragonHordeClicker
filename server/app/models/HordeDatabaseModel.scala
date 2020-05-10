@@ -234,7 +234,7 @@ class HordeDatabaseModel(db: Database)(implicit ec: ExecutionContext) {
     }
 
     def addGold(userid:Int, username:String, newGold:Int):Future[Int] = {
-        val gold = for { u <- Users if u.id === userid} yield u.gold
+        val gold = for { u <- Users if user.id === userid} yield u.gold
         gold.update(newGold).run
         Future.successful(1)
     }
