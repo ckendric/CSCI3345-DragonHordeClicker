@@ -60,11 +60,16 @@ object DragonHorde {
     var hordeLevel = 0
     var cost = 0
     var id = 0
+    var upgradeId = 0
+    var upgradeBool = true
   
 
 
     def init(): Unit = {
         println("initializing scala.js")
+        document.getElementById("login").asInstanceOf[js.Dynamic].hidden = true
+        document.getElementById("createUser").asInstanceOf[js.Dynamic].hidden = true
+        document.getElementById("dragonHorde").asInstanceOf[js.Dynamic].hidden = false
     }
 
     @JSExportTopLevel("login")
@@ -170,6 +175,45 @@ def getHordeUpgrades(): Unit = {
 
 }
 
+def loadOneHorde(horde: String): Unit = {
+      val username = document.getElementById("username").asInstanceOf[html.Input].value
+      val data = models.UserHorde(username, horde)
+
+      document.getElementById("hordeItems").innerHTML = itemStored.toString
+      //if (timer == its time to update database)
+      FetchJson.fetchPost(loadHordeRoute, csrfToken, data, (horde: (Int, Int, Int, Double, Double, Double)) => {
+        itemStored = horde._4
+        itemIncrement = horde._5
+        goldConv = horde._6
+        hordeLevel = horde._3
+        cost = horde._2
+        id = horde._1
+      }, e => {
+          println("Fetch error: " + e)
+    })
+
+    js.timers.setInterval(3) {
+      itemStored += itemIncrement.toInt
+      document.getElementById("hordeItems").innerHTML = itemStored.toString
+    }
+
+    js.timers.setInterval(150) {
+      loadHorde()
+    }
+}
+
+def getHordeUpgradesInfo(horde: String): Unit = {
+      val username = document.getElementById("username").asInstanceOf[html.Input].value
+      val data = models.UserHorde(username, horde)
+      document.getElementById("hordeItems").innerHTML = itemStored.toString
+      //if (timer == its time to update database)
+      FetchJson.fetchPost(loadHordeRoute, csrfToken, data, (upgrades: (Int, Int, Int, Boolean, Double, Double)) => {
+          upgradeId = upgrades._1
+          upgradeBool = upgrades._4
+      }, e => {
+          println("Fetch error: " + e)
+    })
+}
 
 
 //(id: Int, cost:Int, level:Int, items: Double, productionSpeed: Double, goldConversion: Double)
@@ -325,6 +369,19 @@ def getHordeInfo(): Unit = {
     //should have the current highest horde in it already. 
     //
       println("hmm")
+      val username = document.getElementById("username").asInstanceOf[html.Input].value
+      val data = models.GoldData(username,goldTotal)
+      FetchJson.fetchPost(levelUpHordeRoute, csrfToken, data, (bool: Boolean) => {
+        if (bool) {
+          println("successfully leveled up horde")
+          getUserInfo()
+        }
+        else {
+          println("leveling up failed")
+        }
+      }, e => {
+        println("Fetch error: " + e)
+      })
   }
 
   
@@ -357,7 +414,7 @@ def getHordeInfo(): Unit = {
       println("upgrading hoard scalajs...")
       val username = document.getElementById("username").asInstanceOf[html.Input].value
       val horde = document.getElementById("hode").asInstanceOf[html.Input].value    
-      val data = models.HordeData(username, horde, itemStored)
+      val data = models.UpgradeHorde(id, itemIncrement, goldConv, upgradeId, upgradeBool)
       FetchJson.fetchPost(upgradeHordeRoute, csrfToken, data, (bool: Boolean) => {
          if(bool) {
             println("successfully upgraded " + horde)
@@ -391,7 +448,6 @@ def getHordeInfo(): Unit = {
   //tells the database that the user wants to reset their database
   @JSExportTopLevel("reset")
   def reset(): Unit = {
-      println("resetting scalajs... Christine has yet to implement this")
       val username = document.getElementById("username").asInstanceOf[html.Input].value
       val data = models.User(username)
       FetchJson.fetchPost(resetRoute, csrfToken, data, (bool: Boolean) => {
