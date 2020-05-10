@@ -72,6 +72,7 @@ class Application @Inject() (protected val dbConfigProvider: DatabaseConfigProvi
   }
   
   //TODO: define hoardNumber
+  val hoardNumber = 0
   //HordeInfo(id: Int, cost:Int, level:Int, items: Double, productionSpeed: Double, goldConversion: Double, bool)
   def getHoardInfo = Action.async { implicit request => {
       val userIdOption = request.session.get("userid").map(userid => userid.toInt)
