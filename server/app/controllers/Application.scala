@@ -102,21 +102,19 @@ class Application @Inject() (protected val dbConfigProvider: DatabaseConfigProvi
   }
 
   def getStealingInfo = Action.async { implicit request => {
-      val usernameOption = request.session.get("username")
+      val userIdOption = request.session.get("userid").map(userid => userid.toInt)
       val emptyInfo = (Seq[Int](), Seq[String]())//need to know what type that userinfo is
-      usernameOption.map { username =>
-        //requesting to be passed userid pls n thenk u -Quentin
-        model.getStealingInfo(username).map(info => Ok(Json.toJson(info)))
+       userIdOption.map { userid =>
+        model.getStealingInfo(userid).map(info => Ok(Json.toJson(info)))
       }.getOrElse(Future.successful(Ok(Json.toJson(emptyInfo))))
     }
   }
 
   // def getGold = Action.async { implicit request => {
-  //     val usernameOption = request.session.get("username")
+  //     val userIdOption = request.session.get("userid").map(userid => userid.toInt)
   //     val emptyInfo = 0 //need to know what type that userinfo is
-  //     usernameOption.map { username =>
-  //       //requesting to be passed userid pls n thenk u -Quentin
-  //       model.getGold(username).map(info => Ok(Json.toJson(info)))
+  //     userIdOption.map { userid =>
+  //       model.getGold(userid).map(info => Ok(Json.toJson(info)))
   //     }.getOrElse(Future.successful(Ok(Json.toJson(emptyInfo))))
   //   }
   // }
@@ -163,7 +161,7 @@ class Application @Inject() (protected val dbConfigProvider: DatabaseConfigProvi
           Json.fromJson[String](body) match { //info will not be a string; this will change a lot
             case JsSuccess(info,path) =>
               usernameOption.map{ username =>
-                  model.stealFromUser(userid, username, info).map((hoard,count) => Ok(Json.toJson((hoard,count))))
+                  model.stealFromUser(userid, username, info).map(result => Ok(Json.toJson(result)))
               }.getOrElse(Future.successful(Ok(Json.toJson(("",0)))))
             case e @ JsError(_) => Future.successful(Redirect(routes.Application.index()))
           }
@@ -180,7 +178,7 @@ class Application @Inject() (protected val dbConfigProvider: DatabaseConfigProvi
           Json.fromJson[Int](body) match { //info will not be a string; this will change a lot
             case JsSuccess(info,path) =>
               usernameOption.map{ username =>
-                  model.addGold(username, userid, info).map(count => Ok(Json.toJson( count > 0 )))
+                  model.addGold(userid, username, info).map(count => Ok(Json.toJson( count > 0 )))
               }.getOrElse(Future.successful(Ok(Json.toJson(false))))
             case e @ JsError(_) => Future.successful(Redirect(routes.Application.index()))
           }
