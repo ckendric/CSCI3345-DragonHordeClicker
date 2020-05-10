@@ -61,45 +61,64 @@ class Application @Inject() (protected val dbConfigProvider: DatabaseConfigProvi
     }
   }
 
-  //(Option[Int], Seq[Boolean], Seq[Boolean])
+  //(Option[Int], Seq[Boolean])
   def getUserInfo = Action.async { implicit request => {
       val userIdOption = request.session.get("userid").map(userid => userid.toInt)
-      val emptyInfo = "" //need to know what type that userinfo is
+      val emptyInfo = (None,Seq[Boolean]()) //need to know what type that userinfo is
       userIdOption.map { userid =>
         model.getUserInfo(userid).map(info => Ok(Json.toJson(info)))
       }.getOrElse(Future.successful(Ok(Json.toJson(emptyInfo))))
     }
   }
-
-  //HordeInfo(id: Int, cost:Int, level:Int, items: Double, productionSpeed: Double, goldConversion: Double)
+  
+  //TODO: define hoardNumber
+  //HordeInfo(id: Int, cost:Int, level:Int, items: Double, productionSpeed: Double, goldConversion: Double, bool)
   def getHoardInfo = Action.async { implicit request => {
       val userIdOption = request.session.get("userid").map(userid => userid.toInt)
-      val emptyInfo = (0,0,0,0.0,0.0,0.0) //need to know what type that userinfo is
-      val hoardNumber = 0 //need to know which hoard's info is being requested
+      val emptyInfo = (0,0,0,0.0,0.0,0.0,false) //need to know what type that userinfo is
       userIdOption.map { userid =>
         model.getHoardInfo(userid, hoardNumber).map(info => Ok(Json.toJson(info)))
       }.getOrElse(Future.successful(Ok(Json.toJson(emptyInfo))))
     }
   }
 
+  def getHoardUpgradesInfo = Action.async { implicit request => {
+      val userIdOption = request.session.get("userid").map(userid => userid.toInt)
+      val emptyInfo = Seq[(Int, Int, Int, Boolean, Double, Double)]() //need to know what type that userinfo is
+      userIdOption.map { userid =>
+        model.getHoardUpgradesInfo(userid, hoardNumber).map(info => Ok(Json.toJson(info)))
+      }.getOrElse(Future.successful(Ok(Json.toJson(emptyInfo))))
+    }
+  }
+
   def getAllHoardsInfo = Action.async { implicit request => {
       val userIdOption = request.session.get("userid").map(userid => userid.toInt)
-      val emptyInfo = List[String]() //need to know what type that userinfo is
+      val emptyInfo = Seq[Boolean]() //need to know what type that userinfo is
       userIdOption.map { userid =>
-        model.getAllHoardsInfo(userid, hoardNumber).map(info => Ok(Json.toJson(info)))
+        model.getAllHoardsInfo(userid).map(info => Ok(Json.toJson(info)))
       }.getOrElse(Future.successful(Ok(Json.toJson(emptyInfo))))
     }
   }
 
   def getStealingInfo = Action.async { implicit request => {
       val usernameOption = request.session.get("username")
-      val emptyInfo = List[String]() //need to know what type that userinfo is
+      val emptyInfo = (Seq[Int](), Seq[String]())//need to know what type that userinfo is
       usernameOption.map { username =>
         //requesting to be passed userid pls n thenk u -Quentin
         model.getStealingInfo(username).map(info => Ok(Json.toJson(info)))
       }.getOrElse(Future.successful(Ok(Json.toJson(emptyInfo))))
     }
   }
+
+  // def getGold = Action.async { implicit request => {
+  //     val usernameOption = request.session.get("username")
+  //     val emptyInfo = 0 //need to know what type that userinfo is
+  //     usernameOption.map { username =>
+  //       //requesting to be passed userid pls n thenk u -Quentin
+  //       model.getGold(username).map(info => Ok(Json.toJson(info)))
+  //     }.getOrElse(Future.successful(Ok(Json.toJson(emptyInfo))))
+  //   }
+  // }
 
   def loadUserInfo = Action.async { implicit request => {
       val userIdOption = request.session.get("userid").map(userid => userid.toInt)
@@ -135,7 +154,7 @@ class Application @Inject() (protected val dbConfigProvider: DatabaseConfigProvi
     }
   }
 
-  def loadStealingInfo = Action.async { implicit request => {
+  def stealFromUser = Action.async { implicit request => {
       val userIdOption = request.session.get("userid").map(userid => userid.toInt)
       val usernameOption = request.session.get("username")
       userIdOption.map { userid =>
@@ -143,7 +162,24 @@ class Application @Inject() (protected val dbConfigProvider: DatabaseConfigProvi
           Json.fromJson[String](body) match { //info will not be a string; this will change a lot
             case JsSuccess(info,path) =>
               usernameOption.map{ username =>
-                  model.loadStealingInfo(username, userid, info).map(count => Ok(Json.toJson( count > 0 )))
+                  model.stealFromUser(userid, username, info).map((hoard,count) => Ok(Json.toJson((hoard,count))))
+              }.getOrElse(Future.successful(Ok(Json.toJson(("",0)))))
+            case e @ JsError(_) => Future.successful(Redirect(routes.Application.index()))
+          }
+        }.getOrElse(Future.successful(Ok(Json.toJson(("",0)))))
+      }.getOrElse(Future.successful(Ok(Json.toJson(("",0)))))
+    }
+  }
+
+  def addGold = Action.async { implicit request => {
+      val userIdOption = request.session.get("userid").map(userid => userid.toInt)
+      val usernameOption = request.session.get("username")
+      userIdOption.map { userid =>
+        request.body.asJson.map { body =>
+          Json.fromJson[Int](body) match { //info will not be a string; this will change a lot
+            case JsSuccess(info,path) =>
+              usernameOption.map{ username =>
+                  model.addGold(username, userid, info).map(count => Ok(Json.toJson( count > 0 )))
               }.getOrElse(Future.successful(Ok(Json.toJson(false))))
             case e @ JsError(_) => Future.successful(Redirect(routes.Application.index()))
           }
@@ -151,19 +187,6 @@ class Application @Inject() (protected val dbConfigProvider: DatabaseConfigProvi
       }.getOrElse(Future.successful(Ok(Json.toJson(false))))
     }
   }
-
-  def stealFromUser = Action.async { implicit request => {
-    val usernameOption = request.session.get("username")
-    usernameOption.map { username =>
-      request.body.asJson.map { body =>
-        Json.fromJson[Boolean](body) match {
-          case JsSuccess(stealUser, path) => //might change what steal info is
-            model.stealFromUser(username,stealUser).map(count => Ok(Json.toJson(count > 0)))
-          case e @ JsError(_) => Future.successful(Redirect(routes.Application.index()))
-        }
-      }.getOrElse(Future.successful(Ok(Json.toJson(false))))
-    }.getOrElse(Future.successful(Ok(Json.toJson(false))))
-  }}
 
   def resetUser = Action.async { implicit request => {
     val userIdOption = request.session.get("userid").map(userid => userid.toInt)
