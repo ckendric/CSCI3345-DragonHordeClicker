@@ -159,7 +159,7 @@ class HordeDatabaseModel(db: Database)(implicit ec: ExecutionContext) {
          }
     }
 
-    def getAllHordesInfo(userid:Int):Future[Seq[Boolean]] = {
+    def getAllHoardsInfo(userid:Int):Future[Seq[Boolean]] = {
         //unlocked hoards
         var hoards = db.run((for {hoard <- Hoard if hoard.userId == userid} yield {hoard.unlocked}).result)
         for{ h <- hoards } yield { h }
@@ -230,12 +230,12 @@ class HordeDatabaseModel(db: Database)(implicit ec: ExecutionContext) {
       */
     def stealFromUser(userid:Int, username:String, stolen:String):Future[(String, Int)] = {
         
-        Future.successful(1)
+        Future.successful(("",1))
     }
 
     def addGold(userid:Int, username:String, newGold:Int):Future[Int] = {
-        val gold = for { u <- Users if user.id === userid} yield u.gold
-        gold.update(newGold).run
+        val gold = for { u <- Users if u.id === userid} yield u.gold
+        //gold.update(newGold).run
         Future.successful(1)
     }
 
