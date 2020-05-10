@@ -35,6 +35,7 @@ object DragonHorde {
     
     val upgradeHordeRoute = document.getElementById("upgradeHordeRoute").asInstanceOf[html.Input].value
     val upgradeUniversalRoute = document.getElementById("upgradeUniversalRoute").asInstanceOf[html.Input].value
+    val levelUpHordeRoute = document.getElementById("levelUpHordeRoute").asInstanceOf[html.Input].value
 
     val goldRoute = document.getElementById("goldRoute").asInstanceOf[html.Input].value
     
@@ -52,10 +53,14 @@ object DragonHorde {
 
 
 
-    var itemStored = 0
+    var itemStored = 0.0
     var itemIncrement = 0.0
     var goldConv = 0.0
     var goldTotal = 0
+    var hordeLevel = 0
+    var cost = 0
+    var id = 0
+  
 
 
     def init(): Unit = {
@@ -74,6 +79,7 @@ object DragonHorde {
                 document.getElementById("login").asInstanceOf[js.Dynamic].hidden = true
                 document.getElementById("createUser").asInstanceOf[js.Dynamic].hidden = true
                 document.getElementById("dragonHorde").asInstanceOf[js.Dynamic].hidden = false
+                document.getElementById("username").innerHTML = username
                 getUserInfo()
                 }
                 else {
@@ -95,6 +101,7 @@ object DragonHorde {
             document.getElementById("login").asInstanceOf[js.Dynamic].hidden = true
             document.getElementById("dragonHorde").asInstanceOf[js.Dynamic].hidden = false
             document.getElementById("createUser").asInstanceOf[js.Dynamic].hidden = true
+            document.getElementById("username").innerHTML = username
             getUserInfo()
         } else {
             document.getElementById("create-message").innerHTML = "User Creation Failed"
@@ -138,13 +145,10 @@ object DragonHorde {
   def getAllHordesInfo(): Unit = {
     println("loading hoards info scalajs.")
     val ul = document.getElementById("horde-section")
-
-    //this currently just has hordes as a list of strings. I think this is okay for now, 
-    //but we should get together to see how exactly we want this
-
     FetchJson.fetchGet(getAllHordesRoute, (hordes: List[String] ) => {
       for(horde <- hordes) {
         val li = document.createElement("li")
+        li.id = horde
         val text = document.createTextNode(horde)
         li.appendChild(text)
         ul.appendChild(li)
@@ -166,14 +170,19 @@ def getHordeUpgrades(): Unit = {
 
 }
 
-//(id: Int, cost:Int, level:Int, items: Double, productionSpeed: Double, goldConversion: Double)
 
+
+//(id: Int, cost:Int, level:Int, items: Double, productionSpeed: Double, goldConversion: Double)
+//this may need to turn into a post bc I will need to give specific horde's id...
 def getHordeInfo(): Unit = {
   println("loading one hoards info scalajs")
   FetchJson.fetchGet(getHordeInfoRoute, (horde: (Int, Int, Int, Double, Double, Double)) => {
-    itemStored = horde._3
+    itemStored = horde._4
     itemIncrement = horde._5
     goldConv = horde._6
+    hordeLevel = horde._3
+    cost = horde._2
+    id = horde._1
   }, e => {
       println("Fetch error: " + e)
     })
@@ -199,6 +208,7 @@ def getHordeInfo(): Unit = {
         FetchJson.fetchGet(getStealingInfoRoute, (victims:List[String]) => {
             for(victim <- victims) {
                       val li = document.createElement("li")
+                      li.id = victim
                       val text = document.createTextNode("steal from: " + victim)
                       li.appendChild(text)
                       ul.appendChild(li)
@@ -249,7 +259,7 @@ def getHordeInfo(): Unit = {
   @JSExportTopLevel("addGold")
   def addGold(): Unit = {
     println("loading gold scalajs")
-    val username = document.getElementById("user").asInstanceOf[html.Input].value
+    val username = document.getElementById("username").asInstanceOf[html.Input].value
     getHordeInfo()
     var gold = goldTotal
     //amount of gold we should have
@@ -272,7 +282,7 @@ def getHordeInfo(): Unit = {
   @JSExportTopLevel("addToHorde")
   def addToHorde(): Unit = {
       println("adding to hoard scalajs...")
-      val username = document.getElementById("user").asInstanceOf[html.Input].value
+      val username = document.getElementById("username").asInstanceOf[html.Input].value
       val horde = document.getElementById("horde").asInstanceOf[html.Input].value    
       itemStored += 1
       document.getElementById("hordeItems").innerHTML = itemStored.toString
@@ -283,7 +293,7 @@ def getHordeInfo(): Unit = {
   //updates database at increments
   def loadHorde(): Unit = {
       println("adding to hoard scalajs...")
-      val username = document.getElementById("user").asInstanceOf[html.Input].value
+      val username = document.getElementById("username").asInstanceOf[html.Input].value
       val horde = document.getElementById("horde").asInstanceOf[html.Input].value    
       val data = models.HordeData(username, horde, itemStored)
 
@@ -300,15 +310,52 @@ def getHordeInfo(): Unit = {
       println("Fetch error: " + e)
     })    
   }
+      // What I get passed:
+      // hoardId
+      //    - you might not have info about the next hoard up since I don't pass info on non-unlocked hoardes
+      //    - therefore you might just have to pass me the current highest hoard+1 for the hoardtype(below)
+      //    - then just call a getHoardInfo to get the new shit
+      // hoardType
+      // unlocked of new hoard (can also probably assume true)
+      // user's gold
 
-  //def levelUpHorde()?
+  @JSExportTopLevel("unlockNewHorde")
+  def unlockNewHorde(): Unit = {
+    //I currently have no way to access most of that information. I can pass the users gold, but the database 
+    //should have the current highest horde in it already. 
+    //
+      println("hmm")
+  }
 
+  
+  @JSExportTopLevel("levelUpHorde")
+  def levelUpHorde(): Unit = {
+    println("leveling up hoard scalajs")
+    val data = models.LevelUpData(id, hordeLevel, itemIncrement, cost, goldTotal)
+    FetchJson.fetchPost(levelUpHordeRoute, csrfToken, data, (bool: Boolean) => {
+      if (bool) {
+        println("successfully leveled up horde")
+        getUserInfo()
+      }
+      else {
+        println("leveling up failed")
+      }
+    }, e => {
+        println("Fetch error: " + e)
+    })
+  }
+
+  //    * 1. hoardId
+  //    * 2. hoard productionSpeed
+  //    * 3. hoard goldConversionRate
+   //   * 4. upgradeId
+   //   * 5. upgrade's unlocked boolean value (though I could probably just assume this as True) 
 
   //tells the databasae that the user wants to perform
   @JSExportTopLevel("upgradeHorde")
   def upgradeHorde(): Unit = {
       println("upgrading hoard scalajs...")
-      val username = document.getElementById("user").asInstanceOf[html.Input].value
+      val username = document.getElementById("username").asInstanceOf[html.Input].value
       val horde = document.getElementById("hode").asInstanceOf[html.Input].value    
       val data = models.HordeData(username, horde, itemStored)
       FetchJson.fetchPost(upgradeHordeRoute, csrfToken, data, (bool: Boolean) => {
@@ -327,7 +374,7 @@ def getHordeInfo(): Unit = {
   @JSExportTopLevel("upgradeEverything")
   def upgradeUniversal(): Unit = {
       println("upgrading everything scalajs...")
-      val username = document.getElementById("user").asInstanceOf[html.Input].value
+      val username = document.getElementById("username").asInstanceOf[html.Input].value
       val data = models.User(username)
       FetchJson.fetchPost(upgradeUniversalRoute, csrfToken, data, (bool: Boolean) => {
          if(bool) {
@@ -345,7 +392,7 @@ def getHordeInfo(): Unit = {
   @JSExportTopLevel("reset")
   def reset(): Unit = {
       println("resetting scalajs... Christine has yet to implement this")
-      val username = document.getElementById("user").asInstanceOf[html.Input].value
+      val username = document.getElementById("username").asInstanceOf[html.Input].value
       val data = models.User(username)
       FetchJson.fetchPost(resetRoute, csrfToken, data, (bool: Boolean) => {
          if(bool) {
