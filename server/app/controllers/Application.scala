@@ -96,7 +96,7 @@ class Application @Inject() (protected val dbConfigProvider: DatabaseConfigProvi
       val userIdOption = request.session.get("userid").map(userid => userid.toInt)
       val emptyInfo = Seq[Boolean]() //need to know what type that userinfo is
       userIdOption.map { userid =>
-        model.getAllHoardsInfo(userid).map(info => Ok(Json.toJson(info)))
+        model.getAllHordesInfo(userid).map(info => Ok(Json.toJson(info)))
       }.getOrElse(Future.successful(Ok(Json.toJson(emptyInfo))))
     }
   }
