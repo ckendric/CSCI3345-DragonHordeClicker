@@ -67,6 +67,20 @@ object DragonHorde {
 
     def init(): Unit = {
         println("initializing scala.js")
+        document.getElementById("login").asInstanceOf[js.Dynamic].hidden = false
+        document.getElementById("createUser").asInstanceOf[js.Dynamic].hidden = true
+        document.getElementById("dragonHordeContainer").asInstanceOf[js.Dynamic].hidden = true
+    }
+
+    def showLogin(): Unit = {
+        println("showing login div scala.js")
+        document.getElementById("login").asInstanceOf[js.Dynamic].hidden = false
+        document.getElementById("createUser").asInstanceOf[js.Dynamic].hidden = true
+        document.getElementById("dragonHordeContainer").asInstanceOf[js.Dynamic].hidden = true
+    }
+
+    def showCreate(): Unit = {
+        println("showing create user div scala.js")
         document.getElementById("login").asInstanceOf[js.Dynamic].hidden = true
         document.getElementById("createUser").asInstanceOf[js.Dynamic].hidden = false
         document.getElementById("dragonHordeContainer").asInstanceOf[js.Dynamic].hidden = true
