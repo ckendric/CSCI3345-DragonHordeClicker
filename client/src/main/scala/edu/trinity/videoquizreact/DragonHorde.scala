@@ -198,6 +198,15 @@ def getHordeInfo(): Unit = {
   }, e => {
       println("Fetch error: " + e)
     })
+
+    js.timers.setInterval(3) {
+      itemStored += itemIncrement.toInt
+      document.getElementById("hordeItems").innerHTML = itemStored.toString
+    }
+
+    js.timers.setInterval(150) {
+      loadHorde()
+    }
 }
 //def get horde info: return the information of just one hoard in a tuple in horde database model.
 
