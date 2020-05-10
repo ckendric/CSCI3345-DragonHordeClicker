@@ -1,6 +1,7 @@
 @()(implicit request: RequestHeader, flash: Flash)
 
 @DHCmain("Dragon Horde Clicker"){
+	<input type="hidden" id="dragonHorde" value="">
 	<div id="login">
 		<h2>Dragon Horde</h2>
 		<p>Dragon Horde is a networked clicker game where you're a dragon, and you're hoarding things.</p>
@@ -9,9 +10,9 @@
 
 		<p>
 				Username:<br>
-				<input type="text" name="loginName"></input><br>
+				<input type="text" id="loginName"></input><br>
 				Password:<br>
-				<input type="password" name="loginPass"></input><span id="login-message"></span><br>
+				<input type="password" id="loginPass"></input><span id="login-message"></span><br>
 				<button onclick="login()">Enter the Horde!</button>
 		</p>
 
@@ -27,9 +28,9 @@
 
 		<p>
 				Username:<br> 
-				<input type="text" name="createName"></input><br>
+				<input type="text" id="createName"></input><br>
 				Password:<br>
-				<input type="password" name="createPass"></input><span id="create-message"></span><br>
+				<input type="password" id="createPass"></input><span id="create-message"></span><br>
 				<button onclick="createUser()">Create Your Horde!</button>
 		</p>
 
@@ -37,7 +38,7 @@
 
 	</div>
 
-	<div id="dragonHorde">
+	<div id="dragonHordeContainer">
 		<div id="wrapperLeft" class="wrapper">
 				<div id="user-data">
 						<p> 
@@ -92,7 +93,7 @@
 		</div>
 </div>
 
-<input type="hidden" id="dragonHorde" value="">
+
 <input type="hidden" id="hoardID" value="">
 <input type="hidden" id="csrfToken" value="@helper.CSRF.getToken.value">
 <input type="hidden" id="createRoute" value="@routes.Application.createUser">
@@ -100,22 +101,25 @@
 <input type="hidden" id="logoutRoute" value="@routes.Application.logout">
 
 <input type="hidden" id="loadHordeRoute" value="@routes.Application.loadHoardInfo">
-<input type="hidden" id="addToHordeRoute" value="">
-<input type="hidden" id="addNewHordeRoute" value="">
-<input type="hidden" id="addGoldRoute" value="">
+<input type="hidden" id="addToHordeRoute" value="0">
+<input type="hidden" id="addNewHordeRoute" value="0">
+<input type="hidden" id="addGoldRoute" value="0">
 
-<input type="hidden" id="upgradeHordeRoute" value="">
-<input type="hidden" id="upgradeUniversalRoute" value="">
+<input type="hidden" id="upgradeHordeRoute" value="0">
+<input type="hidden" id="upgradeUniversalRoute" value="0">
+<input type="hidden" id="levelUpHordeRoute" value="0">
 
-<input type="hidden" id="goldRoute" value="">
+<input type="hidden" id="goldRoute" value="0">
 
 <input type="hidden" id="userInfoRoute" value="@routes.Application.getUserInfo">
 <input type="hidden" id="getAllHordesRoute" value="@routes.Application.getAllHoardsInfo">
 <input type="hidden" id="getHordeInfoRoute" value="@routes.Application.getHoardInfo">
 <input type="hidden" id="getStealingInfoRoute" value="@routes.Application.getStealingInfo">
-<input type="hidden" id="getGoldRoute" value="">
+<input type="hidden" id="getGoldRoute" value="0">
+<input type="hidden" id="getHordeUpgradesRoute" value="0">
+<input type="hidden" id="getUserInfoRoute" value="0">
 
-<input type="hidden" id="loadStealRoute" value="@routes.Application.stealFromUser">
+<input type="hidden" id="stealFromUserRoute" value="@routes.Application.stealFromUser">
 <input type="hidden" id="resetRoute" value="@routes.Application.resetUser">
 
 }

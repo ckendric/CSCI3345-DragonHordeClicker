@@ -68,8 +68,8 @@ object DragonHorde {
     def init(): Unit = {
         println("initializing scala.js")
         document.getElementById("login").asInstanceOf[js.Dynamic].hidden = true
-        document.getElementById("createUser").asInstanceOf[js.Dynamic].hidden = true
-        document.getElementById("dragonHorde").asInstanceOf[js.Dynamic].hidden = false
+        document.getElementById("createUser").asInstanceOf[js.Dynamic].hidden = false
+        document.getElementById("dragonHordeContainer").asInstanceOf[js.Dynamic].hidden = true
     }
 
     @JSExportTopLevel("login")
@@ -83,7 +83,7 @@ object DragonHorde {
              if (bool) {            
                 document.getElementById("login").asInstanceOf[js.Dynamic].hidden = true
                 document.getElementById("createUser").asInstanceOf[js.Dynamic].hidden = true
-                document.getElementById("dragonHorde").asInstanceOf[js.Dynamic].hidden = false
+                document.getElementById("dragonHordeContainer").asInstanceOf[js.Dynamic].hidden = false
                 document.getElementById("username").innerHTML = username
                 getUserInfo()
                 }
@@ -104,7 +104,7 @@ object DragonHorde {
         FetchJson.fetchPost(createRoute, csrfToken, data, (bool: Boolean) => {
         if(bool) {
             document.getElementById("login").asInstanceOf[js.Dynamic].hidden = true
-            document.getElementById("dragonHorde").asInstanceOf[js.Dynamic].hidden = false
+            document.getElementById("dragonHordeContainer").asInstanceOf[js.Dynamic].hidden = false
             document.getElementById("createUser").asInstanceOf[js.Dynamic].hidden = true
             document.getElementById("username").innerHTML = username
             getUserInfo()
@@ -120,7 +120,7 @@ object DragonHorde {
   def logout():Unit = {
     FetchJson.fetchGet(logoutRoute, (bool:Boolean) => {
       document.getElementById("login").asInstanceOf[js.Dynamic].hidden = false
-      document.getElementById("dragonHorde").asInstanceOf[js.Dynamic].hidden = true
+      document.getElementById("dragonHordeContainer").asInstanceOf[js.Dynamic].hidden = true
       document.getElementById("createUser").asInstanceOf[js.Dynamic].hidden = false
     }, e=> {
       println("Fetch error " + e)

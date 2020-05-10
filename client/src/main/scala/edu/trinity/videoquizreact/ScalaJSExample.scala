@@ -12,12 +12,14 @@ object ScalaJSExample {
   def main(args: Array[String]): Unit = {
     // dom.document.getElementById("scalajsShoutOut").textContent = SharedMessages.itWorks
     println("Call the react stuff.")
-    ReactDOM.render(
+    /*ReactDOM.render(
       h1("Hello, world!"),
       dom.document.getElementById("root")
-    )
+    )*/
 
+    println("hello")
     if (dom.document.getElementById("dragonHorde") != null)
+    println("there")
       DragonHorde.init()
   }
 }
