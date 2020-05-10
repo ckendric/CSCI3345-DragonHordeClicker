@@ -46,7 +46,7 @@ object DragonHorde {
     val getHordeUpgradesRoute = document.getElementById("getHordeUpgradesRoute").asInstanceOf[html.Input].value
     val getUserInfoRoute = document.getElementById("getUserInfoRoute").asInstanceOf[html.Input].value
 
-    val loadStealRoute = document.getElementById("loadStealRoute").asInstanceOf[html.Input].value
+    val stealFromUserRoute = document.getElementById("stealFromUserRoute").asInstanceOf[html.Input].value
     val resetRoute = document.getElementById("resetRoute").asInstanceOf[html.Input].value
 
 
@@ -56,27 +56,6 @@ object DragonHorde {
     var itemIncrement = 0.0
     var goldConv = 0.0
     var goldTotal = 0
-
-    
-
-    //delayed and timed updating to database... how to get this to start when people log in?
-    //val ex = new ScheduledThreadPoolExecutor(1)
-    //val autoUpdate = new Runnable { 
-    //  def run() = (itemStored += itemIncrement*100) 
-    //}
-    //val f = ex.scheduleAtFixedRate(autoUpdate, 1, 1, TimeUnit.SECONDS)
-    //f.cancel(false)
-
-    //val exec = new ScheduledExecutorService(2)
-    //val loadUpdate = new Runnable { 
-    //  def run() = loadHordeData()
-    //}
-    //val t = exec.scheduleAtFixedRate(loadUpdate, 30, 30, TimeUnit.SECONDS)
-    //t.cancel(false)
-
-
-
-
 
 
     def init(): Unit = {
@@ -219,10 +198,10 @@ def getHordeInfo(): Unit = {
         ul.innerHTML =""
         FetchJson.fetchGet(getStealingInfoRoute, (victims:List[String]) => {
             for(victim <- victims) {
-                       val li = document.createElement("li")
-                        val text = document.createTextNode("steal from: " + victim)
-                        li.appendChild(text)
-                        ul.appendChild(li)
+                      val li = document.createElement("li")
+                      val text = document.createTextNode("steal from: " + victim)
+                      li.appendChild(text)
+                      ul.appendChild(li)
             }
         }, e => {
             println("Fetch error: " + e)
@@ -247,14 +226,13 @@ def getHordeInfo(): Unit = {
 
   //loads info to database when a user clicks on somebody to steal from
   @JSExportTopLevel("stealFromUser")
-  def loadSteal(): Unit = {
+  def stealFromUser(): Unit = {
       println("stealing from user scalajs")
-    
-        val username = document.getElementById("user").asInstanceOf[html.Input].value
         val victim = document.getElementById("victim").asInstanceOf[html.Input].value    
-        val data = models.StealData(username, victim)
-        FetchJson.fetchPost(loadStealRoute, csrfToken, data, (bool: Boolean) => {
-        if(bool) {
+        val data = models.User(victim)
+        //returns horde name and amount stolen
+        FetchJson.fetchPost(stealFromUserRoute, csrfToken, data, (stolen:(String,  Int)) => {
+        if(stolen._1 != "") {
             println("successfully stole from " + victim)
             getUserInfo()
         } else {
@@ -322,6 +300,8 @@ def getHordeInfo(): Unit = {
       println("Fetch error: " + e)
     })    
   }
+
+  //def levelUpHorde()?
 
 
   //tells the databasae that the user wants to perform
