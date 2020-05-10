@@ -12,7 +12,7 @@ GET        /getHoardInfo                 controllers.Application.getHoardInfo
 GET        /getAllHoardsInfo             controllers.Application.getAllHoardsInfo
 GET        /getStealingInfo              controllers.Application.getStealingInfo
 POST       /loadUserInfo                 controllers.Application.loadUserInfo
-POST       /loadStealingInfo             controllers.Application.loadStealingInfo
+POST       /loadStealingInfo             controllers.Application.stealFromUser
 POST       /loadHoardInfo                controllers.Application.loadHoardInfo
 POST       /addGold                      controllers.Application.addGold
 POST       /stealFromUser                controllers.Application.stealFromUser
