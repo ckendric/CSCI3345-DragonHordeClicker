@@ -143,7 +143,7 @@ class Application @Inject() (protected val dbConfigProvider: DatabaseConfigProvi
       val usernameOption = request.session.get("username")
       userIdOption.map { userid =>
         request.body.asJson.map { body =>
-          Json.fromJson[String](body) match { //info will not be a string; this will change a lot
+          Json.fromJson[Int](body) match { //info will not be a string; this will change a lot
             case JsSuccess(info,path) =>
               usernameOption.map{ username =>
                   model.loadHoardInfo(username, userid, info).map(count => Ok(Json.toJson( count > 0 )))
