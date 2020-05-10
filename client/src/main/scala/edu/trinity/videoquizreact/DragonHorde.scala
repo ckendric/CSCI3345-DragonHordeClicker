@@ -62,6 +62,9 @@ object DragonHorde {
     var id = 0
     var upgradeId = 0
     var upgradeBool = true
+    var lastHorde = ""
+    private val names = List[String]("Rocks and Minerals", "Junk Food", "90s Paraphernalia", "Yarn", "Stuffed Animals", "Cats", "Music Boxes", "Coding Textbooks")
+
   
 
 
@@ -136,6 +139,16 @@ object DragonHorde {
       document.getElementById("login").asInstanceOf[js.Dynamic].hidden = false
       document.getElementById("dragonHordeContainer").asInstanceOf[js.Dynamic].hidden = true
       document.getElementById("createUser").asInstanceOf[js.Dynamic].hidden = false
+      itemStored = 0.0
+      itemIncrement = 0.0
+      goldConv = 0.0
+      goldTotal = 0
+      hordeLevel = 0
+      cost = 0
+      id = 0
+      upgradeId = 0
+      upgradeBool = true
+      lastHorde = ""
     }, e=> {
       println("Fetch error " + e)
     })
@@ -146,7 +159,6 @@ object DragonHorde {
   def getUserInfo(): Unit = {
     println("loading user info scalajs")
     getStealingInfo()
-
     getAllHordesInfo()
     getHordeUpgrades()
 
@@ -171,6 +183,7 @@ object DragonHorde {
         val text = document.createTextNode(horde)
         li.appendChild(text)
         ul.appendChild(li)
+        lastHorde = horde
       }
     }, e => {
       println("Fetch error: " + e)
@@ -210,7 +223,6 @@ def loadOneHorde(horde: String): Unit = {
       itemStored += itemIncrement.toInt
       document.getElementById("hordeItems").innerHTML = itemStored.toString
     }
-
     js.timers.setInterval(150) {
       loadHorde()
     }
@@ -369,12 +381,8 @@ def getHordeInfo(): Unit = {
     })    
   }
       // What I get passed:
-      // hoardId
-      //    - you might not have info about the next hoard up since I don't pass info on non-unlocked hoardes
-      //    - therefore you might just have to pass me the current highest hoard+1 for the hoardtype(below)
-      //    - then just call a getHoardInfo to get the new shit
-      // hoardType
-      // unlocked of new hoard (can also probably assume true)
+      // username
+      // next horde to upgrade
       // user's gold
 
   @JSExportTopLevel("unlockNewHorde")
@@ -384,8 +392,18 @@ def getHordeInfo(): Unit = {
     //
       println("hmm")
       val username = document.getElementById("username").asInstanceOf[html.Input].value
-      val data = models.GoldData(username,goldTotal)
-      FetchJson.fetchPost(levelUpHordeRoute, csrfToken, data, (bool: Boolean) => {
+
+      for (x <- 0 to names.length -1) {
+        if (lastHorde == names(x)) {
+          lastHorde = names(x + 1)
+        }
+      }
+      if (lastHorde == "") {
+        lastHorde = names(0)
+      }
+
+      val data = models.AddNewHorde(username,lastHorde,goldTotal)
+      FetchJson.fetchPost(addNewHordeRoute, csrfToken, data, (bool: Boolean) => {
         if (bool) {
           println("successfully leveled up horde")
           getUserInfo()
