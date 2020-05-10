@@ -206,11 +206,11 @@ class HordeDatabaseModel(db: Database)(implicit ec: ExecutionContext) {
     //returns: Future[(Seq[Int],Seq[String])]
     //         a list of other userids and usernames, supposedly to be stolen from
     //I think this may need to be changed later on, but the rest might be handled in stealFromUser
-    def getStealingInfo(username:String):Future[(Seq[Int], Seq[String])] = {
+    def getStealingInfo(userId:Int):Future[(Seq[Int], Seq[String])] = {
 
         //var victims = db.run((for {user <- Users if user.userId == userid} yield {hoard.unlocked}).result)
-        var victimIds = db.run((for {user <- Users if !(user.username === username)} yield {user.id}).result)
-        var victimUsns = db.run((for {user <- Users if !(user.username === username)} yield {user.username}).result)
+        var victimIds = db.run((for {user <- Users if !(user.id === userId)} yield {user.id}).result)
+        var victimUsns = db.run((for {user <- Users if !(user.id === userId)} yield {user.username}).result)
         for{ 
             i <- victimIds
             u <- victimUsns
@@ -230,12 +230,12 @@ class HordeDatabaseModel(db: Database)(implicit ec: ExecutionContext) {
       */
     def stealFromUser(userid:Int, username:String, stolen:String):Future[(String, Int)] = {
         
-        Future.successful(1)
+        Future.successful(("",1))
     }
 
-    def addGold(userid:Int, username:String, newGold:Int):Future[Int] = {
-        val gold = for { u <- Users if user.id === userid} yield u.gold
-        gold.update(newGold).run
+    def addGold(userId:Int, username:String, newGold:Int):Future[Int] = {
+        val gold = for { u <- Users if u.id === userId} yield u.gold
+        //gold.update(newGold).run
         Future.successful(1)
     }
 
