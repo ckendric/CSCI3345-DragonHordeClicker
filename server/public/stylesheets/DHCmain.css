@@ -144,6 +144,10 @@ ul li:hover {
     background-color: white;
 }
 
+ul li:disabled {
+    background-color: grey;
+}
+
 ul li #number {
     font-size: 12px;
     font-style: italic;
