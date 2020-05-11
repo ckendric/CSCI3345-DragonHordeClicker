@@ -461,7 +461,7 @@ def setVictim(name: String) {
   @JSExportTopLevel("upgradeHorde")
   def upgradeHorde(): Unit = {
       println("upgrading hoard scalajs...")
-      val horde = document.getElementById("hode").asInstanceOf[html.Input].value    
+      val horde = document.getElementById("horde").asInstanceOf[html.Input].value    
       val data = models.UpgradeHorde(id, itemIncrement, goldConv, upgradeId, upgradeBool)
       FetchJson.fetchPost(upgradeHordeRoute, csrfToken, data, (bool: Boolean) => {
          if(bool) {

@@ -262,7 +262,7 @@ class HordeDatabaseModel(db: Database)(implicit ec: ExecutionContext) {
       * 5. upgrade's unlocked boolean value (though I could probably just assume this as True) 
       * 
       */
-    def upgradeHoard(userid:Int, username:String, hoardId:Int, newSpeed:Double, newConversionRate:Double, upgradeId:Int, unlocked:Boolean):Future[Int] = {
+    def upgradeHoard(userid:Int,  hoardId:Int, newSpeed:Double, newConversionRate:Double, upgradeId:Int, unlocked:Boolean):Future[Int] = {
         Future.successful(1)
     }
 
@@ -279,7 +279,7 @@ class HordeDatabaseModel(db: Database)(implicit ec: ExecutionContext) {
       * 4. hoardCost
       * 5. user's gold
       */
-    def levelUpHoard(userid:Int, username:String, hoardId:Int, hoardLv:Int, newSpeed:Double, newCost:Int, newGold:Int):Future[Int] = {
+    def levelUpHoard(userid:Int, hoardId:Int, hoardLv:Int, newSpeed:Double, newCost:Int, newGold:Int):Future[Int] = {
         Future.successful(1)
     }
 

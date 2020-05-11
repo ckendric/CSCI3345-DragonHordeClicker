@@ -5,6 +5,7 @@ import model._
 import java.lang.ProcessBuilder.Redirect
 import play.api.libs.json._
 
+import models.ReadsAndWrites._
 import play.api.mvc._
 import play.api.db.slick.DatabaseConfigProvider
 import play.api.db.slick.HasDatabaseConfigProvider
@@ -211,6 +212,36 @@ class Application @Inject() (protected val dbConfigProvider: DatabaseConfigProvi
     }.getOrElse(Future.successful(Ok(Json.toJson(false))))
   }
   }
+
+  def levelUpHoard = Action.async { implicit request => {
+    println("in app levelupHoard")
+    val userIdOption = request.session.get("userid").map(userid => userid.toInt)
+    userIdOption.map { userid =>
+      request.body.asJson.map { body =>
+        Json.fromJson[models.LevelUpData](body) match { //Int, Bool, Int
+          case JsSuccess(data,path) =>{
+            println("in JSSuccess")
+            model.levelUpHoard(userid, data.id, data.level, data.productionSpeed,data.cost,data.gold).map(count => Ok(Json.toJson( count > 0 )))}
+          case e @ JsError(_) => Future.successful(Redirect(routes.Application.index()))
+        }
+      }.getOrElse(Future.successful(Ok(Json.toJson(false))))
+    }.getOrElse(Future.successful(Ok(Json.toJson(false))))
+  }}
+
+  def upgradeHoard = Action.async { implicit request => {
+    println("in app upgradeHoard")
+    val userIdOption = request.session.get("userid").map(userid => userid.toInt)
+    userIdOption.map { userid =>
+      request.body.asJson.map { body =>
+        Json.fromJson[models.UpgradeHorde](body) match { //Int, Bool, Int
+          case JsSuccess(data,path) =>{
+            println("in JSSuccess")
+            model.upgradeHoard(userid, data.hordeId,data.productionSpeed,data.goldConversion,data.upgradeId,data.upgradeBool).map(count => Ok(Json.toJson( count > 0 )))}
+          case e @ JsError(_) => Future.successful(Redirect(routes.Application.index()))
+        }
+      }.getOrElse(Future.successful(Ok(Json.toJson(false))))
+    }.getOrElse(Future.successful(Ok(Json.toJson(false))))
+  }}
 
   def stealFromUser = Action.async { implicit request => {
       val userIdOption = request.session.get("userid").map(userid => userid.toInt)
