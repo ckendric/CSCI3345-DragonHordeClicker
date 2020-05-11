@@ -309,6 +309,7 @@ object DragonHorde {
 
 def clearHordes(): Unit = {
   document.getElementById("horde-section").asInstanceOf[js.Dynamic].innerHTML = ""
+  document.getElementById("upgrade-menu").asInstanceOf[js.Dynamic].innerHTML = ""
 }
 
 def getNewHordeInfo(): Unit = {
@@ -339,10 +340,6 @@ def getNewHordeInfo(): Unit = {
 //  upgradeRows(i).newspeed, 
 //  upgradeRows(i).goldmultiplier))}})
 
-def activateUpgrade(upgradeId: Int) {
-  
-}
-
   //    * 1. hoardId
   //    * 2. hoard productionSpeed
   //    * 3. hoard goldConversionRate
@@ -350,14 +347,15 @@ def activateUpgrade(upgradeId: Int) {
    //   * 5. upgrade's unlocked boolean value (though I could probably just assume this as True) 
 
 def getHordeUpgrades(): Unit = {
-  // however we want to represent them
-  document.getElementById("upgrade-menu").asInstanceOf[js.Dynamic].innerHTML = ""
   val ul = document.getElementById("upgrade-menu")
   FetchJson.fetchPost(getHordeUpgradesRoute, csrfToken, id, (upgradeInfo:Seq[(Int, Int, Int, Boolean, Double, Double)]) => {
-    println("got it. How do we want to display it")
-    for (x <- 0 to upgradeInfo.length) {
+    document.getElementById("upgrade-menu").asInstanceOf[js.Dynamic].innerHTML = ""
+    for (x <- 0 until upgradeInfo.length) {
       val li = document.createElement("li")
       li.id = upgradeInfo(x)._1.toString()
+      val text = document.createTextNode(upgradeDescriptions(id -1)(x))
+      li.appendChild(text)
+      ul.appendChild(li)
       if (itemStored < upgradeInfo(x)._3) 
           li.asInstanceOf[js.Dynamic].disabled = true
       else {
@@ -366,8 +364,7 @@ def getHordeUpgrades(): Unit = {
         val e = e0.asInstanceOf[dom.MouseEvent]
         upgradeHorde(upgradeInfo(x)._1)
           }, false)
-        }
-          val text = document.createTextNode(upgradeDescriptions(id -1)(x))
+      }
     }
     }, e => {
       println("Fetch error 6: " + e)
@@ -385,7 +382,7 @@ def loadOneHorde(): Unit = {
         hordeLevel = horde._3
         cost = horde._2
         id = horde._1
-        getHordeUpgrades(id)
+        getHordeUpgrades()
         document.getElementById("conversionRate").innerHTML = goldConv.toString
         document.getElementById("hordeItems").innerHTML = itemStored.toString
         document.getElementById("buttons").asInstanceOf[js.Dynamic].hidden = false
@@ -520,7 +517,6 @@ def setVictim(name: String, id:Int) {
     FetchJson.fetchPost(addGoldRoute, csrfToken,data, (bool: Boolean) => {
       if (bool) {
         document.getElementById("gold").innerHTML = goldTotal.toString()
-        loadHorde()
         getGold()
         loadOneHorde()
         if (currentHorde == lastHorde && goldTotal >= cost){

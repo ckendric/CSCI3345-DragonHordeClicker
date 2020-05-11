@@ -189,7 +189,7 @@ class HordeDatabaseModel(db: Database)(implicit ec: ExecutionContext) {
         val hoardID = db.run((for {hoard <- Hoard if hoard.userId === userid && hoard.hoardtype === hoardType} yield {hoard.hoardId}).result)
         val matches = hoardID.flatMap { ids => db.run(Hoardupgrade.filter(upgrade => upgrade.hoardId === ids.head).result)}
         
-        Future.sequence(for(i <- 1 to 6) 
+        Future.sequence(for(i <- 0 to 5) 
         yield {matches.flatMap{ upgradeRows => Future.successful((upgradeRows(i).hoardupgradeId, 
                                                                   upgradeRows(i).upgradeno, 
                                                                   upgradeRows(i).cost, 
