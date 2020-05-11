@@ -31,9 +31,9 @@ class HordeDatabaseModel(db: Database)(implicit ec: ExecutionContext) {
                                             "Stealing from factories is even more efficient than stealing from stores.", 
                                             "You purchase your own junk food factory.")
     private val ninetiesParaphernaliaDesc = List[String]("Bright, eye-searing colors attract you.", 
-                                                         "", 
+                                                         "You start finding old toys in your parents' lair", 
                                                          "For some reason, “90s kids” nostalgia makes a resurgence.", 
-                                                         "", 
+                                                         "You start collecting Dixie® Cup patterns", 
                                                          "", 
                                                          "")
     private val yarnDesc = List[String]("You discover the joy found in a soft bed of yarn.", 
@@ -155,7 +155,7 @@ class HordeDatabaseModel(db: Database)(implicit ec: ExecutionContext) {
     }
 
 
-
+    //need to pass info about which hoard is which because it gets put out of order in the db
     def getAllHordesInfo(userid:Int):Future[Seq[Boolean]] = {
         //unlocked hoards
         var hoards = db.run((for {hoard <- Hoard if hoard.userId === userid} yield {hoard.unlocked}).result)
@@ -170,7 +170,7 @@ class HordeDatabaseModel(db: Database)(implicit ec: ExecutionContext) {
         matches.flatMap{ hoardRows => 
             //returns all relevant hoard data if hoard is unlocked (designated by final bool)
             if(hoardRows.head.unlocked) {
-                Future.successful((hoardRows.head.hoardId, hoardRows.head.cost, hoardRows.head.hoardlevel, 
+                Future.successful((hoardRows.head.hoardtype, hoardRows.head.cost, hoardRows.head.hoardlevel, 
                                    hoardRows.head.hoarditems, hoardRows.head.productionspeed, hoardRows.head.goldconversionrate,
                                    true))
             } 
@@ -211,12 +211,45 @@ class HordeDatabaseModel(db: Database)(implicit ec: ExecutionContext) {
       * - probability calculation: randomise how many items to be stolen
       * - gaussian random multiplied by how much in the hoard
       * - probably need to know what hoards the stealing user has (maybe I can do that?)
+      *     Steps:
+      *        1. get user hoards
+      *        2. get victim hoards
+      *        3. get min length of hoards
+      *        4. pick rand of that min length
+      *        5. select a random amount of items from victim
+      *        6. update victim hoard amount
+      *        7. update user hoard amount
       * - reurn how much was stolen from which hoard
       * 
       */
-    def stealFromUser(userid:Int, username:String, stolen:String):Future[(String, Int)] = {
-        
-        Future.successful(("",1))
+    def stealFromUser(userid:Int, username:String, stolen:Int):Future[(String, Double)] = {
+        val r = scala.util.Random
+        val nrand = (r.nextDouble()) //value to multiply hoard contents by
+    println(nrand)
+        val unlockedHoards = db.run((for {hoard <- Hoard if hoard.userId === userid} yield {(hoard.unlocked,hoard.hoarditems,hoard.hoardtype)}).result)
+        val victimHoards = db.run((for {hoard <- Hoard if hoard.userId === stolen} yield {(hoard.unlocked,hoard.hoarditems,hoard.hoardtype)}).result)
+        val stealAmount = unlockedHoards.flatMap { userHoards =>
+            victimHoards.flatMap { victimHoards =>
+                val commonHoards = scala.math.min(userHoards.filter(_._1==true).length,victimHoards.filter(_._1==true).length)
+                val stealHoardNum = r.nextInt(commonHoards)
+            println("stealHoardNumber = " + stealHoardNum)
+            print("victim hoards = ")
+            println(victimHoards)
+            print("common hoards = ")
+            println(commonHoards)
+                var amountToSteal = 0.0;
+                for(h <- victimHoards){
+                    if(h._3 == stealHoardNum) amountToSteal = h._2*nrand
+                }
+            println("steal amount = " + amountToSteal)
+                val updateVictim = 1
+                val updateUser = 1
+                val hoardName = names(stealHoardNum)
+                Future.successful(hoardName,amountToSteal)
+            }
+        }
+        //Future.successful(("",1))
+        stealAmount
     }
 
     def addGold(userId:Int, username:String, newGold:Int):Future[Int] = {
@@ -228,7 +261,13 @@ class HordeDatabaseModel(db: Database)(implicit ec: ExecutionContext) {
         db.run((for {user <- Users if user.id === userid} yield {user.gold}).result).map(userRows => userRows.headOption)
     }
 
-    def loadHoardInfo(username:String, userid:Int, items:Int):Future[Int] = {
+    def loadHoardInfo(userid:Int, hoardType:Int, newCost:Int, newLv:Int, items:Double, newSpeed:Double, newConversionRate:Double, unlocked:Boolean):Future[Int] = {
+        db.run((for {h <- Hoard if h.userId === userid && h.hoardtype === hoardType} yield {h.cost}).update(newCost))
+        db.run((for {h <- Hoard if h.userId === userid && h.hoardtype === hoardType} yield {h.hoardlevel}).update(newLv))
+        db.run((for {h <- Hoard if h.userId === userid && h.hoardtype === hoardType} yield {h.hoarditems}).update(items))
+        db.run((for {h <- Hoard if h.userId === userid && h.hoardtype === hoardType} yield {h.productionspeed}).update(newSpeed))
+        db.run((for {h <- Hoard if h.userId === userid && h.hoardtype === hoardType} yield {h.goldconversionrate}).update(newConversionRate))
+        db.run((for {h <- Hoard if h.userId === userid && h.hoardtype === hoardType} yield {h.unlocked}).update(unlocked))
         Future.successful(1)
     }
 
@@ -262,7 +301,7 @@ class HordeDatabaseModel(db: Database)(implicit ec: ExecutionContext) {
       * 5. upgrade's unlocked boolean value (though I could probably just assume this as True) 
       * 
       */
-    def upgradeHoard(userid:Int, username:String, hoardId:Int, newSpeed:Double, newConversionRate:Double, upgradeId:Int, unlocked:Boolean):Future[Int] = {
+    def upgradeHoard(userid:Int,  hoardId:Int, newSpeed:Double, newConversionRate:Double, upgradeId:Int, unlocked:Boolean):Future[Int] = {
         Future.successful(1)
     }
 
@@ -279,7 +318,7 @@ class HordeDatabaseModel(db: Database)(implicit ec: ExecutionContext) {
       * 4. hoardCost
       * 5. user's gold
       */
-    def levelUpHoard(userid:Int, username:String, hoardId:Int, hoardLv:Int, newSpeed:Double, newCost:Int, newGold:Int):Future[Int] = {
+    def levelUpHoard(userid:Int, hoardId:Int, hoardLv:Int, newSpeed:Double, newCost:Int, newGold:Int):Future[Int] = {
         Future.successful(1)
     }
 
@@ -297,7 +336,9 @@ class HordeDatabaseModel(db: Database)(implicit ec: ExecutionContext) {
       * 4. user's gold
       * 
       */
-    def unlockNewHoard(userid:Int, username:String, hoardId:Int, hoardType:Int, unlocked:Boolean, newGold:Int):Future[Int] = {
+    def unlockNewHoard(userid:Int, hoardType:Int, newUnlocked:Boolean, newGold:Int):Future[Int] = {
+        db.run((for { u <- Users if u.id === userid} yield {u.gold}).update(newGold))
+        db.run((for {h <- Hoard if h.userId === userid && h.hoardtype === hoardType} yield {h.unlocked}).update(newUnlocked))
         Future.successful(1)
     }
 

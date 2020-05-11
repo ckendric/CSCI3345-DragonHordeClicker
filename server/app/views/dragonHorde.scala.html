@@ -60,8 +60,8 @@
 						<h3>The Hoard</h3>
 						<p>
 								<span id="hint">Hint: Click a hoard in the hoard menu to see hoard options.</span>
-								<br>
-								<img src="@routes.Assets.versioned("images/dragonhoardupload.jpg")" alt="dragon horde image"> <!-- TODO - make this change with hoard -->
+								<br><img id="dragonimage" src="@routes.Assets.versioned("images/dragonhoardupload.jpg")" alt="dragon horde image">
+								 <!-- TODO - make this change with hoard -->
 								<br>
 								<div id = "buttons" hidden="true">
 									The Hoard to Gold conversion rate is <span id="conversionRate"></span>
@@ -110,7 +110,7 @@
 
 <input type="hidden" id="loadHordeRoute" value="@routes.Application.loadHoardInfo()">
 <input type="hidden" id="addToHordeRoute" value="TODOaddToHorde">
-<input type="hidden" id="addNewHordeRoute" value="TODOaddNewHordeRoute">
+<input type="hidden" id="addNewHordeRoute" value="@routes.Application.addNewHoard()">
 <input type="hidden" id="addGoldRoute" value="@routes.Application.addGold()">
 
 <!-- New Routes 110-112 -->
@@ -119,9 +119,9 @@
 <input type="hidden" id="createUserHoardUpgradesRoute" value="@routes.Application.createUserHoardUpgrades()">
 <input type="hidden" id="createUniversalUpgradesRoute" value="@routes.Application.createUniversalUpgrades()">
 
-<input type="hidden" id="upgradeHordeRoute" value="TODOupgradeHordeRoute">
+<input type="hidden" id="upgradeHordeRoute" value="@routes.Application.upgradeHoard()">
 <input type="hidden" id="upgradeUniversalRoute" value="TODOupgradeUniversalRoute">
-<input type="hidden" id="levelUpHordeRoute" value="TODOlevelUpHordeRoute">
+<input type="hidden" id="levelUpHordeRoute" value="@routes.Application.levelUpHoard()">
 
 <input type="hidden" id="getAllHordesRoute" value="@routes.Application.getAllHoardsInfo()">
 <input type="hidden" id="getHordeInfoRoute" value="@routes.Application.getHoardInfo()">

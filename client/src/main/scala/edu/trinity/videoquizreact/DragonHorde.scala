@@ -20,6 +20,7 @@ import models.ReadsAndWrites._
 import java.util.concurrent._
 import scalajs.js.timers
 import scala.concurrent.duration._
+import slinky.web.svg.d
 
 object DragonHorde {
 
@@ -69,9 +70,18 @@ object DragonHorde {
     var currentHorde = ""
     var username = ""
     var victim = ""
+    var victimid = -1
     private val names = List[String]("Rocks and Minerals", "Junk Food", "90s Paraphernalia", "Yarn", "Stuffed Animals", "Cats", "Music Boxes", "Coding Textbooks")
     private val idNames = List[String]("Rocks-and-Minerals", "Junk-Food", "90s-Paraphernalia", "Yarn", "Stuffed-Animals", "Cats", "Music-Boxes", "Coding-Textbooks")
-
+    private val mapRoutes = Map[Int,String](1->"rocksandminerals.jpg",
+                                            2->"junkfood.jpg",
+                                            3->"ninetiesparaphernalia.jpg",
+                                            4->"yarn.jpg",
+                                            5->"stuffedanimals.jpg",
+                                            6->"cats.jpg",
+                                            7->"musicboxes.jpg",
+                                            8->"codingtextbooks.jpg",
+                                            9->"marklewis.jpg")
   
 
 
@@ -222,23 +232,48 @@ object DragonHorde {
   def getAllHordesInfo(): Unit = {
     val ul = document.getElementById("horde-section")
     FetchJson.fetchGet(getAllHordesRoute, (hordes: Seq[Boolean] ) => {
-      for(i <- 0 until hordes.length) {
-        if(hordes(i)) {
-          val li = document.createElement("li")
-          li.id = idNames(i)
-          li.addEventListener("click", { (e0: dom.Event) =>
-            val e = e0.asInstanceOf[dom.MouseEvent]
-            setCurrentHorde(names(i))
-          }, false)
-          val text = document.createTextNode(names(i))
-          li.appendChild(text)
-          ul.appendChild(li)
-          lastHorde = names(i)
-        }
+      if(currentHorde != "") loadHorde()
+      var noUnlocked = 0;
+      for(i <- 0 until hordes.length){ if(hordes(i)) noUnlocked+=1 }
+      for(i <- 0 until noUnlocked) {
+        println(hordes(i))
+        val li = document.createElement("li")
+        li.id = idNames(i)
+        println(names(i))
+        li.addEventListener("click", { (e0: dom.Event) =>
+          val e = e0.asInstanceOf[dom.MouseEvent]
+          loadHorde()
+          setCurrentHorde(names(i))
+        }, false)
+        val text = document.createTextNode(names(i))
+        li.appendChild(text)
+        ul.appendChild(li)
+        lastHorde = names(i)
       }
     }, e => {
       println("Fetch error 5: " + e)
     })
+}
+
+def getNewHordeInfo(): Unit = {
+  val ul = document.getElementById("horde-section")
+  FetchJson.fetchGet(getAllHordesRoute, (hordes: Seq[Boolean] ) => {
+    var noUnlocked = -1;
+    for(i <- 0 until hordes.length){ if(hordes(i)) noUnlocked+=1 }
+    val li = document.createElement("li")
+    li.id = idNames(noUnlocked)
+    println(names(noUnlocked))
+    li.addEventListener("click", { (e0: dom.Event) =>
+      val e = e0.asInstanceOf[dom.MouseEvent]
+      setCurrentHorde(names(noUnlocked))
+    }, false)
+    val text = document.createTextNode(names(noUnlocked))
+    li.appendChild(text)
+    ul.appendChild(li)
+    lastHorde = names(noUnlocked)
+  }, e => {
+      println("Fetch error 5: " + e)
+  })
 }
 
 def getHordeUpgrades(hordeId: Int): Unit = {
@@ -267,6 +302,8 @@ def loadOneHorde(): Unit = {
         document.getElementById("conversionRate").innerHTML = goldConv.toString
         document.getElementById("hordeItems").innerHTML = itemStored.toString
         document.getElementById("buttons").asInstanceOf[js.Dynamic].hidden = false
+        document.getElementById("dragonimage").asInstanceOf[html.Image].src = "versionedAssets/images/"+mapRoutes(id)
+        document.getElementById("hint").asInstanceOf[js.Dynamic].hidden = true
       }, e => {
           println("Fetch error 7: " + e)
     })
@@ -307,8 +344,9 @@ def getHordeUpgradesInfo(horde: String): Unit = {
     })
 }
 
-def setVictim(name: String) {
+def setVictim(name: String, id:Int) {
     victim = name
+    victimid = id
     stealFromUser()
 }
 
@@ -325,7 +363,7 @@ def setVictim(name: String) {
                       li.addEventListener("click", { (e0: dom.Event) =>
                         val e = e0.asInstanceOf[dom.MouseEvent]
                         println(victim._2)
-                        setVictim(victim._2)
+                        setVictim(victim._2,victim._1)
                       }, false)
                       val text = document.createTextNode("steal from: " + victim._2)
                       li.appendChild(text)
@@ -355,13 +393,15 @@ def setVictim(name: String) {
   @JSExportTopLevel("stealFromUser")
   def stealFromUser(): Unit = {
       println("stealing from user scalajs")
-        val data = models.User(victim)
+        val data = victimid
         //returns horde name and amount stolen
-        FetchJson.fetchPost(stealFromUserRoute, csrfToken, data, (stolen:(String,  Int)) => {
+        FetchJson.fetchPost(stealFromUserRoute, csrfToken, data, (stolen:(String,  Double)) => {
         if(stolen._1 != "") {
-            println("successfully stole from " + victim)
-            getUserInfo()
+            val msg = "Successfully stole "+stolen._2+" items from " + victim + "\'s "+stolen._1+" hoard."
+            println(msg)
+            loadOneHorde()
         } else {
+            println("did a bad")
             document.getElementById("create-message").innerHTML = "Stealing Failed"
         }
     }, e => {
@@ -408,25 +448,24 @@ def setVictim(name: String) {
 
   @JSExportTopLevel("unlockNewHorde")
   def unlockNewHorde(): Unit = {
-      for (x <- 0 to names.length -1) {
-        if (lastHorde == names(x) && x != names.length -1) {
-          lastHorde = names(x + 1)
-        }
-      }
+      println(lastHorde)
       if (lastHorde == "") {
         lastHorde = names(0)
       }
       goldTotal -= cost
-      val data = models.AddNewHorde(lastHorde, true, goldTotal)
+      val hoardNumber = names.indexOf(lastHorde)+2
+      println(hoardNumber)
+      val data = (hoardNumber, true, goldTotal)
+      println("calling unlock new hoard")
       FetchJson.fetchPost(addNewHordeRoute, csrfToken, data, (bool: Boolean) => {
         if (bool) {
           document.getElementById("unlockNewHoardButton").asInstanceOf[js.Dynamic].disabled = true
-          println("successfully leveled up horde")
-          getUserInfo()
+          println("successfully unlocked new horde")
+          getNewHordeInfo()
+          getGold()
         }
         else {
-          println("leveling up failed")
-          goldTotal += cost
+          println("unlocking horde failed")
         }
       }, e => {
         println("Fetch error 15: " + e)
@@ -461,7 +500,7 @@ def setVictim(name: String) {
   @JSExportTopLevel("upgradeHorde")
   def upgradeHorde(): Unit = {
       println("upgrading hoard scalajs...")
-      val horde = document.getElementById("hode").asInstanceOf[html.Input].value    
+      val horde = document.getElementById("horde").asInstanceOf[html.Input].value    
       val data = models.UpgradeHorde(id, itemIncrement, goldConv, upgradeId, upgradeBool)
       FetchJson.fetchPost(upgradeHordeRoute, csrfToken, data, (bool: Boolean) => {
          if(bool) {
