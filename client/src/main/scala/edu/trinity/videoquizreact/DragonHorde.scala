@@ -73,6 +73,7 @@ object DragonHorde {
         document.getElementById("dragonHordeContainer").asInstanceOf[js.Dynamic].hidden = true
     }
 
+    @JSExportTopLevel("showLogin")
     def showLogin(): Unit = {
         println("showing login div scala.js")
         document.getElementById("login").asInstanceOf[js.Dynamic].hidden = false
@@ -80,6 +81,7 @@ object DragonHorde {
         document.getElementById("dragonHordeContainer").asInstanceOf[js.Dynamic].hidden = true
     }
 
+    @JSExportTopLevel("showCreate")
     def showCreate(): Unit = {
         println("showing create user div scala.js")
         document.getElementById("login").asInstanceOf[js.Dynamic].hidden = true
