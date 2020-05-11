@@ -73,7 +73,15 @@ object DragonHorde {
     var victimid = -1
     private val names = List[String]("Rocks and Minerals", "Junk Food", "90s Paraphernalia", "Yarn", "Stuffed Animals", "Cats", "Music Boxes", "Coding Textbooks")
     private val idNames = List[String]("Rocks-and-Minerals", "Junk-Food", "90s-Paraphernalia", "Yarn", "Stuffed-Animals", "Cats", "Music-Boxes", "Coding-Textbooks")
-
+    private val mapRoutes = Map[Int,String](1->"rocksandminerals.jpg",
+                                            2->"junkfood.jpg",
+                                            3->"ninetiesparaphernalia.jpg",
+                                            4->"yarn.jpg",
+                                            5->"stuffedanimals.jpg",
+                                            6->"cats.jpg",
+                                            7->"musicboxes.jpg",
+                                            8->"codingtextbooks.jpg",
+                                            9->"marklewis.jpg")
   
 
 
@@ -292,8 +300,7 @@ def loadOneHorde(): Unit = {
         document.getElementById("conversionRate").innerHTML = goldConv.toString
         document.getElementById("hordeItems").innerHTML = itemStored.toString
         document.getElementById("buttons").asInstanceOf[js.Dynamic].hidden = false
-        //document.getElementById("dragonimage").asInstanceOf[html.Image].src = "@routes.Assets.versioned('images/dragonhoardupload.jpg')"
-        //<img id="dragonimage" src="@routes.Assets.versioned("images/dragonhoardupload.jpg")" alt="dragon horde image">
+        document.getElementById("dragonimage").asInstanceOf[html.Image].src = "versionedAssets/images/"+mapRoutes(id)
       }, e => {
           println("Fetch error 7: " + e)
     })
