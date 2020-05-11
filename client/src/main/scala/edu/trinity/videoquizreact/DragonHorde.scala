@@ -68,6 +68,7 @@ object DragonHorde {
     var lastHorde = ""
     var currentHorde = ""
     var username = ""
+    var victim = ""
     private val names = List[String]("Rocks and Minerals", "Junk Food", "90s Paraphernalia", "Yarn", "Stuffed Animals", "Cats", "Music Boxes", "Coding Textbooks")
     private val idNames = List[String]("Rocks-and-Minerals", "Junk-Food", "90s-Paraphernalia", "Yarn", "Stuffed-Animals", "Cats", "Music-Boxes", "Coding-Textbooks")
 
@@ -338,6 +339,11 @@ def getHordeUpgradesInfo(horde: String): Unit = {
     })
 }
 
+def setVictim(name: String) {
+    victim = name
+    stealFromUser()
+}
+
   def getStealingInfo(): Unit = {
     println("loading stealing info scalajs.")
     // Example from tasks 
@@ -349,6 +355,11 @@ def getHordeUpgradesInfo(horde: String): Unit = {
             for(victim <- victims) {
                       val li = document.createElement("li")
                       li.id = victim._1.toString
+                      li.addEventListener("click", { (e0: dom.Event) =>
+                        val e = e0.asInstanceOf[dom.MouseEvent]
+                        println(victim._2)
+                        setVictim(victim._2)
+                      }, false)
                       val text = document.createTextNode("steal from: " + victim._2)
                       li.appendChild(text)
                       ul.appendChild(li)
@@ -377,7 +388,6 @@ def getHordeUpgradesInfo(horde: String): Unit = {
   @JSExportTopLevel("stealFromUser")
   def stealFromUser(): Unit = {
       println("stealing from user scalajs")
-        val victim = document.getElementById("victim").asInstanceOf[html.Input].value    
         val data = models.User(victim)
         //returns horde name and amount stolen
         FetchJson.fetchPost(stealFromUserRoute, csrfToken, data, (stolen:(String,  Int)) => {
