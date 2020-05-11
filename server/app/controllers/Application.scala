@@ -47,12 +47,12 @@ class Application @Inject() (protected val dbConfigProvider: DatabaseConfigProvi
       request.body.asJson.map { body =>
         Json.fromJson[UserData](body) match {
           case JsSuccess(ud,path) =>
-            (model.createUser(ud.username,ud.password)).map { userCreated =>
-              if (userCreated){
-                Ok(Json.toJson(true))
-                  .withSession("username" -> ud.username, "csrfToken" -> play.filters.csrf.CSRF.getToken.get.value)
-              } else {
-                Ok(Json.toJson(false))
+            (model.createUser(ud.username,ud.password)).map { userExists =>
+              userExists match {
+                case Some(userid) =>
+                  Ok(Json.toJson(true))
+                    .withSession("username" -> ud.username, "userid" -> userid.toString, "csrfToken" -> play.filters.csrf.CSRF.getToken.get.value)
+                case None => Ok(Json.toJson(false))
               }
             }
           case e @ JsError(_) => Future.successful(Redirect(routes.Application.index()))
@@ -63,6 +63,7 @@ class Application @Inject() (protected val dbConfigProvider: DatabaseConfigProvi
 
   def createUserHoards = Action.async { implicit request => {
       val userIdOption = request.session.get("userid").map(userid => userid.toInt)
+      println(userIdOption)
       val emptyInfo = false
       userIdOption.map { userid =>
         model.createUserHoards(userid).map(info => Ok(Json.toJson(info)))

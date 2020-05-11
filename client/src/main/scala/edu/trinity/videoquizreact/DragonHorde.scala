@@ -125,17 +125,15 @@ object DragonHorde {
         val data = models.UserData(username, password)
         FetchJson.fetchPost(createRoute, csrfToken, data, (bool: Boolean) => {
         if(bool) {
-            document.getElementById("login").asInstanceOf[js.Dynamic].hidden = true
-            document.getElementById("dragonHordeContainer").asInstanceOf[js.Dynamic].hidden = false
-            document.getElementById("createUser").asInstanceOf[js.Dynamic].hidden = true
             document.getElementById("username").innerHTML = username
+            createUserHorde()
         } else {
             document.getElementById("create-message").innerHTML = "User Creation Failed"
         }
     }, e => {
       println("Fetch error 2: " + e)
     })
-    createUserHorde()
+    
   }
 
   def createUserHorde() {
@@ -143,13 +141,14 @@ object DragonHorde {
         FetchJson.fetchGet(createUserHoardsRoute, (bool: Boolean) => {
         if(bool) {
             println("created user hordes")
+            createUserHordeUpgrades()
         } else {
             document.getElementById("create-message").innerHTML = "User Creation Failed"
         }
     }, e => {
       println("Fetch error 2: " + e)
     })
-    createUserHordeUpgrades()
+    
   }
 
   def createUserHordeUpgrades() {
@@ -157,13 +156,14 @@ object DragonHorde {
         FetchJson.fetchGet(createUserHoardUpgradesRoute, (bool: Boolean) => {
         if(bool) {
             println("created user hordes")
+            createUniversalUpgrades()
         } else {
             document.getElementById("create-message").innerHTML = "User Creation Failed"
         }
     }, e => {
       println("Fetch error 2: " + e)
     })
-    createUniversalUpgrades()
+    
   }
 
   def createUniversalUpgrades() {
@@ -171,15 +171,13 @@ object DragonHorde {
     FetchJson.fetchGet(createUniversalUpgradesRoute, (bool: Boolean) => {
     if(bool) {
         println("created user hordes")
+        logout()
     } else {
         document.getElementById("create-message").innerHTML = "User Creation Failed"
     }
     }, e => {
       println("Fetch error 2: " + e)
     })
-    js.timers.setTimeout(5) {
-      getUserInfo()
-    }
   }
 
 

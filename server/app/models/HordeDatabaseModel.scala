@@ -86,22 +86,28 @@ class HordeDatabaseModel(db: Database)(implicit ec: ExecutionContext) {
         })
     }
 
-    def createUser(username:String,password:String):Future[Boolean] = {
+    def createUser(username:String,password:String):Future[Option[Int]] = {
         val matches = db.run(Users.filter(userRow => userRow.username === username).result)
         //initialises user if it does not already exist
         matches.flatMap{ userRows => 
             if(userRows.nonEmpty) {
-                Future.successful(false)
+                Future.successful(None)
             } else {
                 db.run(Users += UsersRow(-1, username, BCrypt.hashpw(password, BCrypt.gensalt()), 1))
+                .flatMap{ addCount => 
+                    if (addCount > 0) db.run(Users.filter(userRow => userRow.username === username).result)
+                        .map(_.headOption.map(_.id))
+                    else Future.successful(None)
+                }
             }
         }
-        Future.successful(true)
+        //Future.successful(true)
     }
 
 
     def createUserHoards(userId:Int):Future[Boolean] = {
         //initialises all hoards for the user
+        println(userId)
         var i = 0
         var unlocked = true
         for(i <- 1 to 9) {
