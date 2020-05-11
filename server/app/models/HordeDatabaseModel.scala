@@ -34,8 +34,8 @@ class HordeDatabaseModel(db: Database)(implicit ec: ExecutionContext) {
                                                          "You start finding old toys in your parents' lair", 
                                                          "For some reason, “90s kids” nostalgia makes a resurgence.", 
                                                          "You start collecting Dixie® Cup patterns", 
-                                                         "", 
-                                                         "")
+                                                         "You become obsessed with Tomagachis. You must collect more...", 
+                                                         "You figure out how to hack into Etsy's servers and steal 90s Paraphernalia")
     private val yarnDesc = List[String]("You discover the joy found in a soft bed of yarn.", 
                                         "Adopt a sheep!", 
                                         "You start dying your yarn pretty colors, and it’s value increases.", 
