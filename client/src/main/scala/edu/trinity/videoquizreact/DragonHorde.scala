@@ -36,10 +36,7 @@ object DragonHorde {
     val upgradeHordeRoute = document.getElementById("upgradeHordeRoute").asInstanceOf[html.Input].value
     val upgradeUniversalRoute = document.getElementById("upgradeUniversalRoute").asInstanceOf[html.Input].value
     val levelUpHordeRoute = document.getElementById("levelUpHordeRoute").asInstanceOf[html.Input].value
-
-    val goldRoute = document.getElementById("goldRoute").asInstanceOf[html.Input].value
     
-    val userInfoRoute = document.getElementById("userInfoRoute").asInstanceOf[html.Input].value
     val getAllHordesRoute = document.getElementById("getAllHordesRoute").asInstanceOf[html.Input].value
     val getHordeInfoRoute = document.getElementById("getHordeInfoRoute").asInstanceOf[html.Input].value
     val getStealingInfoRoute = document.getElementById("getStealingInfoRoute").asInstanceOf[html.Input].value
