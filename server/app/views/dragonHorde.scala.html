@@ -44,7 +44,7 @@
 						<p> 
 								<img src="@routes.Assets.versioned("images/DHCdefaulticon.jpg")" alt="user icon"><br> <!-- TODO - default photo -->
 								<span id="username"></span><br>
-								<button onclick="logout()"value="Logout"></button>
+								<button onclick="logout()">Logout</button>
 						</p>
 				</div>
 
@@ -112,7 +112,7 @@
 <input type="hidden" id="getAllHordesRoute" value="@routes.Application.getAllHoardsInfo()">
 <input type="hidden" id="getHordeInfoRoute" value="@routes.Application.getHoardInfo()">
 <input type="hidden" id="getStealingInfoRoute" value="@routes.Application.getStealingInfo()">
-<input type="hidden" id="getGoldRoute" value="0"> <!-- TODO - commented out of controller, @routes.Application.getGold-->
+<input type="hidden" id="getGoldRoute" value="@routes.Application.getGold">
 <input type="hidden" id="getHordeUpgradesRoute" value="@routes.Application.getHoardUpgradesInfo()">
 <input type="hidden" id="getUserInfoRoute" value="@routes.Application.getUserInfo()">
 
