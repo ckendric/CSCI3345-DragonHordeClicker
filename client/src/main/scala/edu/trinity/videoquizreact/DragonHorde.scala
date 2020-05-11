@@ -303,6 +303,7 @@ def loadOneHorde(): Unit = {
         document.getElementById("hordeItems").innerHTML = itemStored.toString
         document.getElementById("buttons").asInstanceOf[js.Dynamic].hidden = false
         document.getElementById("dragonimage").asInstanceOf[html.Image].src = "versionedAssets/images/"+mapRoutes(id)
+        document.getElementById("hint").asInstanceOf[js.Dynamic].hidden = true
       }, e => {
           println("Fetch error 7: " + e)
     })

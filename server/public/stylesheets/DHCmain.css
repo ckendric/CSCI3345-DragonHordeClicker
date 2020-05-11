@@ -2,7 +2,7 @@ body {
     background-image: url("images/DHCbackground.jpg");
 }
 
-h1, h2, h3, h4 {
+h1, h2, h3, h4, #buttons {
     font-family: 'Righteous', cursive;
     text-align: center;
 }
@@ -158,6 +158,13 @@ ul li #number {
     border: 1px solid #3b453d;
     border-radius: 25px;
 
+}
+
+#dragonimage img {
+    width: 100%;
+    height: auto;
+  /* Magic! */
+    max-width: 300px;
 }
 
 #logout {
