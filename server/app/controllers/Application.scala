@@ -205,8 +205,11 @@ class Application @Inject() (protected val dbConfigProvider: DatabaseConfigProvi
     }.getOrElse(Future.successful(Ok(Json.toJson(false))))
   }}
 
-  def logout = Action {
-    Redirect(routes.Application.index()).withNewSession
+  def logout = Action { implicit request => {
+    println("App logout")
+    //Redirect(routes.Application.index()).withNewSession
+    Ok(Json.toJson(true)).withSession(request.session-"username"-"userid")
+    }
   }
 
 }
