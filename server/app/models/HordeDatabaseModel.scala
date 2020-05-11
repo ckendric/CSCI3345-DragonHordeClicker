@@ -211,11 +211,33 @@ class HordeDatabaseModel(db: Database)(implicit ec: ExecutionContext) {
       * - probability calculation: randomise how many items to be stolen
       * - gaussian random multiplied by how much in the hoard
       * - probably need to know what hoards the stealing user has (maybe I can do that?)
+      *     Steps:
+      *        1. get user hoards
+      *        2. get victim hoards
+      *        3. get min length of hoards
+      *        4. pick rand of that min length
+      *        5. select a random amount of items from victim
+      *        6. update victim hoard amount
+      *        7. update user hoard amount
       * - reurn how much was stolen from which hoard
       * 
       */
-    def stealFromUser(userid:Int, username:String, stolen:String):Future[(String, Int)] = {
-        
+    def stealFromUser(userid:Int, username:String, stolen:Int):Future[(String, Int)] = {
+        val r = scala.util.Random
+        val nrand = r.nextGaussian()+0.5 //value to multiply hoard contents by
+        val unlockedHoards = db.run((for {hoard <- Hoard if hoard.userId === userid} yield {(hoard.unlocked,hoard.hoarditems)}).result)
+        val victimHoards = db.run((for {hoard <- Hoard if hoard.userId === stolen} yield {(hoard.unlocked,hoard.hoarditems)}).result)
+        val stealAmount = unlockedHoards.flatMap { userHoards =>
+            victimHoards.flatMap { victimHoards =>
+                val commonHoards = scala.math.min(userHoards.filter(_._1==true).length,victimHoards.filter(_._1==true).length)
+                val stealHoardNum = r.nextInt(commonHoards)
+                val amountToSteal = victimHoards(stealHoardNum)._2*nrand
+                val updateVictim = 1
+                val updateUser = 1
+                val hoardName = names(stealHoardNum)
+                Future.successful(hoardName,amountToSteal)
+            }
+        }
         Future.successful(("",1))
     }
 

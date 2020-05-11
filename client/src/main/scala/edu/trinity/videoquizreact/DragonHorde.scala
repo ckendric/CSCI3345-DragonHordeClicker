@@ -69,6 +69,7 @@ object DragonHorde {
     var currentHorde = ""
     var username = ""
     var victim = ""
+    var victimid = -1
     private val names = List[String]("Rocks and Minerals", "Junk Food", "90s Paraphernalia", "Yarn", "Stuffed Animals", "Cats", "Music Boxes", "Coding Textbooks")
     private val idNames = List[String]("Rocks-and-Minerals", "Junk-Food", "90s-Paraphernalia", "Yarn", "Stuffed-Animals", "Cats", "Music-Boxes", "Coding-Textbooks")
 
@@ -309,8 +310,9 @@ def getHordeUpgradesInfo(horde: String): Unit = {
     })
 }
 
-def setVictim(name: String) {
+def setVictim(name: String, id:Int) {
     victim = name
+    victimid = id
     stealFromUser()
 }
 
@@ -327,7 +329,7 @@ def setVictim(name: String) {
                       li.addEventListener("click", { (e0: dom.Event) =>
                         val e = e0.asInstanceOf[dom.MouseEvent]
                         println(victim._2)
-                        setVictim(victim._2)
+                        setVictim(victim._2,victim._1)
                       }, false)
                       val text = document.createTextNode("steal from: " + victim._2)
                       li.appendChild(text)
@@ -357,11 +359,12 @@ def setVictim(name: String) {
   @JSExportTopLevel("stealFromUser")
   def stealFromUser(): Unit = {
       println("stealing from user scalajs")
-        val data = models.User(victim)
+        val data = victimid
         //returns horde name and amount stolen
         FetchJson.fetchPost(stealFromUserRoute, csrfToken, data, (stolen:(String,  Int)) => {
         if(stolen._1 != "") {
-            println("successfully stole from " + victim)
+            val msg = "Successfully stole "+stolen._2+" items from " + victim + "\'s "+stolen._1+" hoard."
+            println(msg)
             getUserInfo()
         } else {
             document.getElementById("create-message").innerHTML = "Stealing Failed"
@@ -422,11 +425,11 @@ def setVictim(name: String) {
       FetchJson.fetchPost(addNewHordeRoute, csrfToken, data, (bool: Boolean) => {
         if (bool) {
           document.getElementById("unlockNewHoardButton").asInstanceOf[js.Dynamic].disabled = true
-          println("successfully leveled up horde")
+          println("successfully unlocked new horde")
           getUserInfo()
         }
         else {
-          println("leveling up failed")
+          println("unlocking horde failed")
         }
       }, e => {
         println("Fetch error 15: " + e)
