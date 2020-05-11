@@ -403,6 +403,7 @@ def setVictim(name: String, id:Int) {
               println(msg)
               loadOneHorde()
               canSteal = false
+              println(canSteal)
           } else {
               println("did a bad")
               document.getElementById("create-message").innerHTML = "Stealing Failed"
@@ -410,8 +411,9 @@ def setVictim(name: String, id:Int) {
       }, e => {
         println("Fetch error 12: " + e)
       })
-      js.timers.setTimeout(10000) {
+      js.timers.setInterval(10000) {
         canSteal = true
+        println(canSteal)
       }
     }
     else {
