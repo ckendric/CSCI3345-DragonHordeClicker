@@ -230,14 +230,16 @@ object DragonHorde {
   def getAllHordesInfo(): Unit = {
     println("loading hoards info scalajs.")
     val ul = document.getElementById("horde-section")
-    FetchJson.fetchGet(getAllHordesRoute, (hordes: List[String] ) => {
-      for(horde <- hordes) {
-        val li = document.createElement("li")
-        li.id = horde
-        val text = document.createTextNode(horde)
-        li.appendChild(text)
-        ul.appendChild(li)
-        lastHorde = horde
+    FetchJson.fetchGet(getAllHordesRoute, (hordes: Seq[Boolean] ) => {
+      for(i <- 0 until hordes.length) {
+        if(hordes(i)) {
+          val li = document.createElement("li")
+          li.id = names(i)
+          val text = document.createTextNode(names(i))
+          li.appendChild(text)
+          ul.appendChild(li)
+          lastHorde = names(i)
+        }
       }
     }, e => {
       println("Fetch error 5: " + e)

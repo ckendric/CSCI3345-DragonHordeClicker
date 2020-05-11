@@ -93,7 +93,7 @@ class HordeDatabaseModel(db: Database)(implicit ec: ExecutionContext) {
             if(userRows.nonEmpty) {
                 Future.successful(None)
             } else {
-                db.run(Users += UsersRow(-1, username, BCrypt.hashpw(password, BCrypt.gensalt()), 1))
+                db.run(Users += UsersRow(-1, username, BCrypt.hashpw(password, BCrypt.gensalt()), 0))
                 .flatMap{ addCount => 
                     if (addCount > 0) db.run(Users.filter(userRow => userRow.username === username).result)
                         .map(_.headOption.map(_.id))
@@ -103,8 +103,6 @@ class HordeDatabaseModel(db: Database)(implicit ec: ExecutionContext) {
         }
         //Future.successful(true)
     }
-
-
     def createUserHoards(userId:Int):Future[Boolean] = {
         //initialises all hoards for the user
         println(userId)
@@ -124,7 +122,6 @@ class HordeDatabaseModel(db: Database)(implicit ec: ExecutionContext) {
         }
         Future.successful(true)
     }
-
     def createUserHoardUpgrades(userId:Int):Future[Boolean] = {
         //createUserHoardUpgrades
         //initialises all hoard-specific upgrades
@@ -137,16 +134,15 @@ class HordeDatabaseModel(db: Database)(implicit ec: ExecutionContext) {
                     db.run(Hoardupgrade += HoardupgradeRow(-1, 
                                                        /*hoardId*/hoards(i).hoardId, 
                                                        /*upgradeNo*/j, 
-                                                       /*cost*/hoardUpgradeCosts(j),
+                                                       /*cost*/hoardUpgradeCosts(j-1),
                                                        /*unlocked*/false,
-                                                       /*newspeed*/hoardUpgradeNewSpeeds(j),
-                                                       /*goldmultiplier*/hoardUpgradeGoldMultipliers(j)))
+                                                       /*newspeed*/hoardUpgradeNewSpeeds(j-1),
+                                                       /*goldmultiplier*/hoardUpgradeGoldMultipliers(j-1)))
                 }
             }
         }
         Future.successful(true)
     }
-
     def createUniversalUpgrades(userId:Int):Future[Boolean] = {
         //createUniversalUpgrades
         //initialises all universal upgrades
