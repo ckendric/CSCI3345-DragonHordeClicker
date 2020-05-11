@@ -223,9 +223,11 @@ object DragonHorde {
     val ul = document.getElementById("horde-section")
     FetchJson.fetchGet(getAllHordesRoute, (hordes: Seq[Boolean] ) => {
       for(i <- 0 until hordes.length) {
+        println(hordes(i))
         if(hordes(i)) {
           val li = document.createElement("li")
           li.id = idNames(i)
+          println(names(i))
           li.addEventListener("click", { (e0: dom.Event) =>
             val e = e0.asInstanceOf[dom.MouseEvent]
             setCurrentHorde(names(i))

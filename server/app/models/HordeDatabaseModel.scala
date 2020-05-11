@@ -155,7 +155,7 @@ class HordeDatabaseModel(db: Database)(implicit ec: ExecutionContext) {
     }
 
 
-
+    //need to pass info about which hoard is which because it gets put out of order in the db
     def getAllHordesInfo(userid:Int):Future[Seq[Boolean]] = {
         //unlocked hoards
         var hoards = db.run((for {hoard <- Hoard if hoard.userId === userid} yield {hoard.unlocked}).result)
