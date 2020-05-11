@@ -165,7 +165,7 @@ ul li #number {
     height: auto;
   /* Magic! */
     max-width: 300px;
-    max-height: 400px;
+    max-height: 350px;
 }
 
 #logout {
