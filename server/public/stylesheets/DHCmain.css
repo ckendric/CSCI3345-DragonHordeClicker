@@ -105,11 +105,11 @@ div.wrapper h3 {
 }
 
 #hoard {
-    height: 50%;
+    height: 65%;
 }
 
 #upgrades {
-    height: 50%;
+    height: 35%;
     overflow-y: auto;
 }
 
