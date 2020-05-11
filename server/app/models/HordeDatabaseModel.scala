@@ -9,7 +9,7 @@ import com.typesafe.sslconfig.ssl.FakeChainedKeyStore.User
 import collection.mutable
 
 class HordeDatabaseModel(db: Database)(implicit ec: ExecutionContext) {
-    private val cost = List[Int](1, 100, 1000, 10000, 250000, 1000000, 10000000, 250000000, 1000000000)
+    private val cost = List[Int](100, 1000, 10000, 250000, 1000000, 10000000, 250000000, 1000000000, 0)
     //level upgrade cost multiplier: all 1.35 except Dr. Lewis which is 1
     //collection rate multiplier: all 1.1 except Dr. Lewis which is 1
     private val conversionRate = List[Double](1.0, 1.0/10.0, 1.0, 20.0, 75.0, 700.0, 15000.0, 40000.0, 1)
@@ -42,7 +42,7 @@ class HordeDatabaseModel(db: Database)(implicit ec: ExecutionContext) {
                                         "Adopt two more sheep. They’re terrified of your fire. ", 
                                         "Learn advanced shearing techniques. You spin yarn faster.", 
                                         "Purchase an entire flock of sheep. You like to pat their fluffy heads.")
-    private val dtuffedAnimalsDesc = List[String]("You learn to knit with all of that yarn you have. Stuffed animals are adorable, even if all of yours look kind of wonky.", 
+    private val stuffedAnimalsDesc = List[String]("You learn to knit with all of that yarn you have. Stuffed animals are adorable, even if all of yours look kind of wonky.", 
                                                   "You purchase an array of patterns, and they start looking better.", 
                                                   "You start focusing your marketing strategy to small children. Your sales increase.", 
                                                   "You learn better stuffing techniques, and stop accidentally creating holes with your claws.", 
@@ -227,8 +227,7 @@ class HordeDatabaseModel(db: Database)(implicit ec: ExecutionContext) {
     }
 
     def addGold(userId:Int, username:String, newGold:Int):Future[Int] = {
-        var gold = db.run((for { u <- Users if u.id === userId} yield {u.gold}).result)
-        //gold.update(newGold).run
+        db.run((for { u <- Users if u.id === userId} yield {u.gold}).update(newGold))
         Future.successful(1)
     }
 
