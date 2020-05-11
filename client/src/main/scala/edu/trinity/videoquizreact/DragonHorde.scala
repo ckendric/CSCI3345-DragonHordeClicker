@@ -18,6 +18,7 @@ import scalajs.js
 import models.ReadsAndWrites._
 import java.util.concurrent._
 import scalajs.js.timers
+import scala.concurrent.duration._
 
 object DragonHorde {
 
@@ -120,7 +121,9 @@ object DragonHorde {
         val data = models.UserData(username, password)
         FetchJson.fetchPost(createRoute, csrfToken, data, (bool: Boolean) => {
         if(bool) {
-            getUserInfo()
+            js.timers.setTimeout(5) {
+              getUserInfo()
+            }
             document.getElementById("login").asInstanceOf[js.Dynamic].hidden = true
             document.getElementById("dragonHordeContainer").asInstanceOf[js.Dynamic].hidden = false
             document.getElementById("createUser").asInstanceOf[js.Dynamic].hidden = true
