@@ -86,13 +86,8 @@ class HordeDatabaseModel(db: Database)(implicit ec: ExecutionContext) {
         })
     }
 
-    def getUserId(username:String):Int = {
-        db.run((for {user <- Users if user.username === username} yield {user.id}).result).flatMap{ ids => ids.head }
-    }
-
     def createUser(username:String,password:String):Future[Boolean] = {
         val matches = db.run(Users.filter(userRow => userRow.username === username).result)
-println("start")
         //initialises user if it does not already exist
         matches.flatMap{ userRows => 
             if(userRows.nonEmpty) {
@@ -101,9 +96,13 @@ println("start")
                 db.run(Users += UsersRow(-1, username, BCrypt.hashpw(password, BCrypt.gensalt()), 1))
             }
         }
+        Future.successful(true)
+    }
+
+
+    def createUserHoards(username:String,password:String):Future[Boolean] = {
         val userId = db.run((for {user <- Users if user.username === username} yield {user.id}).result)
         userId.flatMap(println)
-println("starting hoardes")
         //initialises all hoards for the user
         var i = 0
         var unlocked = true
@@ -122,7 +121,11 @@ println("starting hoardes")
                         /*unlocked*/unlocked))
             }
         }
-println("Hoards Added")
+        Future.successful(true)
+    }
+
+    def createUserHoardUpgrades(username:String,password:String):Future[Boolean] = {
+        //createUserHoardUpgrades
         //initialises all hoard-specific upgrades
         var j = 0;
         i = 0;
@@ -140,14 +143,17 @@ println("Hoards Added")
                 }
             }
         }
-println("Hoard Upgrades Added")
+        Future.successful(true)
+    }
+
+    def createUniversalUpgrades(username:String,password:String):Future[Boolean] = {
+        //createUniversalUpgrades
         //initialises all universal upgrades
         for(i <- 0 to 4){
             userId.flatMap { ids =>
                 db.run(Univupgrades += UnivupgradesRow(-1,ids.head,i,false))
             }
         }
-println("Universal Upgrades Added")
         Future.successful(true)
     }
 
