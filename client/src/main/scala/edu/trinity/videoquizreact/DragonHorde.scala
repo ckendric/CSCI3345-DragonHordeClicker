@@ -1,6 +1,7 @@
 package edu.trinity.videoquizreact
 
 import org.scalajs.dom
+import org.scalajs.dom.MouseEvent
 import org.scalajs.dom.document
 import org.scalajs.dom.html
 import org.scalajs.dom.experimental.Headers
@@ -66,7 +67,9 @@ object DragonHorde {
     var upgradeBool = true
     var lastHorde = ""
     var currentHorde = ""
+    var username = ""
     private val names = List[String]("Rocks and Minerals", "Junk Food", "90s Paraphernalia", "Yarn", "Stuffed Animals", "Cats", "Music Boxes", "Coding Textbooks")
+    private val idNames = List[String]("Rocks-and-Minerals", "Junk-Food", "90s-Paraphernalia", "Yarn", "Stuffed-Animals", "Cats", "Music-Boxes", "Coding-Textbooks")
 
   
 
@@ -97,7 +100,8 @@ object DragonHorde {
     @JSExportTopLevel("login")
     def login(): Unit = {
         println("logging in scalajs")
-        val username = document.getElementById("loginName").asInstanceOf[html.Input].value
+        username = document.getElementById("loginName").asInstanceOf[html.Input].value
+        document.getElementById("username").asInstanceOf[html.Input].innerHTML = username
         val password = document.getElementById("loginPass").asInstanceOf[html.Input].value
         val data = models.UserData(username,password)
 
@@ -107,7 +111,6 @@ object DragonHorde {
                 document.getElementById("login").asInstanceOf[js.Dynamic].hidden = true
                 document.getElementById("createUser").asInstanceOf[js.Dynamic].hidden = true
                 document.getElementById("dragonHordeContainer").asInstanceOf[js.Dynamic].hidden = false
-                document.getElementById("username").innerHTML = username
                 }
                 else {
                     document.getElementById("login-message").innerHTML = "Login Failed"
@@ -120,12 +123,11 @@ object DragonHorde {
     @JSExportTopLevel("createUser")
     def createUser(): Unit = {
       println("creating user scalajs")
-        val username = document.getElementById("createName").asInstanceOf[html.Input].value
+        username = document.getElementById("createName").asInstanceOf[html.Input].value
         val password = document.getElementById("createPass").asInstanceOf[html.Input].value
         val data = models.UserData(username, password)
         FetchJson.fetchPost(createRoute, csrfToken, data, (bool: Boolean) => {
         if(bool) {
-            document.getElementById("username").innerHTML = username
             createUserHorde()
         } else {
             document.getElementById("create-message").innerHTML = "User Creation Failed"
@@ -229,6 +231,7 @@ object DragonHorde {
 
   def setCurrentHorde(name:String) {
     currentHorde = name
+    loadOneHorde()
   }
 
   def getAllHordesInfo(): Unit = {
@@ -238,8 +241,14 @@ object DragonHorde {
       for(i <- 0 until hordes.length) {
         if(hordes(i)) {
           val li = document.createElement("li")
-          li.id = names(i)
-          li.onclick = setCurrentHorde(names(i))
+          li.id = idNames(i)
+          li.addEventListener("click", { (e0: dom.Event) =>
+            val e = e0.asInstanceOf[dom.MouseEvent]
+            println(idNames(i))
+            setCurrentHorde(names(i))
+          }, false)
+
+
           println(currentHorde)
           val text = document.createTextNode(names(i))
           li.appendChild(text)
@@ -266,11 +275,13 @@ def getHordeUpgrades(hordeId: Int): Unit = {
 }
 
 def loadOneHorde(): Unit = {
-      val username = document.getElementById("username").asInstanceOf[html.Input].value
-      val data = models.UserHorde(username, horde)
-      document.getElementById("hordeItems").innerHTML = itemStored.toString
+  println("super-beginning")
+      val data = models.UserHorde(username, currentHorde)
+      println("after data")
+      //document.getElementById("hordeItems").innerHTML = itemStored.toString
       //if (timer == its time to update database)
-      FetchJson.fetchPost(loadHordeRoute, csrfToken, data, (horde: (Int, Int, Int, Double, Double, Double)) => {
+      FetchJson.fetchPost(getHordeInfoRoute, csrfToken, data, (horde: (Int, Int, Int, Double, Double, Double, Boolean)) => {
+        println("beginning")
         itemStored = horde._4
         itemIncrement = horde._5
         goldConv = horde._6
@@ -279,23 +290,23 @@ def loadOneHorde(): Unit = {
         id = horde._1
         getHordeUpgrades(id)
         document.getElementById("buttons").asInstanceOf[js.Dynamic].hidden = false
+        println("ending")
       }, e => {
           println("Fetch error 7: " + e)
     })
 
-    js.timers.setInterval(3) {
+    /*js.timers.setInterval(3) {
       itemStored += itemIncrement.toInt
-      document.getElementById("hordeItems").innerHTML = itemStored.toString
+      //document.getElementById("hordeItems").innerHTML = itemStored.toString
     }
     js.timers.setInterval(150) {
       loadHorde()
-    }
+    }*/
 }
 
 def getHordeUpgradesInfo(horde: String): Unit = {
-      val username = document.getElementById("username").asInstanceOf[html.Input].value
       val data = models.UserHorde(username, horde)
-      document.getElementById("hordeItems").innerHTML = itemStored.toString
+      //document.getElementById("hordeItems").innerHTML = itemStored.toString
       //if (timer == its time to update database)
       FetchJson.fetchPost(loadHordeRoute, csrfToken, data, (upgrades: (Int, Int, Int, Boolean, Double, Double)) => {
           upgradeId = upgrades._1
@@ -304,33 +315,6 @@ def getHordeUpgradesInfo(horde: String): Unit = {
           println("Fetch error 8: " + e)
     })
 }
-
-
-//(id: Int, cost:Int, level:Int, items: Double, productionSpeed: Double, goldConversion: Double)
-//this may need to turn into a post bc I will need to give specific horde's id...
-def getHordeInfo(): Unit = {
-  println("loading one hoards info scalajs")
-  FetchJson.fetchGet(getHordeInfoRoute, (horde: (Int, Int, Int, Double, Double, Double)) => {
-    itemStored = horde._4
-    itemIncrement = horde._5
-    goldConv = horde._6
-    hordeLevel = horde._3
-    cost = horde._2
-    id = horde._1
-  }, e => {
-      println("Fetch error 9: " + e)
-    })
-
-    js.timers.setInterval(3) {
-      itemStored += itemIncrement.toInt
-      document.getElementById("hordeItems").innerHTML = itemStored.toString
-    }
-
-    js.timers.setInterval(150) {
-      loadHorde()
-    }
-}
-//def get horde info: return the information of just one hoard in a tuple in horde database model.
 
   def getStealingInfo(): Unit = {
     println("loading stealing info scalajs.")
@@ -392,8 +376,7 @@ def getHordeInfo(): Unit = {
   @JSExportTopLevel("addGold")
   def addGold(): Unit = {
     println("loading gold scalajs")
-    val username = document.getElementById("username").asInstanceOf[html.Input].value
-    loadOneHorde(currentHorde)
+    loadOneHorde()
     var gold = goldTotal
     //amount of gold we should have
     gold += (itemStored * goldConv).toInt
@@ -402,7 +385,7 @@ def getHordeInfo(): Unit = {
     FetchJson.fetchPost(addGoldRoute, csrfToken,data, (bool: Boolean) => {
       if (bool) {
         getUserInfo()
-        loadOneHorde(currentHorde)
+        loadOneHorde()
       }
       else {
         println("adding gold failed")
@@ -416,42 +399,13 @@ def getHordeInfo(): Unit = {
   @JSExportTopLevel("addToHorde")
   def addToHorde(): Unit = {
       println("adding to hoard scalajs...")
-      val username = document.getElementById("username").asInstanceOf[html.Input].value
-      val horde = document.getElementById("horde").asInstanceOf[html.Input].value    
       itemStored += 1
-      document.getElementById("hordeItems").innerHTML = itemStored.toString
+      //document.getElementById("hordeItems").innerHTML = itemStored.toString
       
   }
 
-
-  //updates database at increments
-  def loadHorde(): Unit = {
-      println("adding to hoard scalajs...")
-      val username = document.getElementById("username").asInstanceOf[html.Input].value
-      val horde = document.getElementById("horde").asInstanceOf[html.Input].value    
-      val data = models.HordeData(username, horde, itemStored)
-
-      document.getElementById("hordeItems").innerHTML = itemStored.toString
-      //if (timer == its time to update database)
-      FetchJson.fetchPost(loadHordeRoute, csrfToken, data, (bool: Boolean) => {
-         if(bool) {
-            println("successfully added to " + horde)
-            getUserInfo()
-        } else {
-            document.getElementById("create-message").innerHTML = "Adding to horde Failed"
-      }
-    }, e => {
-      println("Fetch error 14: " + e)
-    })    
-  }
-      // What I get passed:
-      // username
-      // next horde to upgrade
-      // user's gold
-
   @JSExportTopLevel("unlockNewHorde")
   def unlockNewHorde(): Unit = {
-      val username = document.getElementById("username").asInstanceOf[html.Input].value
       for (x <- 0 to names.length -1) {
         if (lastHorde == names(x)) {
           lastHorde = names(x + 1)
@@ -502,7 +456,6 @@ def getHordeInfo(): Unit = {
   @JSExportTopLevel("upgradeHorde")
   def upgradeHorde(): Unit = {
       println("upgrading hoard scalajs...")
-      val username = document.getElementById("username").asInstanceOf[html.Input].value
       val horde = document.getElementById("hode").asInstanceOf[html.Input].value    
       val data = models.UpgradeHorde(id, itemIncrement, goldConv, upgradeId, upgradeBool)
       FetchJson.fetchPost(upgradeHordeRoute, csrfToken, data, (bool: Boolean) => {
@@ -521,7 +474,6 @@ def getHordeInfo(): Unit = {
   @JSExportTopLevel("upgradeEverything")
   def upgradeUniversal(): Unit = {
       println("upgrading everything scalajs...")
-      val username = document.getElementById("username").asInstanceOf[html.Input].value
       val data = models.User(username)
       FetchJson.fetchPost(upgradeUniversalRoute, csrfToken, data, (bool: Boolean) => {
          if(bool) {
@@ -538,7 +490,6 @@ def getHordeInfo(): Unit = {
   //tells the database that the user wants to reset their database
   @JSExportTopLevel("reset")
   def reset(): Unit = {
-      val username = document.getElementById("username").asInstanceOf[html.Input].value
       val data = models.User(username)
       FetchJson.fetchPost(resetRoute, csrfToken, data, (bool: Boolean) => {
          if(bool) {
