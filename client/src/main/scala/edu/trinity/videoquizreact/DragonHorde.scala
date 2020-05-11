@@ -395,11 +395,11 @@ def setVictim(name: String, id:Int) {
       println("stealing from user scalajs")
         val data = victimid
         //returns horde name and amount stolen
-        FetchJson.fetchPost(stealFromUserRoute, csrfToken, data, (stolen:(String,  Int)) => {
+        FetchJson.fetchPost(stealFromUserRoute, csrfToken, data, (stolen:(String,  Double)) => {
         if(stolen._1 != "") {
             val msg = "Successfully stole "+stolen._2+" items from " + victim + "\'s "+stolen._1+" hoard."
             println(msg)
-            getUserInfo()
+            loadOneHorde()
         } else {
             println("did a bad")
             document.getElementById("create-message").innerHTML = "Stealing Failed"

@@ -31,9 +31,9 @@ class HordeDatabaseModel(db: Database)(implicit ec: ExecutionContext) {
                                             "Stealing from factories is even more efficient than stealing from stores.", 
                                             "You purchase your own junk food factory.")
     private val ninetiesParaphernaliaDesc = List[String]("Bright, eye-searing colors attract you.", 
-                                                         "", 
+                                                         "You start finding old toys in your parents' lair", 
                                                          "For some reason, “90s kids” nostalgia makes a resurgence.", 
-                                                         "", 
+                                                         "You start collecting Dixie® Cup patterns", 
                                                          "", 
                                                          "")
     private val yarnDesc = List[String]("You discover the joy found in a soft bed of yarn.", 
@@ -222,23 +222,34 @@ class HordeDatabaseModel(db: Database)(implicit ec: ExecutionContext) {
       * - reurn how much was stolen from which hoard
       * 
       */
-    def stealFromUser(userid:Int, username:String, stolen:Int):Future[(String, Int)] = {
+    def stealFromUser(userid:Int, username:String, stolen:Int):Future[(String, Double)] = {
         val r = scala.util.Random
-        val nrand = r.nextGaussian()+0.5 //value to multiply hoard contents by
-        val unlockedHoards = db.run((for {hoard <- Hoard if hoard.userId === userid} yield {(hoard.unlocked,hoard.hoarditems)}).result)
-        val victimHoards = db.run((for {hoard <- Hoard if hoard.userId === stolen} yield {(hoard.unlocked,hoard.hoarditems)}).result)
+        val nrand = (r.nextDouble()) //value to multiply hoard contents by
+    println(nrand)
+        val unlockedHoards = db.run((for {hoard <- Hoard if hoard.userId === userid} yield {(hoard.unlocked,hoard.hoarditems,hoard.hoardtype)}).result)
+        val victimHoards = db.run((for {hoard <- Hoard if hoard.userId === stolen} yield {(hoard.unlocked,hoard.hoarditems,hoard.hoardtype)}).result)
         val stealAmount = unlockedHoards.flatMap { userHoards =>
             victimHoards.flatMap { victimHoards =>
                 val commonHoards = scala.math.min(userHoards.filter(_._1==true).length,victimHoards.filter(_._1==true).length)
                 val stealHoardNum = r.nextInt(commonHoards)
-                val amountToSteal = victimHoards(stealHoardNum)._2*nrand
+            println("stealHoardNumber = " + stealHoardNum)
+            print("victim hoards = ")
+            println(victimHoards)
+            print("common hoards = ")
+            println(commonHoards)
+                var amountToSteal = 0.0;
+                for(h <- victimHoards){
+                    if(h._3 == stealHoardNum) amountToSteal = h._2*nrand
+                }
+            println("steal amount = " + amountToSteal)
                 val updateVictim = 1
                 val updateUser = 1
                 val hoardName = names(stealHoardNum)
                 Future.successful(hoardName,amountToSteal)
             }
         }
-        Future.successful(("",1))
+        //Future.successful(("",1))
+        stealAmount
     }
 
     def addGold(userId:Int, username:String, newGold:Int):Future[Int] = {
