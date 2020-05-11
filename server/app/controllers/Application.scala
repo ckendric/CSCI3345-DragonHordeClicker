@@ -44,7 +44,6 @@ class Application @Inject() (protected val dbConfigProvider: DatabaseConfigProvi
   }
 
  def createUser = Action.async {implicit request => {
-println("application create user")
       request.body.asJson.map { body =>
         Json.fromJson[UserData](body) match {
           case JsSuccess(ud,path) =>
