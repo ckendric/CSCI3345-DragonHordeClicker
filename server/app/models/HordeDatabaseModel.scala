@@ -297,7 +297,7 @@ class HordeDatabaseModel(db: Database)(implicit ec: ExecutionContext) {
       * 4. user's gold
       * 
       */
-    def unlockNewHoard(userid:Int, username:String, hoardId:Int, hoardType:Int, unlocked:Boolean, newGold:Int):Future[Int] = {
+    def unlockNewHoard(userid:Int, hoardType:Int, unlocked:Boolean, newGold:Int):Future[Int] = {
         Future.successful(1)
     }
 
