@@ -97,12 +97,12 @@ object DragonHorde {
         val data = models.UserData(username,password)
 
         FetchJson.fetchPost(validateRoute,csrfToken, data, (bool:Boolean) => {
-             if (bool) {            
+             if (bool) {
+                getUserInfo()            
                 document.getElementById("login").asInstanceOf[js.Dynamic].hidden = true
                 document.getElementById("createUser").asInstanceOf[js.Dynamic].hidden = true
                 document.getElementById("dragonHordeContainer").asInstanceOf[js.Dynamic].hidden = false
                 document.getElementById("username").innerHTML = username
-                getUserInfo()
                 }
                 else {
                     document.getElementById("login-message").innerHTML = "Login Failed"
@@ -120,11 +120,11 @@ object DragonHorde {
         val data = models.UserData(username, password)
         FetchJson.fetchPost(createRoute, csrfToken, data, (bool: Boolean) => {
         if(bool) {
+            getUserInfo()
             document.getElementById("login").asInstanceOf[js.Dynamic].hidden = true
             document.getElementById("dragonHordeContainer").asInstanceOf[js.Dynamic].hidden = false
             document.getElementById("createUser").asInstanceOf[js.Dynamic].hidden = true
             document.getElementById("username").innerHTML = username
-            getUserInfo()
         } else {
             document.getElementById("create-message").innerHTML = "User Creation Failed"
         }
@@ -135,10 +135,11 @@ object DragonHorde {
 
   @JSExportTopLevel("logout")
   def logout():Unit = {
+  println("logging out")
     FetchJson.fetchGet(logoutRoute, (bool:Boolean) => {
       document.getElementById("login").asInstanceOf[js.Dynamic].hidden = false
       document.getElementById("dragonHordeContainer").asInstanceOf[js.Dynamic].hidden = true
-      document.getElementById("createUser").asInstanceOf[js.Dynamic].hidden = false
+      document.getElementById("createUser").asInstanceOf[js.Dynamic].hidden = true
       itemStored = 0.0
       itemIncrement = 0.0
       goldConv = 0.0
@@ -153,6 +154,8 @@ object DragonHorde {
     }, e=> {
       println("Fetch error 3:" + e)
     })
+
+    
   }
 
 

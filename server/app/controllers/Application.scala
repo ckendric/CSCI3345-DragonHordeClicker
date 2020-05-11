@@ -44,7 +44,6 @@ class Application @Inject() (protected val dbConfigProvider: DatabaseConfigProvi
   }
 
  def createUser = Action.async {implicit request => {
-println("application create user")
       request.body.asJson.map { body =>
         Json.fromJson[UserData](body) match {
           case JsSuccess(ud,path) =>
@@ -206,8 +205,11 @@ println("application create user")
     }.getOrElse(Future.successful(Ok(Json.toJson(false))))
   }}
 
-  def logout = Action {
-    Redirect(routes.Application.index()).withNewSession
+  def logout = Action { implicit request => {
+    println("App logout")
+    //Redirect(routes.Application.index()).withNewSession
+    Ok(Json.toJson(true)).withSession(request.session-"username"-"userid")
+    }
   }
 
 }

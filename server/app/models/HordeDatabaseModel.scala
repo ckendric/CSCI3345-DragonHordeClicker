@@ -86,6 +86,10 @@ class HordeDatabaseModel(db: Database)(implicit ec: ExecutionContext) {
         })
     }
 
+    def getUserId(username:String):Int = {
+        db.run((for {user <- Users if user.username === username} yield {user.id}).result).flatMap{ ids => ids.head }
+    }
+
     def createUser(username:String,password:String):Future[Boolean] = {
         val matches = db.run(Users.filter(userRow => userRow.username === username).result)
 println("start")
@@ -95,22 +99,19 @@ println("start")
                 Future.successful(false)
             } else {
                 db.run(Users += UsersRow(-1, username, BCrypt.hashpw(password, BCrypt.gensalt()), 1))
-                    .flatMap{ addCount => 
-                    if (addCount >= 0) db.run(Users.filter(userRow => userRow.username === username).result)
-                        .map(_.headOption.map(_.id))
-                    else Future.successful(false)
-                }
-                    //.map(addCount => addCount>0)
             }
         }
         val userId = db.run((for {user <- Users if user.username === username} yield {user.id}).result)
-println("user Added")
+        userId.flatMap(println)
+println("starting hoardes")
         //initialises all hoards for the user
         var i = 0
         var unlocked = true
         for(i <- 1 to 9) {
+            println("in the for loop")
             if(i > 1) unlocked = false
             userId.flatMap { ids =>
+                println(ids.head)
                 db.run(Hoard += HoardRow(-1, ids.head, 
                         /*hoardType*/i, 
                         /*cost*/cost(i-1), 

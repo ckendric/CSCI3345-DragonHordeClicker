@@ -68,11 +68,11 @@ div.wrapper h3 {
     background-color: rgba(255, 255, 255, 0.50);
 }
 
-#user {
+#user-data {
     height: 20%;
 }
 
-#user p {
+#user-data p {
     font-weight: bold;
     font-size: 20px;
     border-style: solid;
@@ -148,7 +148,7 @@ ul li #number {
 
 
 
-#user img {
+#user-data img {
     width: 50px;
     height: 50px;
     border: 1px solid #3b453d;
