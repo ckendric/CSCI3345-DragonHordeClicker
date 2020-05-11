@@ -16,6 +16,7 @@ POST       /loadUserInfo                 controllers.Application.loadUserInfo
 POST       /loadStealingInfo             controllers.Application.stealFromUser
 POST       /loadHoardInfo                controllers.Application.loadHoardInfo
 POST       /addGold                      controllers.Application.addGold
+GET        /getGold                      controllers.Application.getGold
 POST       /stealFromUser                controllers.Application.stealFromUser
 GET        /resetUser                    controllers.Application.resetUser   
 
