@@ -295,7 +295,7 @@ def getHordeInfo(): Unit = {
   //gets the user's gold amount
   def getGold(): Unit = {
     println("loading gold scalajs.")
-    val txt = document.getElementById("goldAmount")
+    val txt = document.getElementById("gold")
     txt.innerHTML =""
     FetchJson.fetchGet(getGoldRoute, (gold:Int) => {
       goldTotal = gold
