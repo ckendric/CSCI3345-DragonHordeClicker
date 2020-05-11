@@ -209,14 +209,4 @@ class Application @Inject() (protected val dbConfigProvider: DatabaseConfigProvi
     Redirect(routes.Application.index()).withNewSession
   }
 
-  def dragonHordeLoginDemo = Action {
-    Ok(views.html.dragonHordeLoginDemo())
-  }
-
-  def dragonHordeDemoPage = Action {
-    val user = "mlewis"
-    val icon = "images/demoIcon.jpg"
-    Ok{views.html.dragonHordeDemoPage()}
-  }
-
 }
