@@ -180,16 +180,15 @@ class Application @Inject() (protected val dbConfigProvider: DatabaseConfigProvi
     }
   }
 
+  //id, cost, hordeLevel, itemStored, itemIncrement, goldConv, true
+  //LoadHorde(typee: Int, cost: Int,level: Int, items: Double, productionSpeed: Double, goldConversion: Double,unlocked: Boolean)
   def loadHoardInfo = Action.async { implicit request => {
       val userIdOption = request.session.get("userid").map(userid => userid.toInt)
-      val usernameOption = request.session.get("username")
       userIdOption.map { userid =>
         request.body.asJson.map { body =>
-          Json.fromJson[Int](body) match { //info will not be a string; this will change a lot
+          Json.fromJson[models.LoadHorde](body) match { //info will not be a string; this will change a lot
             case JsSuccess(info,path) =>
-              usernameOption.map{ username =>
-                  model.loadHoardInfo(username, userid, info).map(count => Ok(Json.toJson( count > 0 )))
-              }.getOrElse(Future.successful(Ok(Json.toJson(false))))
+              model.loadHoardInfo(userid, info.typee, info.cost, info.level, info.items, info.productionSpeed,info.goldConversion, info.unlocked).map(count => Ok(Json.toJson( count > 0 )))
             case e @ JsError(_) => Future.successful(Redirect(routes.Application.index()))
           }
         }.getOrElse(Future.successful(Ok(Json.toJson(false))))

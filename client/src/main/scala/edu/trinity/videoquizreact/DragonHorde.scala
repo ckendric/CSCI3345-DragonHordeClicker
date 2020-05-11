@@ -20,6 +20,7 @@ import models.ReadsAndWrites._
 import java.util.concurrent._
 import scalajs.js.timers
 import scala.concurrent.duration._
+import slinky.web.svg.d
 
 object DragonHorde {
 
@@ -291,6 +292,8 @@ def loadOneHorde(): Unit = {
         document.getElementById("conversionRate").innerHTML = goldConv.toString
         document.getElementById("hordeItems").innerHTML = itemStored.toString
         document.getElementById("buttons").asInstanceOf[js.Dynamic].hidden = false
+        //document.getElementById("dragonimage").asInstanceOf[html.Image].src = "@routes.Assets.versioned('images/dragonhoardupload.jpg')"
+        //<img id="dragonimage" src="@routes.Assets.versioned("images/dragonhoardupload.jpg")" alt="dragon horde image">
       }, e => {
           println("Fetch error 7: " + e)
     })
