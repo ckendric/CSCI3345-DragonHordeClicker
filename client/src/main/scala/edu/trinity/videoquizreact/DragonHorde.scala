@@ -304,6 +304,28 @@ def loadOneHorde(): Unit = {
     }*/
 }
 
+
+def loadHorde(): Unit = {
+    println("loading horde info scalajs")
+    var gold = goldTotal
+    //amount of gold we should have
+    gold += (itemStored * goldConv).toInt
+    itemStored = 0
+    val data = models.LoadHorde(id, cost, hordeLevel, itemStored, itemIncrement, goldConv, true)
+    FetchJson.fetchPost(loadHordeRoute, csrfToken,data, (bool: Boolean) => {
+      if (bool) {
+        getUserInfo()
+        loadOneHorde()
+      }
+      else {
+        println("loading horde info failed")
+      }
+    }, e => {
+        println("Fetch error 13: " + e)
+    })
+
+}
+
 def getHordeUpgradesInfo(horde: String): Unit = {
       val data = models.UserHorde(username, horde)
       //document.getElementById("hordeItems").innerHTML = itemStored.toString

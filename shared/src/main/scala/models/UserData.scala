@@ -15,7 +15,7 @@ case class UserHorde(username: String, hordeName: String)
 case class UpgradeHorde(hordeId: Int, productionSpeed: Double, goldConversion: Double, upgradeId: Int, upgradeBool: Boolean)
 case class AddNewHorde(username: String, horde: String, gold: Int)
 case class HordeId(id: Int)
-
+case class LoadHorde(typee: Int, cost: Int,level: Int, items: Double, productionSpeed: Double, goldConversion: Double,unlocked: Boolean)
 
 object ReadsAndWrites {
     implicit val UserReads = Json.reads[User]
@@ -44,4 +44,6 @@ object ReadsAndWrites {
     implicit val AddNewHordeReads = Json.reads[AddNewHorde]
     implicit val HordeIdWrites = Json.writes[HordeId]
     implicit val HordeIdReads = Json.reads[HordeId]
+    implicit val LoadHordeWrites = Json.writes[LoadHorde]
+    implicit val LoadHordeReads = Json.reads[LoadHorde]
 }
