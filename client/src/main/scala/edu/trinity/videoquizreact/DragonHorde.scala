@@ -26,6 +26,10 @@ object DragonHorde {
 
     val csrfToken = document.getElementById("csrfToken").asInstanceOf[html.Input].value
     val createRoute = document.getElementById("createRoute").asInstanceOf[html.Input].value
+    val createUserHoardsRoute = document.getElementById("createUserHoardsRoute").asInstanceOf[html.Input].value
+    val createUserHoardUpgradesRoute = document.getElementById("createUserHoardUpgradesRoute").asInstanceOf[html.Input].value
+    val createUniversalUpgradesRoute = document.getElementById("createUniversalUpgradesRoute").asInstanceOf[html.Input].value
+
     val validateRoute = document.getElementById("validateRoute").asInstanceOf[html.Input].value
     val logoutRoute = document.getElementById("logoutRoute").asInstanceOf[html.Input].value
 
@@ -121,9 +125,6 @@ object DragonHorde {
         val data = models.UserData(username, password)
         FetchJson.fetchPost(createRoute, csrfToken, data, (bool: Boolean) => {
         if(bool) {
-            js.timers.setTimeout(5) {
-              getUserInfo()
-            }
             document.getElementById("login").asInstanceOf[js.Dynamic].hidden = true
             document.getElementById("dragonHordeContainer").asInstanceOf[js.Dynamic].hidden = false
             document.getElementById("createUser").asInstanceOf[js.Dynamic].hidden = true
@@ -134,7 +135,54 @@ object DragonHorde {
     }, e => {
       println("Fetch error 2: " + e)
     })
+    createUserHorde(username,password)
   }
+
+  def createUserHorde(username:String, password:String) {
+        val data = models.UserData(username, password)
+        FetchJson.fetchPost(createUserHoardsRoute, csrfToken, data, (bool: Boolean) => {
+        if(bool) {
+            println("created user hordes")
+        } else {
+            document.getElementById("create-message").innerHTML = "User Creation Failed"
+        }
+    }, e => {
+      println("Fetch error 2: " + e)
+    })
+    createUserHordeUpgrades(username, password)
+  }
+
+  def createUserHordeUpgrades(username:String, password:String) {
+        val data = models.UserData(username, password)
+        FetchJson.fetchPost(createUserHoardUpgradesRoute, csrfToken, data, (bool: Boolean) => {
+        if(bool) {
+            println("created user hordes")
+        } else {
+            document.getElementById("create-message").innerHTML = "User Creation Failed"
+        }
+    }, e => {
+      println("Fetch error 2: " + e)
+    })
+    createUniversalUpgrades(username,password)
+  }
+
+  def createUniversalUpgrades(username:String,password:String) {
+    val data = models.UserData(username, password)
+    FetchJson.fetchPost(createUniversalUpgradesRoute, csrfToken, data, (bool: Boolean) => {
+    if(bool) {
+        println("created user hordes")
+    } else {
+        document.getElementById("create-message").innerHTML = "User Creation Failed"
+    }
+    }, e => {
+      println("Fetch error 2: " + e)
+    })
+    js.timers.setTimeout(5) {
+      getUserInfo()
+    }
+  }
+
+
 
   @JSExportTopLevel("logout")
   def logout():Unit = {
