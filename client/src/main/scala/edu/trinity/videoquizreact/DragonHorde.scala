@@ -426,6 +426,7 @@ def setVictim(name: String) {
         }
         else {
           println("leveling up failed")
+          goldTotal += cost
         }
       }, e => {
         println("Fetch error 15: " + e)
