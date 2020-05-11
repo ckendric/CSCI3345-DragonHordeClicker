@@ -231,22 +231,21 @@ class HordeDatabaseModel(db: Database)(implicit ec: ExecutionContext) {
         val stealAmount = unlockedHoards.flatMap { userHoards =>
             victimHoards.flatMap { victimHoards =>
                 val commonHoards = scala.math.min(userHoards.filter(_._1==true).length,victimHoards.filter(_._1==true).length)
-                val stealHoardNum = r.nextInt(commonHoards)
+                println("commonHoards = " + commonHoards)
+                val stealHoardNum = r.nextInt(commonHoards)+1
                 var amountToSteal = 0.0;
                 for(h <- victimHoards){
                     if(h._3 == stealHoardNum) amountToSteal = h._2*nrand
                 }
-                println("steal amount = " + amountToSteal)
+                println("stealHoardNum = " + stealHoardNum)
+                println("amountToSteal = " + amountToSteal)
                 val updateVictim = db.run((for {h <- Hoard if h.userId === stolen && h.hoardtype === stealHoardNum} yield {h.hoarditems}).result)
-                println("updateVictim = " + updateVictim)
                 updateVictim.flatMap{ victimItems =>
-                    println("victimItems = " + victimItems)
                     db.run((for {h <- Hoard if h.userId === stolen && h.hoardtype === stealHoardNum} yield {h.hoarditems}).update(victimItems.head-amountToSteal))
                 }
                 //updateVictim.update(updateVictim-amountToSteal)
                 val updateUser = db.run((for {h <- Hoard if h.userId === userid && h.hoardtype === stealHoardNum} yield {h.hoarditems}).result)
                 updateUser.flatMap{ userItems =>
-                    println("victimItems = " + userItems)
                     var newItemAmount = 0.0;
                     if(userItems.head+amountToSteal > 1000000) newItemAmount = 1000000
                     else newItemAmount = userItems.head+amountToSteal
@@ -254,7 +253,7 @@ class HordeDatabaseModel(db: Database)(implicit ec: ExecutionContext) {
                 }
                 //updateUser.update(updateUser+amountToSteal)
 
-                val hoardName = names(stealHoardNum)
+                val hoardName = names(stealHoardNum-1)
                 Future.successful(hoardName,amountToSteal)
             }
         }
