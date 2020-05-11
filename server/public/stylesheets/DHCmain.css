@@ -160,11 +160,12 @@ ul li #number {
 
 }
 
-#dragonimage img {
-    width: 100%;
+#hoard img {
+    width: auto;
     height: auto;
   /* Magic! */
-    max-width: 300px;
+    max-width: 200px;
+    max-height: 300px;
 }
 
 #logout {
