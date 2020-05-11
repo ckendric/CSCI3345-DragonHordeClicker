@@ -239,6 +239,11 @@ class HordeDatabaseModel(db: Database)(implicit ec: ExecutionContext) {
         Future.successful(1)
     }
 
+    def getGold(userId:Int):Future[Int] = {
+        //gold.update(newGold).run
+        Future.successful(1)
+    }
+
     def loadHoardInfo(username:String, userid:Int, items:Int):Future[Int] = {
         Future.successful(1)
     }

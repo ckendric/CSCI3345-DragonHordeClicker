@@ -121,14 +121,14 @@ class Application @Inject() (protected val dbConfigProvider: DatabaseConfigProvi
     }
   }
 
-  // def getGold = Action.async { implicit request => {
-  //     val userIdOption = request.session.get("userid").map(userid => userid.toInt)
-  //     val emptyInfo = 0 //need to know what type that userinfo is
-  //     userIdOption.map { userid =>
-  //       model.getGold(userid).map(info => Ok(Json.toJson(info)))
-  //     }.getOrElse(Future.successful(Ok(Json.toJson(emptyInfo))))
-  //   }
-  // }
+  def getGold = Action.async { implicit request => {
+      val userIdOption = request.session.get("userid").map(userid => userid.toInt)
+      val emptyInfo = 0 //need to know what type that userinfo is
+      userIdOption.map { userid =>
+        model.getGold(userid).map(info => Ok(Json.toJson(info)))
+      }.getOrElse(Future.successful(Ok(Json.toJson(emptyInfo))))
+    }
+  }
 
   def loadUserInfo = Action.async { implicit request => {
       val userIdOption = request.session.get("userid").map(userid => userid.toInt)
