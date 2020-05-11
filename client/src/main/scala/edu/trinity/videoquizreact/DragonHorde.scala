@@ -223,25 +223,46 @@ object DragonHorde {
   def getAllHordesInfo(): Unit = {
     val ul = document.getElementById("horde-section")
     FetchJson.fetchGet(getAllHordesRoute, (hordes: Seq[Boolean] ) => {
-      for(i <- 0 until hordes.length) {
+      var noUnlocked = 0;
+      for(i <- 0 until hordes.length){ if(hordes(i)) noUnlocked+=1 }
+      for(i <- 0 until noUnlocked) {
         println(hordes(i))
-        if(hordes(i)) {
-          val li = document.createElement("li")
-          li.id = idNames(i)
-          println(names(i))
-          li.addEventListener("click", { (e0: dom.Event) =>
-            val e = e0.asInstanceOf[dom.MouseEvent]
-            setCurrentHorde(names(i))
-          }, false)
-          val text = document.createTextNode(names(i))
-          li.appendChild(text)
-          ul.appendChild(li)
-          lastHorde = names(i)
-        }
+        val li = document.createElement("li")
+        li.id = idNames(i)
+        println(names(i))
+        li.addEventListener("click", { (e0: dom.Event) =>
+          val e = e0.asInstanceOf[dom.MouseEvent]
+          setCurrentHorde(names(i))
+        }, false)
+        val text = document.createTextNode(names(i))
+        li.appendChild(text)
+        ul.appendChild(li)
+        lastHorde = names(i)
       }
     }, e => {
       println("Fetch error 5: " + e)
     })
+}
+
+def getNewHordeInfo(): Unit = {
+  val ul = document.getElementById("horde-section")
+  FetchJson.fetchGet(getAllHordesRoute, (hordes: Seq[Boolean] ) => {
+    var noUnlocked = -1;
+    for(i <- 0 until hordes.length){ if(hordes(i)) noUnlocked+=1 }
+    val li = document.createElement("li")
+    li.id = idNames(noUnlocked)
+    println(names(noUnlocked))
+    li.addEventListener("click", { (e0: dom.Event) =>
+      val e = e0.asInstanceOf[dom.MouseEvent]
+      setCurrentHorde(names(noUnlocked))
+    }, false)
+    val text = document.createTextNode(names(noUnlocked))
+    li.appendChild(text)
+    ul.appendChild(li)
+    lastHorde = names(noUnlocked)
+  }, e => {
+      println("Fetch error 5: " + e)
+  })
 }
 
 def getHordeUpgrades(hordeId: Int): Unit = {
@@ -367,6 +388,7 @@ def setVictim(name: String, id:Int) {
             println(msg)
             getUserInfo()
         } else {
+            println("did a bad")
             document.getElementById("create-message").innerHTML = "Stealing Failed"
         }
     }, e => {
@@ -426,7 +448,8 @@ def setVictim(name: String, id:Int) {
         if (bool) {
           document.getElementById("unlockNewHoardButton").asInstanceOf[js.Dynamic].disabled = true
           println("successfully unlocked new horde")
-          getUserInfo()
+          getNewHordeInfo()
+          getGold()
         }
         else {
           println("unlocking horde failed")
