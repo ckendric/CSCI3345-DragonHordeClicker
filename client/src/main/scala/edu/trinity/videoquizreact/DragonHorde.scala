@@ -227,6 +227,10 @@ object DragonHorde {
     getGold()
   }
 
+  def setCurrentHorde(name:String) {
+    currentHorde = name
+  }
+
   def getAllHordesInfo(): Unit = {
     println("loading hoards info scalajs.")
     val ul = document.getElementById("horde-section")
@@ -235,6 +239,8 @@ object DragonHorde {
         if(hordes(i)) {
           val li = document.createElement("li")
           li.id = names(i)
+          li.onclick = setCurrentHorde(names(i))
+          println(currentHorde)
           val text = document.createTextNode(names(i))
           li.appendChild(text)
           ul.appendChild(li)
@@ -259,10 +265,9 @@ def getHordeUpgrades(hordeId: Int): Unit = {
 
 }
 
-def loadOneHorde(horde: String): Unit = {
+def loadOneHorde(): Unit = {
       val username = document.getElementById("username").asInstanceOf[html.Input].value
       val data = models.UserHorde(username, horde)
-      currentHorde = horde
       document.getElementById("hordeItems").innerHTML = itemStored.toString
       //if (timer == its time to update database)
       FetchJson.fetchPost(loadHordeRoute, csrfToken, data, (horde: (Int, Int, Int, Double, Double, Double)) => {
@@ -273,6 +278,7 @@ def loadOneHorde(horde: String): Unit = {
         cost = horde._2
         id = horde._1
         getHordeUpgrades(id)
+        document.getElementById("buttons").asInstanceOf[js.Dynamic].hidden = false
       }, e => {
           println("Fetch error 7: " + e)
     })
