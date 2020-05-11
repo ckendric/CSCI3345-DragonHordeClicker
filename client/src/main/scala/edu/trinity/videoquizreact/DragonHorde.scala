@@ -71,6 +71,7 @@ object DragonHorde {
     var username = ""
     var victim = ""
     var victimid = -1
+    var canSteal = true
     private val names = List[String]("Rocks and Minerals", "Junk Food", "90s Paraphernalia", "Yarn", "Stuffed Animals", "Cats", "Music Boxes", "Coding Textbooks")
     private val idNames = List[String]("Rocks-and-Minerals", "Junk-Food", "90s-Paraphernalia", "Yarn", "Stuffed-Animals", "Cats", "Music-Boxes", "Coding-Textbooks")
     private val mapRoutes = Map[Int,String](1->"rocksandminerals.jpg",
@@ -392,21 +393,30 @@ def setVictim(name: String, id:Int) {
   //loads info to database when a user clicks on somebody to steal from
   @JSExportTopLevel("stealFromUser")
   def stealFromUser(): Unit = {
-      println("stealing from user scalajs")
-        val data = victimid
-        //returns horde name and amount stolen
-        FetchJson.fetchPost(stealFromUserRoute, csrfToken, data, (stolen:(String,  Double)) => {
-        if(stolen._1 != "") {
-            val msg = "Successfully stole "+stolen._2+" items from " + victim + "\'s "+stolen._1+" hoard."
-            println(msg)
-            loadOneHorde()
-        } else {
-            println("did a bad")
-            document.getElementById("create-message").innerHTML = "Stealing Failed"
-        }
-    }, e => {
-      println("Fetch error 12: " + e)
-    })
+    if (canSteal) {
+        println("stealing from user scalajs")
+          val data = victimid
+          //returns horde name and amount stolen
+          FetchJson.fetchPost(stealFromUserRoute, csrfToken, data, (stolen:(String,  Double)) => {
+          if(stolen._1 != "") {
+              val msg = "Successfully stole "+stolen._2+" items from " + victim + "\'s "+stolen._1+" hoard."
+              println(msg)
+              loadOneHorde()
+              canSteal = false
+          } else {
+              println("did a bad")
+              document.getElementById("create-message").innerHTML = "Stealing Failed"
+          }
+      }, e => {
+        println("Fetch error 12: " + e)
+      })
+      js.timers.setTimeout(10000) {
+        canSteal = true
+      }
+    }
+    else {
+      println("cannot steal yet, it is on countdown")
+    }
   }
 
 
