@@ -63,6 +63,7 @@ object DragonHorde {
     var upgradeId = 0
     var upgradeBool = true
     var lastHorde = ""
+    var currentHorde = ""
     private val names = List[String]("Rocks and Minerals", "Junk Food", "90s Paraphernalia", "Yarn", "Stuffed Animals", "Cats", "Music Boxes", "Coding Textbooks")
 
   
@@ -149,6 +150,7 @@ object DragonHorde {
       upgradeId = 0
       upgradeBool = true
       lastHorde = ""
+      currentHorde = ""
     }, e=> {
       println("Fetch error " + e)
     })
@@ -205,7 +207,7 @@ def getHordeUpgrades(): Unit = {
 def loadOneHorde(horde: String): Unit = {
       val username = document.getElementById("username").asInstanceOf[html.Input].value
       val data = models.UserHorde(username, horde)
-
+      currentHorde = horde
       document.getElementById("hordeItems").innerHTML = itemStored.toString
       //if (timer == its time to update database)
       FetchJson.fetchPost(loadHordeRoute, csrfToken, data, (horde: (Int, Int, Int, Double, Double, Double)) => {
@@ -330,7 +332,7 @@ def getHordeInfo(): Unit = {
   def addGold(): Unit = {
     println("loading gold scalajs")
     val username = document.getElementById("username").asInstanceOf[html.Input].value
-    getHordeInfo()
+    loadOneHorde(currentHorde)
     var gold = goldTotal
     //amount of gold we should have
     gold += (itemStored * goldConv).toInt
@@ -339,6 +341,7 @@ def getHordeInfo(): Unit = {
     FetchJson.fetchPost(addGoldRoute, csrfToken,data, (bool: Boolean) => {
       if (bool) {
         getUserInfo()
+        loadOneHorde(currentHorde)
       }
       else {
         println("adding gold failed")
@@ -387,12 +390,7 @@ def getHordeInfo(): Unit = {
 
   @JSExportTopLevel("unlockNewHorde")
   def unlockNewHorde(): Unit = {
-    //I currently have no way to access most of that information. I can pass the users gold, but the database 
-    //should have the current highest horde in it already. 
-    //
-      println("hmm")
       val username = document.getElementById("username").asInstanceOf[html.Input].value
-
       for (x <- 0 to names.length -1) {
         if (lastHorde == names(x)) {
           lastHorde = names(x + 1)
@@ -401,7 +399,6 @@ def getHordeInfo(): Unit = {
       if (lastHorde == "") {
         lastHorde = names(0)
       }
-
       val data = models.AddNewHorde(username,lastHorde,goldTotal)
       FetchJson.fetchPost(addNewHordeRoute, csrfToken, data, (bool: Boolean) => {
         if (bool) {
