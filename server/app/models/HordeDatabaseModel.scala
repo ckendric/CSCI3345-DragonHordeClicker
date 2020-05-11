@@ -105,11 +105,9 @@ class HordeDatabaseModel(db: Database)(implicit ec: ExecutionContext) {
     }
     def createUserHoards(userId:Int):Future[Boolean] = {
         //initialises all hoards for the user
-        println(userId)
         var i = 0
         var unlocked = true
         for(i <- 1 to 9) {
-            println("in the for loop")
             if(i > 1) unlocked = false
                 db.run(Hoard += HoardRow(-1, userId, 
                         /*hoardType*/i, 
@@ -168,14 +166,10 @@ class HordeDatabaseModel(db: Database)(implicit ec: ExecutionContext) {
     //    get all information for one of the user's hoards when said hoard is selected
     def getHoardInfo(userid:Int, hoardType:Int):Future[(Int, Int, Int, Double, Double, Double, Boolean)] = {
         //reult of all hoards with userid and hoardType
-        println("in the database")
-        println(hoardType)
         val matches = db.run(Hoard.filter(hoard => hoard.userId === userid && hoard.hoardtype === hoardType).result)
-        println(matches)
         matches.flatMap{ hoardRows => 
             //returns all relevant hoard data if hoard is unlocked (designated by final bool)
             if(hoardRows.head.unlocked) {
-                //println(hoardRows.head.unlocked)
                 Future.successful((hoardRows.head.hoardId, hoardRows.head.cost, hoardRows.head.hoardlevel, 
                                    hoardRows.head.hoarditems, hoardRows.head.productionspeed, hoardRows.head.goldconversionrate,
                                    true))
@@ -183,7 +177,6 @@ class HordeDatabaseModel(db: Database)(implicit ec: ExecutionContext) {
             //returns all 0 and unlocked=false if not unlocked
             //shouldn't ever happen I think
             else {
-                //println(hoardRows.head.unlocked)
                 Future.successful((0,0,0,0.0,0.0,0.0,false))
             }
         }

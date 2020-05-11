@@ -100,7 +100,6 @@ object DragonHorde {
 
     @JSExportTopLevel("login")
     def login(): Unit = {
-        println("logging in scalajs")
         username = document.getElementById("loginName").asInstanceOf[html.Input].value
         document.getElementById("username").asInstanceOf[html.Input].innerHTML = username
         val password = document.getElementById("loginPass").asInstanceOf[html.Input].value
@@ -123,7 +122,6 @@ object DragonHorde {
 
     @JSExportTopLevel("createUser")
     def createUser(): Unit = {
-      println("creating user scalajs")
         username = document.getElementById("createName").asInstanceOf[html.Input].value
         val password = document.getElementById("createPass").asInstanceOf[html.Input].value
         val data = models.UserData(username, password)
@@ -140,7 +138,6 @@ object DragonHorde {
   }
 
   def createUserHorde() {
-    println("creating user horde")
         FetchJson.fetchGet(createUserHoardsRoute, (bool: Boolean) => {
         if(bool) {
             println("created user hordes")
@@ -155,10 +152,8 @@ object DragonHorde {
   }
 
   def createUserHordeUpgrades() {
-    println("creating user horde upgrades")
         FetchJson.fetchGet(createUserHoardUpgradesRoute, (bool: Boolean) => {
         if(bool) {
-            println("created user hordes")
             createUniversalUpgrades()
         } else {
             document.getElementById("create-message").innerHTML = "User Creation Failed"
@@ -213,20 +208,9 @@ object DragonHorde {
 
   @JSExportTopLevel("getUserInfo")
   def getUserInfo(): Unit = {
-    println("loading user info scalajs")
     getStealingInfo()
     getAllHordesInfo()
     //getHordeUpgrades()
-
-    /*FetchJson.fetchGet(getUserInfoRoute, (gold: (Int, List[String])) => {
-      document.getElementById("gold").innerHTML = gold._1.toString
-      for (upgrade <- gold._2) {
-        val li = document.createElement("li")
-        val text = document.createTextNode(upgrade)
-      }
-    }, e => {
-      println("Fetch error 4: " + e)
-    })*/
     getGold()
   }
 
@@ -236,7 +220,6 @@ object DragonHorde {
   }
 
   def getAllHordesInfo(): Unit = {
-    println("loading hoards info scalajs.")
     val ul = document.getElementById("horde-section")
     FetchJson.fetchGet(getAllHordesRoute, (hordes: Seq[Boolean] ) => {
       for(i <- 0 until hordes.length) {
@@ -245,12 +228,8 @@ object DragonHorde {
           li.id = idNames(i)
           li.addEventListener("click", { (e0: dom.Event) =>
             val e = e0.asInstanceOf[dom.MouseEvent]
-            println(idNames(i))
             setCurrentHorde(names(i))
           }, false)
-
-
-          println(currentHorde)
           val text = document.createTextNode(names(i))
           li.appendChild(text)
           ul.appendChild(li)
@@ -276,17 +255,14 @@ def getHordeUpgrades(hordeId: Int): Unit = {
 
 def loadOneHorde(): Unit = {  
       val hordeNumber = names.indexOf(currentHorde)+1
-      println(hordeNumber)
       val data = hordeNumber
       FetchJson.fetchPost(getHordeInfoRoute, csrfToken, data, (horde: (Int, Int, Int, Double, Double, Double, Boolean)) => {
         itemStored = horde._4
         itemIncrement = horde._5
         goldConv = horde._6
-        println(goldConv)
         hordeLevel = horde._3
         cost = horde._2
         id = horde._1
-        println(id)
         getHordeUpgrades(id)
         document.getElementById("conversionRate").innerHTML = goldConv.toString
         document.getElementById("hordeItems").innerHTML = itemStored.toString
@@ -306,7 +282,6 @@ def loadOneHorde(): Unit = {
 
 
 def loadHorde(): Unit = {
-    println("loading horde info scalajs")
     val data = models.LoadHorde(id, cost, hordeLevel, itemStored, itemIncrement, goldConv, true)
     FetchJson.fetchPost(loadHordeRoute, csrfToken,data, (bool: Boolean) => {
       if (bool) {
@@ -402,12 +377,10 @@ def setVictim(name: String) {
     println("adding gold scalajs")
     //amount of gold we should have
     goldTotal += (itemStored * goldConv).toInt
-    println("gold total = " + goldTotal)
     itemStored = 0
     val data = goldTotal
     FetchJson.fetchPost(addGoldRoute, csrfToken,data, (bool: Boolean) => {
       if (bool) {
-        println("In addGold if")
         document.getElementById("gold").innerHTML = goldTotal.toString()
         loadHorde()
         getGold()
@@ -437,7 +410,7 @@ def setVictim(name: String) {
   def unlockNewHorde(): Unit = {
 
       for (x <- 0 to names.length -1) {
-        if (lastHorde == names(x)) {
+        if (lastHorde == names(x) && x != names.length -1) {
           lastHorde = names(x + 1)
         }
       }
@@ -448,6 +421,7 @@ def setVictim(name: String) {
       val data = models.AddNewHorde(username,lastHorde,goldTotal)
       FetchJson.fetchPost(addNewHordeRoute, csrfToken, data, (bool: Boolean) => {
         if (bool) {
+          document.getElementById("unlockNewHoardButton").asInstanceOf[js.Dynamic].disabled = true
           println("successfully leveled up horde")
           getUserInfo()
         }
