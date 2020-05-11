@@ -279,7 +279,6 @@ def loadOneHorde(): Unit = {
   println("super-beginning")
       val data = models.UserHorde(username, currentHorde)
       println("after data")
-      //document.getElementById("hordeItems").innerHTML = itemStored.toString
       //if (timer == its time to update database)
       FetchJson.fetchPost(getHordeInfoRoute, csrfToken, data, (horde: (Int, Int, Int, Double, Double, Double, Boolean)) => {
         println("beginning")
@@ -290,6 +289,8 @@ def loadOneHorde(): Unit = {
         cost = horde._2
         id = horde._1
         getHordeUpgrades(id)
+        document.getElementById("conversionRate").innerHTML = goldConv.toString
+        document.getElementById("hordeItems").innerHTML = itemStored.toString
         document.getElementById("buttons").asInstanceOf[js.Dynamic].hidden = false
         println("ending")
       }, e => {
@@ -329,7 +330,6 @@ def loadHorde(): Unit = {
 
 def getHordeUpgradesInfo(horde: String): Unit = {
       val data = models.UserHorde(username, horde)
-      //document.getElementById("hordeItems").innerHTML = itemStored.toString
       //if (timer == its time to update database)
       FetchJson.fetchPost(loadHordeRoute, csrfToken, data, (upgrades: (Int, Int, Int, Boolean, Double, Double)) => {
           upgradeId = upgrades._1
@@ -432,7 +432,7 @@ def setVictim(name: String) {
   def addToHorde(): Unit = {
       println("adding to hoard scalajs...")
       itemStored += 1
-      //document.getElementById("hordeItems").innerHTML = itemStored.toString
+      document.getElementById("hordeItems").innerHTML = itemStored.toString
       
   }
 
