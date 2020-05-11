@@ -64,11 +64,17 @@
 								<img src="@routes.Assets.versioned("images/dragonhoardupload.jpg")" alt="dragon horde image"> <!-- TODO - make this change with hoard -->
 								<br>
 								<div id = "buttons" hidden="true">
+									The Hoard to Gold conversion rate is <span id="conversionRate"></span>
+									<br>
+									You have <span id="hordeItems"></span> item(s) in this hoard.
+									<br>
 									<button id="hoardButton" onclick="addToHorde()">Hoard!</button>
 									<button id="convertButton" onclick="addGold()">Convert Hoard to Gold</button>
+									<button id="unlockNewHoardButton" onclick="unlockNewHorde()" disabled="true">Unlock Next Hoard</button>
 								</div>
 								<br>
 								Total Gold: <span id="gold"></span>
+								<br>
 						</p>
 				</div>
 
