@@ -256,7 +256,14 @@ class HordeDatabaseModel(db: Database)(implicit ec: ExecutionContext) {
         db.run((for {user <- Users if user.id === userid} yield {user.gold}).result).map(userRows => userRows.headOption)
     }
 
-    def loadHoardInfo(username:String, userid:Int, items:Int):Future[Int] = {
+    def loadHoardInfo(userid:Int, hoardType:Int, newCost:Int, newLv:Int, items:Int, newSpeed:Double, newConversionRate:Double, unlocked:Boolean):Future[Int] = {
+        //id, cost, hordeLevel, itemStored, itemIncrement, goldConv, true
+        db.run((for {h <- Hoard if h.userId === userid && h.hoardtype === hoardType} yield {h.cost}).update(newCost))
+        db.run((for {h <- Hoard if h.userId === userid && h.hoardtype === hoardType} yield {h.hoardlevel}).update(newLv))
+        db.run((for {h <- Hoard if h.userId === userid && h.hoardtype === hoardType} yield {h.hoarditems}).update(items))
+        db.run((for {h <- Hoard if h.userId === userid && h.hoardtype === hoardType} yield {h.productionspeed}).update(newSpeed))
+        db.run((for {h <- Hoard if h.userId === userid && h.hoardtype === hoardType} yield {h.goldconversionrate}).update(newConversionRate))
+        db.run((for {h <- Hoard if h.userId === userid && h.hoardtype === hoardType} yield {h.unlocked}).update(unlocked))
         Future.successful(1)
     }
 
