@@ -161,7 +161,7 @@ object DragonHorde {
     println("loading user info scalajs")
     getStealingInfo()
     getAllHordesInfo()
-    getHordeUpgrades()
+    //getHordeUpgrades()
 
     FetchJson.fetchGet(getUserInfoRoute, (gold: (Int, List[String])) => {
       document.getElementById("gold").innerHTML = gold._1.toString
@@ -191,13 +191,14 @@ object DragonHorde {
     })
 }
 
-def getHordeUpgrades(): Unit = {
+def getHordeUpgrades(hordeId: Int): Unit = {
   println("getting the horde upgrades")
   // however we want to represent them
 
-  FetchJson.fetchGet(getHordeUpgradesRoute, (upgrades: List[String]) => {
+  val data = models.HordeId(hordeId)
+  FetchJson.fetchPost(getHordeUpgradesRoute, csrfToken, data, (upgrades: List[String]) => {
     println("got it. How do we want to display it")
-  }, e => {
+    }, e => {
       println("Fetch error: " + e)
     })
 
@@ -216,6 +217,7 @@ def loadOneHorde(horde: String): Unit = {
         hordeLevel = horde._3
         cost = horde._2
         id = horde._1
+        getHordeUpgrades(id)
       }, e => {
           println("Fetch error: " + e)
     })
