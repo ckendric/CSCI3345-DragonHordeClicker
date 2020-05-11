@@ -100,18 +100,14 @@ class HordeDatabaseModel(db: Database)(implicit ec: ExecutionContext) {
     }
 
 
-    def createUserHoards(username:String,password:String):Future[Boolean] = {
-        val userId = db.run((for {user <- Users if user.username === username} yield {user.id}).result)
-        userId.flatMap(println)
+    def createUserHoards(username:String,userId:Int):Future[Boolean] = {
         //initialises all hoards for the user
         var i = 0
         var unlocked = true
         for(i <- 1 to 9) {
             println("in the for loop")
             if(i > 1) unlocked = false
-            userId.flatMap { ids =>
-                println(ids.head)
-                db.run(Hoard += HoardRow(-1, ids.head, 
+                db.run(Hoard += HoardRow(-1, userId, 
                         /*hoardType*/i, 
                         /*cost*/cost(i-1), 
                         /*HoardLevel*/0, 
@@ -119,17 +115,16 @@ class HordeDatabaseModel(db: Database)(implicit ec: ExecutionContext) {
                         /*ProductionSpeed*/0, 
                         /*Gold Conversion*/conversionRate(i-1),
                         /*unlocked*/unlocked))
-            }
         }
         Future.successful(true)
     }
 
-    def createUserHoardUpgrades(username:String,password:String):Future[Boolean] = {
+    def createUserHoardUpgrades(username:String,userId:Int):Future[Boolean] = {
         //createUserHoardUpgrades
         //initialises all hoard-specific upgrades
         var j = 0;
         var i = 0;
-        val hoards = userId.flatMap { ids => db.run(Hoard.filter(hoardRow => hoardRow.userId === ids.head).result)}
+        val hoards = db.run(Hoard.filter(hoardRow => hoardRow.userId === userId).result)
         for(i <- 0 to 8){
             for(j <- 1 to 6){
                 hoards.flatMap { hoards =>
@@ -146,13 +141,11 @@ class HordeDatabaseModel(db: Database)(implicit ec: ExecutionContext) {
         Future.successful(true)
     }
 
-    def createUniversalUpgrades(username:String,password:String):Future[Boolean] = {
+    def createUniversalUpgrades(username:String,userId:Int):Future[Boolean] = {
         //createUniversalUpgrades
         //initialises all universal upgrades
         for(i <- 0 to 4){
-            userId.flatMap { ids =>
-                db.run(Univupgrades += UnivupgradesRow(-1,ids.head,i,false))
-            }
+                db.run(Univupgrades += UnivupgradesRow(-1,userId,i,false))
         }
         Future.successful(true)
     }
