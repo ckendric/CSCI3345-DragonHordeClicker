@@ -55,6 +55,56 @@ object DragonHorde {
     val resetRoute = document.getElementById("resetRoute").asInstanceOf[html.Input].value
 
 
+    val upgradeDescriptions = List[List[String]] (List("You discover pretty rocks, and decide to start collecting.", 
+                                                    "Buy some shovels and picks to make the collection process faster.", 
+                                                    "Tumblers make your rocks shiny, smooth, and pretty. They are more valuable!", 
+                                                    "You buy more tools, including some power tools!", 
+                                                    "Big machinery makes collecting even more efficient.",
+                                                    "You purchase a mine for maximum rock and mineral collection."), 
+                                                    List("Trash food tastes better than rocks.", 
+                                                    "You start pillaging houses for junk food instead of finding it in the wild.", 
+                                                    "You read up on some marketing techniques to improve your sales.", 
+                                                    "You begin to stake out stores to get bulk packages.", 
+                                                    "Stealing from factories is even more efficient than stealing from stores.", 
+                                                    "You purchase your own junk food factory."),
+                                                    List("Bright, eye-searing colors attract you.", 
+                                                     "You start finding old toys in your parents' lair", 
+                                                     "For some reason, “90s kids” nostalgia makes a resurgence.", 
+                                                     "You start collecting Dixie® Cup patterns", 
+                                                     "You become obsessed with Tomagachis. You must collect more...", 
+                                                     "You figure out how to hack into Etsy's servers and steal 90s Paraphernalia"),
+                                                     List("You discover the joy found in a soft bed of yarn.", 
+                                                      "Adopt a sheep!", 
+                                                      "You start dying your yarn pretty colors, and it’s value increases.", 
+                                                      "Adopt two more sheep. They’re terrified of your fire. ", 
+                                                      "Learn advanced shearing techniques. You spin yarn faster.", 
+                                                      "Purchase an entire flock of sheep. You like to pat their fluffy heads."),
+                                                      List("You learn to knit with all of that yarn you have. Stuffed animals are adorable, even if all of yours look kind of wonky.", 
+                                                      "You purchase an array of patterns, and they start looking better.", 
+                                                      "You start focusing your marketing strategy to small children. Your sales increase.", 
+                                                      "You learn better stuffing techniques, and stop accidentally creating holes with your claws.", 
+                                                      "You now learn to crochet, and the stuffed-animal world is your oyster.", 
+                                                      "You learn from grandmothers. Their secrets make you a master of stuffed animal knitting and crocheting techniques."),
+                                                      List("Oh my god. It’s so adorable.", 
+                                                      "Having more cats means having more kittens, you discover. Every single one is purr-fect.", 
+                                                      "Your adopt-a-kitten campaign takes off!", 
+                                                      "You start baiting cats with fish. They paw-sitively flock to you.", 
+                                                      "Learn new petting techniques to attract more cats. Your cats are always feline good.", 
+                                                      "Catnip makes cat-napping easier. You don’t worry about the morals of this."),
+                                                      List("The music is so pretty...", 
+                                                      "You begin learning how to make music boxes of your own.", 
+                                                      "You discover a market for collector’s music boxes.", 
+                                                      "Learn techniques for touching up old music boxes to restore broken ones.", 
+                                                      "Bionic ears make finding music boxes easier.", 
+                                                      "You purchase a factory to build music boxes. How industrious of you!"),
+                                                      List("You’re introduced to the art of programming using Scala.", 
+                                                      "There are languages other than Scala?", 
+                                                      "When you stop drawing in your textbooks, they end up being worth more.", 
+                                                      "You start finding textbooks in the REALLY obscure languages. You’ll probably never use them.", 
+                                                      "Buy a printing press. Print more coding textbooks.", 
+                                                      "Contract professors to write you new coding textbooks.")
+                                                    )
+
 
 
     var itemStored = 0.0
@@ -282,12 +332,43 @@ def getNewHordeInfo(): Unit = {
   })
 }
 
-def getHordeUpgrades(hordeId: Int): Unit = {
-  // however we want to represent them
+//  upgradeRows(i).hoardupgradeId, 
+//  upgradeRows(i).upgradeno, 
+//  upgradeRows(i).cost, 
+//  upgradeRows(i).unlocked, 
+//  upgradeRows(i).newspeed, 
+//  upgradeRows(i).goldmultiplier))}})
 
-  val data = hordeId
-  FetchJson.fetchPost(getHordeUpgradesRoute, csrfToken, data, (upgrades: List[String]) => {
+def activateUpgrade(upgradeId: Int) {
+  
+}
+
+  //    * 1. hoardId
+  //    * 2. hoard productionSpeed
+  //    * 3. hoard goldConversionRate
+   //   * 4. upgradeId
+   //   * 5. upgrade's unlocked boolean value (though I could probably just assume this as True) 
+
+def getHordeUpgrades(): Unit = {
+  // however we want to represent them
+  document.getElementById("upgrade-menu").asInstanceOf[js.Dynamic].innerHTML = ""
+  val ul = document.getElementById("upgrade-menu")
+  FetchJson.fetchPost(getHordeUpgradesRoute, csrfToken, id, (upgradeInfo:Seq[(Int, Int, Int, Boolean, Double, Double)]) => {
     println("got it. How do we want to display it")
+    for (x <- 0 to upgradeInfo.length) {
+      val li = document.createElement("li")
+      li.id = upgradeInfo(x)._1.toString()
+      if (itemStored < upgradeInfo(x)._3) 
+          li.asInstanceOf[js.Dynamic].disabled = true
+      else {
+        li.asInstanceOf[js.Dynamic].disabled = true
+        li.addEventListener("click", { (e0: dom.Event) =>
+        val e = e0.asInstanceOf[dom.MouseEvent]
+        upgradeHorde(upgradeInfo(x)._1)
+          }, false)
+        }
+          val text = document.createTextNode(upgradeDescriptions(id -1)(x))
+    }
     }, e => {
       println("Fetch error 6: " + e)
     })
@@ -514,8 +595,7 @@ def setVictim(name: String, id:Int) {
    //   * 5. upgrade's unlocked boolean value (though I could probably just assume this as True) 
 
   //tells the databasae that the user wants to perform
-  @JSExportTopLevel("upgradeHorde")
-  def upgradeHorde(): Unit = {
+  def upgradeHorde(hordeId: Int): Unit = {
       println("upgrading hoard scalajs...")
       val horde = document.getElementById("horde").asInstanceOf[html.Input].value    
       val data = models.UpgradeHorde(id, itemIncrement, goldConv, upgradeId, upgradeBool)
