@@ -135,12 +135,12 @@ object DragonHorde {
     }, e => {
       println("Fetch error 2: " + e)
     })
-    createUserHorde(username,password)
+    createUserHorde()
   }
 
-  def createUserHorde(username:String, password:String) {
-        val data = models.UserData(username, password)
-        FetchJson.fetchPost(createUserHoardsRoute, csrfToken, data, (bool: Boolean) => {
+  def createUserHorde() {
+    println("creating user horde")
+        FetchJson.fetchGet(createUserHoardsRoute, (bool: Boolean) => {
         if(bool) {
             println("created user hordes")
         } else {
@@ -149,12 +149,12 @@ object DragonHorde {
     }, e => {
       println("Fetch error 2: " + e)
     })
-    createUserHordeUpgrades(username, password)
+    createUserHordeUpgrades()
   }
 
-  def createUserHordeUpgrades(username:String, password:String) {
-        val data = models.UserData(username, password)
-        FetchJson.fetchPost(createUserHoardUpgradesRoute, csrfToken, data, (bool: Boolean) => {
+  def createUserHordeUpgrades() {
+    println("creating user horde upgrades")
+        FetchJson.fetchGet(createUserHoardUpgradesRoute, (bool: Boolean) => {
         if(bool) {
             println("created user hordes")
         } else {
@@ -163,12 +163,12 @@ object DragonHorde {
     }, e => {
       println("Fetch error 2: " + e)
     })
-    createUniversalUpgrades(username,password)
+    createUniversalUpgrades()
   }
 
-  def createUniversalUpgrades(username:String,password:String) {
-    val data = models.UserData(username, password)
-    FetchJson.fetchPost(createUniversalUpgradesRoute, csrfToken, data, (bool: Boolean) => {
+  def createUniversalUpgrades() {
+    println("creating universal upgrades scalajs")
+    FetchJson.fetchGet(createUniversalUpgradesRoute, (bool: Boolean) => {
     if(bool) {
         println("created user hordes")
     } else {
