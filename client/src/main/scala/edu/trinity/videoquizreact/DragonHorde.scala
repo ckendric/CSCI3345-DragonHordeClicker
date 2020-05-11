@@ -377,6 +377,7 @@ def loadOneHorde(): Unit = {
       val data = hordeNumber
       FetchJson.fetchPost(getHordeInfoRoute, csrfToken, data, (horde: (Int, Int, Int, Double, Double, Double, Boolean)) => {
         itemStored = horde._4
+        println(itemStored)
         itemIncrement = horde._5
         goldConv = horde._6
         hordeLevel = horde._3
@@ -517,8 +518,7 @@ def setVictim(name: String, id:Int) {
     FetchJson.fetchPost(addGoldRoute, csrfToken,data, (bool: Boolean) => {
       if (bool) {
         document.getElementById("gold").innerHTML = goldTotal.toString()
-        getGold()
-        loadOneHorde()
+        loadHorde()
         if (currentHorde == lastHorde && goldTotal >= cost){
           document.getElementById("unlockNewHoardButton").asInstanceOf[js.Dynamic].disabled = false
         }
