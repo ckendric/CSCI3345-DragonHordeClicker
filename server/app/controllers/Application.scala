@@ -61,6 +61,33 @@ class Application @Inject() (protected val dbConfigProvider: DatabaseConfigProvi
     }
   }
 
+  def createUserHoards = Action.async { implicit request => {
+      val userIdOption = request.session.get("userid").map(userid => userid.toInt)
+      val emptyInfo = false
+      userIdOption.map { userid =>
+        model.createUserHoards(userid).map(info => Ok(Json.toJson(info)))
+      }.getOrElse(Future.successful(Ok(Json.toJson(emptyInfo))))
+    }
+  }
+
+  def createUserHoardUpgrades = Action.async { implicit request => {
+      val userIdOption = request.session.get("userid").map(userid => userid.toInt)
+      val emptyInfo = false 
+      userIdOption.map { userid =>
+        model.createUserHoardUpgrades(userid).map(info => Ok(Json.toJson(info)))
+      }.getOrElse(Future.successful(Ok(Json.toJson(emptyInfo))))
+    }
+  }
+
+  def createUniversalUpgrades = Action.async { implicit request => {
+      val userIdOption = request.session.get("userid").map(userid => userid.toInt)
+      val emptyInfo = false
+      userIdOption.map { userid =>
+        model.createUniversalUpgrades(userid).map(info => Ok(Json.toJson(info)))
+      }.getOrElse(Future.successful(Ok(Json.toJson(emptyInfo))))
+    }
+  }
+
   //(Option[Int], Seq[Boolean])
   def getUserInfo = Action.async { implicit request => {
       val userIdOption = request.session.get("userid").map(userid => userid.toInt)
