@@ -44,6 +44,7 @@ class Application @Inject() (protected val dbConfigProvider: DatabaseConfigProvi
   }
 
  def createUser = Action.async {implicit request => {
+println("application create user")
       request.body.asJson.map { body =>
         Json.fromJson[UserData](body) match {
           case JsSuccess(ud,path) =>
@@ -114,7 +115,7 @@ class Application @Inject() (protected val dbConfigProvider: DatabaseConfigProvi
 
   def getStealingInfo = Action.async { implicit request => {
       val userIdOption = request.session.get("userid").map(userid => userid.toInt)
-      val emptyInfo = (Seq[Int](), Seq[String]())//need to know what type that userinfo is
+      val emptyInfo = Seq[(Int, String)]()//need to know what type that userinfo is
        userIdOption.map { userid =>
         model.getStealingInfo(userid).map(info => Ok(Json.toJson(info)))
       }.getOrElse(Future.successful(Ok(Json.toJson(emptyInfo))))
@@ -123,7 +124,7 @@ class Application @Inject() (protected val dbConfigProvider: DatabaseConfigProvi
 
   def getGold = Action.async { implicit request => {
       val userIdOption = request.session.get("userid").map(userid => userid.toInt)
-      val emptyInfo = 0 //need to know what type that userinfo is
+      val emptyInfo = None //need to know what type that userinfo is
       userIdOption.map { userid =>
         model.getGold(userid).map(info => Ok(Json.toJson(info)))
       }.getOrElse(Future.successful(Ok(Json.toJson(emptyInfo))))

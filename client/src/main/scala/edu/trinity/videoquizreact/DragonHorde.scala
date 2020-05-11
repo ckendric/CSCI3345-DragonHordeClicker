@@ -108,7 +108,7 @@ object DragonHorde {
                     document.getElementById("login-message").innerHTML = "Login Failed"
                 }
         }, e => {
-            println("Fetch error: " + e)
+            println("Fetch error 1: " + e)
         })
     }
 
@@ -129,7 +129,7 @@ object DragonHorde {
             document.getElementById("create-message").innerHTML = "User Creation Failed"
         }
     }, e => {
-      println("Fetch error: " + e)
+      println("Fetch error 2: " + e)
     })
   }
 
@@ -151,7 +151,7 @@ object DragonHorde {
       lastHorde = ""
       currentHorde = ""
     }, e=> {
-      println("Fetch error " + e)
+      println("Fetch error 3:" + e)
     })
   }
 
@@ -163,15 +163,16 @@ object DragonHorde {
     getAllHordesInfo()
     //getHordeUpgrades()
 
-    FetchJson.fetchGet(getUserInfoRoute, (gold: (Int, List[String])) => {
+    /*FetchJson.fetchGet(getUserInfoRoute, (gold: (Int, List[String])) => {
       document.getElementById("gold").innerHTML = gold._1.toString
       for (upgrade <- gold._2) {
         val li = document.createElement("li")
         val text = document.createTextNode(upgrade)
       }
     }, e => {
-      println("Fetch error: " + e)
-    }) 
+      println("Fetch error 4: " + e)
+    })*/
+    getGold()
   }
 
   def getAllHordesInfo(): Unit = {
@@ -187,7 +188,7 @@ object DragonHorde {
         lastHorde = horde
       }
     }, e => {
-      println("Fetch error: " + e)
+      println("Fetch error 5: " + e)
     })
 }
 
@@ -199,7 +200,7 @@ def getHordeUpgrades(hordeId: Int): Unit = {
   FetchJson.fetchPost(getHordeUpgradesRoute, csrfToken, data, (upgrades: List[String]) => {
     println("got it. How do we want to display it")
     }, e => {
-      println("Fetch error: " + e)
+      println("Fetch error 6: " + e)
     })
 
 }
@@ -219,7 +220,7 @@ def loadOneHorde(horde: String): Unit = {
         id = horde._1
         getHordeUpgrades(id)
       }, e => {
-          println("Fetch error: " + e)
+          println("Fetch error 7: " + e)
     })
 
     js.timers.setInterval(3) {
@@ -240,7 +241,7 @@ def getHordeUpgradesInfo(horde: String): Unit = {
           upgradeId = upgrades._1
           upgradeBool = upgrades._4
       }, e => {
-          println("Fetch error: " + e)
+          println("Fetch error 8: " + e)
     })
 }
 
@@ -257,7 +258,7 @@ def getHordeInfo(): Unit = {
     cost = horde._2
     id = horde._1
   }, e => {
-      println("Fetch error: " + e)
+      println("Fetch error 9: " + e)
     })
 
     js.timers.setInterval(3) {
@@ -278,16 +279,16 @@ def getHordeInfo(): Unit = {
     //this would currently just display the usernames of the vitcims (all users)
     val ul = document.getElementById("stealing-section")
         ul.innerHTML =""
-        FetchJson.fetchGet(getStealingInfoRoute, (victims:List[String]) => {
+        FetchJson.fetchGet(getStealingInfoRoute, (victims:Seq[(Int, String)]) => {
             for(victim <- victims) {
                       val li = document.createElement("li")
-                      li.id = victim
-                      val text = document.createTextNode("steal from: " + victim)
+                      li.id = victim._1.toString
+                      val text = document.createTextNode("steal from: " + victim._2)
                       li.appendChild(text)
                       ul.appendChild(li)
             }
         }, e => {
-            println("Fetch error: " + e)
+            println("Fetch error 10: " + e)
         })
   }
 
@@ -300,7 +301,7 @@ def getHordeInfo(): Unit = {
       goldTotal = gold
       txt.innerHTML =  gold.toString()
         }, e => {
-            println("Fetch error: " + e)
+            println("Fetch error 11: " + e)
         })
   }
 
@@ -322,7 +323,7 @@ def getHordeInfo(): Unit = {
             document.getElementById("create-message").innerHTML = "Stealing Failed"
         }
     }, e => {
-      println("Fetch error: " + e)
+      println("Fetch error 12: " + e)
     })
   }
 
@@ -348,7 +349,7 @@ def getHordeInfo(): Unit = {
         println("adding gold failed")
       }
     }, e => {
-        println("Fetch error: " + e)
+        println("Fetch error 13: " + e)
     })
   }
 
@@ -381,7 +382,7 @@ def getHordeInfo(): Unit = {
             document.getElementById("create-message").innerHTML = "Adding to horde Failed"
       }
     }, e => {
-      println("Fetch error: " + e)
+      println("Fetch error 14: " + e)
     })    
   }
       // What I get passed:
@@ -410,7 +411,7 @@ def getHordeInfo(): Unit = {
           println("leveling up failed")
         }
       }, e => {
-        println("Fetch error: " + e)
+        println("Fetch error 15: " + e)
       })
   }
 
@@ -428,7 +429,7 @@ def getHordeInfo(): Unit = {
         println("leveling up failed")
       }
     }, e => {
-        println("Fetch error: " + e)
+        println("Fetch error 16: " + e)
     })
   }
 
@@ -453,7 +454,7 @@ def getHordeInfo(): Unit = {
             document.getElementById("create-message").innerHTML = "Upgrading Horde Failed"
       }
     }, e => {
-      println("Fetch error: " + e)
+      println("Fetch error 17: " + e)
     })   
   }
 
@@ -471,7 +472,7 @@ def getHordeInfo(): Unit = {
             document.getElementById("create-message").innerHTML = "User Creation Failed"
       }
     }, e => {
-      println("Fetch error: " + e)
+      println("Fetch error 18: " + e)
     })   
   }
 
@@ -488,7 +489,7 @@ def getHordeInfo(): Unit = {
             document.getElementById("create-message").innerHTML = "Resetting Failed"
       }
     }, e => {
-      println("Fetch error: " + e)
+      println("Fetch error 19: " + e)
     })   
   }
 

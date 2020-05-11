@@ -88,18 +88,23 @@ class HordeDatabaseModel(db: Database)(implicit ec: ExecutionContext) {
 
     def createUser(username:String,password:String):Future[Boolean] = {
         val matches = db.run(Users.filter(userRow => userRow.username === username).result)
-
+println("start")
         //initialises user if it does not already exist
         matches.flatMap{ userRows => 
             if(userRows.nonEmpty) {
                 Future.successful(false)
             } else {
                 db.run(Users += UsersRow(-1, username, BCrypt.hashpw(password, BCrypt.gensalt()), 1))
+                    .flatMap{ addCount => 
+                    if (addCount >= 0) db.run(Users.filter(userRow => userRow.username === username).result)
+                        .map(_.headOption.map(_.id))
+                    else Future.successful(false)
+                }
                     //.map(addCount => addCount>0)
             }
         }
         val userId = db.run((for {user <- Users if user.username === username} yield {user.id}).result)
-
+println("user Added")
         //initialises all hoards for the user
         var i = 0
         var unlocked = true
@@ -116,7 +121,7 @@ class HordeDatabaseModel(db: Database)(implicit ec: ExecutionContext) {
                         /*unlocked*/unlocked))
             }
         }
-
+println("Hoards Added")
         //initialises all hoard-specific upgrades
         var j = 0;
         i = 0;
@@ -134,34 +139,26 @@ class HordeDatabaseModel(db: Database)(implicit ec: ExecutionContext) {
                 }
             }
         }
-
+println("Hoard Upgrades Added")
         //initialises all universal upgrades
         for(i <- 0 to 4){
             userId.flatMap { ids =>
                 db.run(Univupgrades += UnivupgradesRow(-1,ids.head,i,false))
             }
         }
-
+println("Universal Upgrades Added")
         Future.successful(true)
     }
 
     def getUserInfo(userid:Int):Future[(Option[Int], Seq[Boolean])] = {
-        //get basic user data
-            //currently an option, could not be
-        var gold = db.run((for {user <- Users if user.id === userid} yield {user.gold}).result).map(userRows => userRows.headOption)
-        //unlocked universal upgrades
-        var upgrades = db.run((for {uUpgrade <- Univupgrades if uUpgrade.userId == userid} yield {uUpgrade.unlocked}).result)
-        for{ 
-            g <- gold
-            u <- upgrades
-         } yield {
-            (g, u)
-         }
+        Future.successful((None, Seq[Boolean]()))
     }
+
+
 
     def getAllHordesInfo(userid:Int):Future[Seq[Boolean]] = {
         //unlocked hoards
-        var hoards = db.run((for {hoard <- Hoard if hoard.userId == userid} yield {hoard.unlocked}).result)
+        var hoards = db.run((for {hoard <- Hoard if hoard.userId === userid} yield {hoard.unlocked}).result)
         for{ h <- hoards } yield { h }
     }
     
@@ -169,7 +166,7 @@ class HordeDatabaseModel(db: Database)(implicit ec: ExecutionContext) {
     //    get all information for one of the user's hoards when said hoard is selected
     def getHoardInfo(userid:Int, hoardType:Int):Future[(Int, Int, Int, Double, Double, Double, Boolean)] = {
         //reult of all hoards with userid and hoardType
-        val matches = db.run(Hoard.filter(hoard => hoard.userId === userid && hoard.hoardtype == hoardType).result)
+        val matches = db.run(Hoard.filter(hoard => hoard.userId === userid && hoard.hoardtype === hoardType).result)
         matches.flatMap{ hoardRows => 
             //returns all relevant hoard data if hoard is unlocked (designated by final bool)
             if(hoardRows.head.unlocked) {
@@ -191,7 +188,7 @@ class HordeDatabaseModel(db: Database)(implicit ec: ExecutionContext) {
         //val matches = db.run(Hoard.filter(hoard => hoard.userId === userid && hoard.hoardtype == hoardType).result)
         var i = 0;
         //first get proper hoard ID
-        val hoardID = db.run((for {hoard <- Hoard if hoard.userId === userid && hoard.hoardtype == hoardType} yield {hoard.hoardId}).result)
+        val hoardID = db.run((for {hoard <- Hoard if hoard.userId === userid && hoard.hoardtype === hoardType} yield {hoard.hoardId}).result)
         val matches = hoardID.flatMap { ids => db.run(Hoardupgrade.filter(upgrade => upgrade.hoardId === ids.head).result)}
         
         Future.sequence(for(i <- 1 to 6) 
@@ -206,17 +203,8 @@ class HordeDatabaseModel(db: Database)(implicit ec: ExecutionContext) {
     //returns: Future[(Seq[Int],Seq[String])]
     //         a list of other userids and usernames, supposedly to be stolen from
     //I think this may need to be changed later on, but the rest might be handled in stealFromUser
-    def getStealingInfo(userId:Int):Future[(Seq[Int], Seq[String])] = {
-
-        //var victims = db.run((for {user <- Users if user.userId == userid} yield {hoard.unlocked}).result)
-        var victimIds = db.run((for {user <- Users if !(user.id === userId)} yield {user.id}).result)
-        var victimUsns = db.run((for {user <- Users if !(user.id === userId)} yield {user.username}).result)
-        for{ 
-            i <- victimIds
-            u <- victimUsns
-         } yield {
-            (i,u)
-         }
+    def getStealingInfo(userId:Int):Future[Seq[(Int, String)]] = {
+        db.run((for {user <- Users if !(user.id === userId)} yield { (user.id, user.username) }).result)
     }
 
     //randomly picks a hoard from a user and attempts to steal from them at a given probability
@@ -239,9 +227,8 @@ class HordeDatabaseModel(db: Database)(implicit ec: ExecutionContext) {
         Future.successful(1)
     }
 
-    def getGold(userId:Int):Future[Int] = {
-        //gold.update(newGold).run
-        Future.successful(1)
+    def getGold(userid:Int):Future[Option[Int]] = {
+        db.run((for {user <- Users if user.id === userid} yield {user.gold}).result).map(userRows => userRows.headOption)
     }
 
     def loadHoardInfo(username:String, userid:Int, items:Int):Future[Int] = {
