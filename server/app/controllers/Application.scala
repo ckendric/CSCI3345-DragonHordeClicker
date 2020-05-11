@@ -195,6 +195,20 @@ class Application @Inject() (protected val dbConfigProvider: DatabaseConfigProvi
       }.getOrElse(Future.successful(Ok(Json.toJson(false))))
     }
   }
+  
+  def addNewHoard = Action.async { implicit request => {
+    val userIdOption = request.session.get("userid").map(userid => userid.toInt)
+    userIdOption.map { userid =>
+      request.body.asJson.map { body =>
+        Json.fromJson[(Int,Boolean,Int)](body) match { //Int, Bool, Int
+          case JsSuccess((hoardtype,unlocked,newgold),path) =>
+            model.unlockNewHoard(userid, hoardtype, unlocked, newgold).map(count => Ok(Json.toJson( count > 0 )))
+          case e @ JsError(_) => Future.successful(Redirect(routes.Application.index()))
+        }
+      }.getOrElse(Future.successful(Ok(Json.toJson(false))))
+    }.getOrElse(Future.successful(Ok(Json.toJson(false))))
+  }
+  }
 
   def stealFromUser = Action.async { implicit request => {
       val userIdOption = request.session.get("userid").map(userid => userid.toInt)
