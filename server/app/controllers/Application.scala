@@ -71,14 +71,19 @@ class Application @Inject() (protected val dbConfigProvider: DatabaseConfigProvi
     }
   }
   
-  //TODO: define hoardNumber
-  val hoardNumber = 0
-  //HordeInfo(id: Int, cost:Int, level:Int, items: Double, productionSpeed: Double, goldConversion: Double, bool)
+
+
   def getHoardInfo = Action.async { implicit request => {
       val userIdOption = request.session.get("userid").map(userid => userid.toInt)
-      val emptyInfo = (0,0,0,0.0,0.0,0.0,false) //need to know what type that userinfo is
+      val emptyInfo = (0,0,0,0.0,0.0,0.0,false)
       userIdOption.map { userid =>
-        model.getHoardInfo(userid, hoardNumber).map(info => Ok(Json.toJson(info)))
+        request.body.asJson.map { body =>
+          Json.fromJson[Int](body) match { //info will not be a string; this will change a lot
+            case JsSuccess(info,path) =>
+              model.getHoardInfo(userid, info).map(ret => Ok(Json.toJson(ret)))
+            case e @ JsError(_) => Future.successful(Ok(Json.toJson(emptyInfo)))
+          }
+        }.getOrElse(Future.successful(Ok(Json.toJson(emptyInfo))))
       }.getOrElse(Future.successful(Ok(Json.toJson(emptyInfo))))
     }
   }
@@ -87,7 +92,13 @@ class Application @Inject() (protected val dbConfigProvider: DatabaseConfigProvi
       val userIdOption = request.session.get("userid").map(userid => userid.toInt)
       val emptyInfo = Seq[(Int, Int, Int, Boolean, Double, Double)]() //need to know what type that userinfo is
       userIdOption.map { userid =>
-        model.getHoardUpgradesInfo(userid, hoardNumber).map(info => Ok(Json.toJson(info)))
+        request.body.asJson.map { body =>
+          Json.fromJson[Int](body) match { //info will not be a string; this will change a lot
+            case JsSuccess(info,path) =>
+              model.getHoardUpgradesInfo(userid, info).map(ret => Ok(Json.toJson(ret)))
+            case e @ JsError(_) => Future.successful(Ok(Json.toJson(emptyInfo)))
+          }
+        }.getOrElse(Future.successful(Ok(Json.toJson(emptyInfo))))
       }.getOrElse(Future.successful(Ok(Json.toJson(emptyInfo))))
     }
   }

@@ -8,7 +8,8 @@ POST       /validateUser                 controllers.Application.validateUser
 POST       /createUser                   controllers.Application.createUser
 GET        /logout                       controllers.Application.logout
 GET        /getUserInfo                  controllers.Application.getUserInfo
-GET        /getHoardInfo                 controllers.Application.getHoardInfo
+POST       /getHoardInfo                 controllers.Application.getHoardInfo
+POST       /getHoardUpgradesInfo         controllers.Application.getHoardUpgradesInfo
 GET        /getAllHoardsInfo             controllers.Application.getAllHoardsInfo
 GET        /getStealingInfo              controllers.Application.getStealingInfo
 POST       /loadUserInfo                 controllers.Application.loadUserInfo
