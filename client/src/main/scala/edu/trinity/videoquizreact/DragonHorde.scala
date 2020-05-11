@@ -209,6 +209,7 @@ object DragonHorde {
       upgradeBool = true
       lastHorde = ""
       currentHorde = ""
+      clearHordes()
     }, e=> {
       println("Fetch error 3:" + e)
     })
@@ -254,6 +255,10 @@ object DragonHorde {
     }, e => {
       println("Fetch error 5: " + e)
     })
+}
+
+def clearHordes(): Unit = {
+  document.getElementById("horde-section").asInstanceOf[js.Dynamic].innerHTML = ""
 }
 
 def getNewHordeInfo(): Unit = {
