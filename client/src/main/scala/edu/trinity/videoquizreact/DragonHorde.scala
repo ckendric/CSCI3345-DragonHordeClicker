@@ -408,7 +408,6 @@ def setVictim(name: String) {
 
   @JSExportTopLevel("unlockNewHorde")
   def unlockNewHorde(): Unit = {
-
       for (x <- 0 to names.length -1) {
         if (lastHorde == names(x) && x != names.length -1) {
           lastHorde = names(x + 1)
@@ -417,8 +416,8 @@ def setVictim(name: String) {
       if (lastHorde == "") {
         lastHorde = names(0)
       }
-
-      val data = models.AddNewHorde(username,lastHorde,goldTotal)
+      goldTotal -= cost
+      val data = models.AddNewHorde(lastHorde, true, goldTotal)
       FetchJson.fetchPost(addNewHordeRoute, csrfToken, data, (bool: Boolean) => {
         if (bool) {
           document.getElementById("unlockNewHoardButton").asInstanceOf[js.Dynamic].disabled = true
@@ -431,7 +430,6 @@ def setVictim(name: String) {
       }, e => {
         println("Fetch error 15: " + e)
       })
-
   }
 
   

@@ -13,7 +13,7 @@ case class UserInfo(gold: Int,  universalUpgrade: List[String])
 case class LevelUpData(id: Int, level: Int, productionSpeed: Double, cost: Int, gold: Int)
 case class UserHorde(username: String, hordeName: Int)
 case class UpgradeHorde(hordeId: Int, productionSpeed: Double, goldConversion: Double, upgradeId: Int, upgradeBool: Boolean)
-case class AddNewHorde(username: String, horde: String, gold: Int)
+case class AddNewHorde(horde: String, unlocked: Boolean,gold: Int)
 case class HordeId(id: Int)
 case class LoadHorde(typee: Int, cost: Int,level: Int, items: Double, productionSpeed: Double, goldConversion: Double,unlocked: Boolean)
 
