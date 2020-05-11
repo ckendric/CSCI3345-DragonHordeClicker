@@ -408,10 +408,13 @@ def setVictim(name: String) {
     FetchJson.fetchPost(addGoldRoute, csrfToken,data, (bool: Boolean) => {
       if (bool) {
         println("In addGold if")
-        document.getElementById("gold").innerHTML = goldTotal.toString
+        document.getElementById("gold").innerHTML = goldTotal.toString()
         loadHorde()
         getGold()
         loadOneHorde()
+        if (currentHorde == lastHorde && goldTotal >= cost){
+          document.getElementById("unlockNewHoardButton").asInstanceOf[js.Dynamic].disabled = false
+        }
       }
       else {
         println("adding gold failed")
@@ -432,6 +435,7 @@ def setVictim(name: String) {
 
   @JSExportTopLevel("unlockNewHorde")
   def unlockNewHorde(): Unit = {
+
       for (x <- 0 to names.length -1) {
         if (lastHorde == names(x)) {
           lastHorde = names(x + 1)
@@ -440,6 +444,7 @@ def setVictim(name: String) {
       if (lastHorde == "") {
         lastHorde = names(0)
       }
+
       val data = models.AddNewHorde(username,lastHorde,goldTotal)
       FetchJson.fetchPost(addNewHordeRoute, csrfToken, data, (bool: Boolean) => {
         if (bool) {
@@ -452,6 +457,7 @@ def setVictim(name: String) {
       }, e => {
         println("Fetch error 15: " + e)
       })
+
   }
 
   
