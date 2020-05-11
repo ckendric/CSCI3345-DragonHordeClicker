@@ -408,16 +408,15 @@ def setVictim(name: String) {
 
   @JSExportTopLevel("unlockNewHorde")
   def unlockNewHorde(): Unit = {
-      for (x <- 0 to names.length -1) {
-        if (lastHorde == names(x) && x != names.length -1) {
-          lastHorde = names(x + 1)
-        }
-      }
+      println(lastHorde)
       if (lastHorde == "") {
         lastHorde = names(0)
       }
       goldTotal -= cost
-      val data = models.AddNewHorde(lastHorde, true, goldTotal)
+      val hoardNumber = names.indexOf(lastHorde)+2
+      println(hoardNumber)
+      val data = (hoardNumber, true, goldTotal)
+      println("calling unlock new hoard")
       FetchJson.fetchPost(addNewHordeRoute, csrfToken, data, (bool: Boolean) => {
         if (bool) {
           document.getElementById("unlockNewHoardButton").asInstanceOf[js.Dynamic].disabled = true

@@ -297,7 +297,9 @@ class HordeDatabaseModel(db: Database)(implicit ec: ExecutionContext) {
       * 4. user's gold
       * 
       */
-    def unlockNewHoard(userid:Int, hoardType:Int, unlocked:Boolean, newGold:Int):Future[Int] = {
+    def unlockNewHoard(userid:Int, hoardType:Int, newUnlocked:Boolean, newGold:Int):Future[Int] = {
+        db.run((for { u <- Users if u.id === userid} yield {u.gold}).update(newGold))
+        db.run((for {h <- Hoard if h.userId === userid && h.hoardtype === hoardType} yield {h.unlocked}).update(newUnlocked))
         Future.successful(1)
     }
 
