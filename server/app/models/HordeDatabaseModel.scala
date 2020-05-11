@@ -100,7 +100,7 @@ class HordeDatabaseModel(db: Database)(implicit ec: ExecutionContext) {
     }
 
 
-    def createUserHoards(username:String,userId:Int):Future[Boolean] = {
+    def createUserHoards(userId:Int):Future[Boolean] = {
         //initialises all hoards for the user
         var i = 0
         var unlocked = true
@@ -119,7 +119,7 @@ class HordeDatabaseModel(db: Database)(implicit ec: ExecutionContext) {
         Future.successful(true)
     }
 
-    def createUserHoardUpgrades(username:String,userId:Int):Future[Boolean] = {
+    def createUserHoardUpgrades(userId:Int):Future[Boolean] = {
         //createUserHoardUpgrades
         //initialises all hoard-specific upgrades
         var j = 0;
@@ -141,7 +141,7 @@ class HordeDatabaseModel(db: Database)(implicit ec: ExecutionContext) {
         Future.successful(true)
     }
 
-    def createUniversalUpgrades(username:String,userId:Int):Future[Boolean] = {
+    def createUniversalUpgrades(userId:Int):Future[Boolean] = {
         //createUniversalUpgrades
         //initialises all universal upgrades
         for(i <- 0 to 4){
