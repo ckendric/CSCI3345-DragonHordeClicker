@@ -224,6 +224,7 @@ object DragonHorde {
   def getAllHordesInfo(): Unit = {
     val ul = document.getElementById("horde-section")
     FetchJson.fetchGet(getAllHordesRoute, (hordes: Seq[Boolean] ) => {
+      if(currentHorde != "") loadHorde()
       var noUnlocked = 0;
       for(i <- 0 until hordes.length){ if(hordes(i)) noUnlocked+=1 }
       for(i <- 0 until noUnlocked) {
@@ -233,6 +234,7 @@ object DragonHorde {
         println(names(i))
         li.addEventListener("click", { (e0: dom.Event) =>
           val e = e0.asInstanceOf[dom.MouseEvent]
+          loadHorde()
           setCurrentHorde(names(i))
         }, false)
         val text = document.createTextNode(names(i))
