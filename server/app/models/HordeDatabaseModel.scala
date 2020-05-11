@@ -128,7 +128,7 @@ class HordeDatabaseModel(db: Database)(implicit ec: ExecutionContext) {
         //createUserHoardUpgrades
         //initialises all hoard-specific upgrades
         var j = 0;
-        i = 0;
+        var i = 0;
         val hoards = userId.flatMap { ids => db.run(Hoard.filter(hoardRow => hoardRow.userId === ids.head).result)}
         for(i <- 0 to 8){
             for(j <- 1 to 6){
