@@ -266,7 +266,7 @@ def getHordeUpgrades(hordeId: Int): Unit = {
   println("getting the horde upgrades")
   // however we want to represent them
 
-  val data = models.HordeId(hordeId)
+  val data = hordeId
   FetchJson.fetchPost(getHordeUpgradesRoute, csrfToken, data, (upgrades: List[String]) => {
     println("got it. How do we want to display it")
     }, e => {
@@ -277,7 +277,11 @@ def getHordeUpgrades(hordeId: Int): Unit = {
 
 def loadOneHorde(): Unit = {
   println("super-beginning")
-      val data = models.UserHorde(username, currentHorde)
+  print("hordeNo = ")
+  
+      val hordeNumber = names.indexOf(currentHorde)+1
+      println(hordeNumber)
+      val data = hordeNumber
       println("after data")
       //if (timer == its time to update database)
       FetchJson.fetchPost(getHordeInfoRoute, csrfToken, data, (horde: (Int, Int, Int, Double, Double, Double, Boolean)) => {
@@ -285,9 +289,11 @@ def loadOneHorde(): Unit = {
         itemStored = horde._4
         itemIncrement = horde._5
         goldConv = horde._6
+        println(goldConv)
         hordeLevel = horde._3
         cost = horde._2
         id = horde._1
+        println(id)
         getHordeUpgrades(id)
         document.getElementById("conversionRate").innerHTML = goldConv.toString
         document.getElementById("hordeItems").innerHTML = itemStored.toString
@@ -311,8 +317,6 @@ def loadHorde(): Unit = {
     println("loading horde info scalajs")
     var gold = goldTotal
     //amount of gold we should have
-    gold += (itemStored * goldConv).toInt
-    itemStored = 0
     val data = models.LoadHorde(id, cost, hordeLevel, itemStored, itemIncrement, goldConv, true)
     FetchJson.fetchPost(loadHordeRoute, csrfToken,data, (bool: Boolean) => {
       if (bool) {
@@ -329,7 +333,7 @@ def loadHorde(): Unit = {
 }
 
 def getHordeUpgradesInfo(horde: String): Unit = {
-      val data = models.UserHorde(username, horde)
+      val data = models.HordeId(names.indexOf(horde)+1)
       //if (timer == its time to update database)
       FetchJson.fetchPost(loadHordeRoute, csrfToken, data, (upgrades: (Int, Int, Int, Boolean, Double, Double)) => {
           upgradeId = upgrades._1
@@ -408,14 +412,15 @@ def setVictim(name: String) {
   @JSExportTopLevel("addGold")
   def addGold(): Unit = {
     println("loading gold scalajs")
-    loadOneHorde()
-    var gold = goldTotal
     //amount of gold we should have
-    gold += (itemStored * goldConv).toInt
+    goldTotal += (itemStored * goldConv).toInt
+    println("gold total = " + goldTotal)
     itemStored = 0
-    val data = models.GoldData(username,gold)
+    val data = goldTotal
     FetchJson.fetchPost(addGoldRoute, csrfToken,data, (bool: Boolean) => {
       if (bool) {
+        println("In addGold if")
+        loadHorde()
         getUserInfo()
         loadOneHorde()
       }
@@ -431,7 +436,7 @@ def setVictim(name: String) {
   @JSExportTopLevel("addToHorde")
   def addToHorde(): Unit = {
       println("adding to hoard scalajs...")
-      itemStored += 1
+      if(itemStored < 1000000) itemStored += 1
       document.getElementById("hordeItems").innerHTML = itemStored.toString
       
   }

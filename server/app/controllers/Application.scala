@@ -104,6 +104,10 @@ class Application @Inject() (protected val dbConfigProvider: DatabaseConfigProvi
   def getHoardInfo = Action.async { implicit request => {
       val userIdOption = request.session.get("userid").map(userid => userid.toInt)
       val emptyInfo = (0,0,0,0.0,0.0,0.0,false)
+      val emptyInfo2 = (0,0,0,0.0,0.0,1.0,false)
+      val emptyInfo3 = (0,0,0,0.0,0.0,2.0,false)
+
+      println(userIdOption)
       userIdOption.map { userid =>
         request.body.asJson.map { body =>
           Json.fromJson[Int](body) match { //info will not be a string; this will change a lot
@@ -111,8 +115,8 @@ class Application @Inject() (protected val dbConfigProvider: DatabaseConfigProvi
               model.getHoardInfo(userid, info).map(ret => Ok(Json.toJson(ret)))
             case e @ JsError(_) => Future.successful(Ok(Json.toJson(emptyInfo)))
           }
-        }.getOrElse(Future.successful(Ok(Json.toJson(emptyInfo))))
-      }.getOrElse(Future.successful(Ok(Json.toJson(emptyInfo))))
+        }.getOrElse(Future.successful(Ok(Json.toJson(emptyInfo2))))
+      }.getOrElse(Future.successful(Ok(Json.toJson(emptyInfo3))))
     }
   }
 

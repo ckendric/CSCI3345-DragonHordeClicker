@@ -12,7 +12,7 @@ class HordeDatabaseModel(db: Database)(implicit ec: ExecutionContext) {
     private val cost = List[Int](1, 100, 1000, 10000, 250000, 1000000, 10000000, 250000000, 1000000000)
     //level upgrade cost multiplier: all 1.35 except Dr. Lewis which is 1
     //collection rate multiplier: all 1.1 except Dr. Lewis which is 1
-    private val conversionRate = List[Double](100.0, 10.0, 1.0, 1.05, 1.0/75, 1.0/700, 1.0/15000, 1.0/40000, 1)
+    private val conversionRate = List[Double](1.0, 1.0/10.0, 1.0, 20.0, 75.0, 700.0, 15000.0, 40000.0, 1)
     //cap: all 100K except Lewis which is 1
     private val names = List[String]("Rocks and Minerals", "Junk Food", "90s Paraphernalia", "Yarn", "Stuffed Animals", "Cats", "Music Boxes", "Coding Textbooks")
 
@@ -168,7 +168,10 @@ class HordeDatabaseModel(db: Database)(implicit ec: ExecutionContext) {
     //    get all information for one of the user's hoards when said hoard is selected
     def getHoardInfo(userid:Int, hoardType:Int):Future[(Int, Int, Int, Double, Double, Double, Boolean)] = {
         //reult of all hoards with userid and hoardType
+        println("in the database")
+        println(hoardType)
         val matches = db.run(Hoard.filter(hoard => hoard.userId === userid && hoard.hoardtype === hoardType).result)
+        println(matches)
         matches.flatMap{ hoardRows => 
             //returns all relevant hoard data if hoard is unlocked (designated by final bool)
             if(hoardRows.head.unlocked) {
@@ -181,7 +184,7 @@ class HordeDatabaseModel(db: Database)(implicit ec: ExecutionContext) {
             //shouldn't ever happen I think
             else {
                 //println(hoardRows.head.unlocked)
-                Future.successful((0,0,0,0,0,0,false))
+                Future.successful((0,0,0,0.0,0.0,0.0,false))
             }
         }
     }
@@ -224,7 +227,7 @@ class HordeDatabaseModel(db: Database)(implicit ec: ExecutionContext) {
     }
 
     def addGold(userId:Int, username:String, newGold:Int):Future[Int] = {
-        val gold = for { u <- Users if u.id === userId} yield u.gold
+        var gold = db.run((for { u <- Users if u.id === userId} yield {u.gold}).result)
         //gold.update(newGold).run
         Future.successful(1)
     }
