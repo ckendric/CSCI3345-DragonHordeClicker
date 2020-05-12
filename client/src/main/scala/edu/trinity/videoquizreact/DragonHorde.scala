@@ -49,6 +49,7 @@ object DragonHorde {
     val getStealingInfoRoute = document.getElementById("getStealingInfoRoute").asInstanceOf[html.Input].value
     val getGoldRoute = document.getElementById("getGoldRoute").asInstanceOf[html.Input].value
     val getHordeUpgradesRoute = document.getElementById("getHordeUpgradesRoute").asInstanceOf[html.Input].value
+    val getHordeUpgradesInfoRoute = document.getElementById("getHordeUpgradesInfoRoute").asInstanceOf[html.Input].value
     val getUserInfoRoute = document.getElementById("getUserInfoRoute").asInstanceOf[html.Input].value
 
     val stealFromUserRoute = document.getElementById("stealFromUserRoute").asInstanceOf[html.Input].value
@@ -116,6 +117,9 @@ object DragonHorde {
     var id = 0
     var upgradeId = 0
     var upgradeBool = true
+    var upgradeSpeed = 0.0
+    var upgradeGoldConv = 0.0
+    var upgradeCost = 0
     var lastHorde = ""
     var currentHorde = ""
     var username = ""
@@ -356,14 +360,14 @@ def getHordeUpgrades(): Unit = {
       val text = document.createTextNode(upgradeDescriptions(id -1)(x))
       li.appendChild(text)
       ul.appendChild(li)
+      li.addEventListener("click", { (e0: dom.Event) =>
+        val e = e0.asInstanceOf[dom.MouseEvent]
+        upgradeHorde(upgradeInfo(x)._1)
+      }, false)
       if (itemStored < upgradeInfo(x)._3) 
           li.asInstanceOf[js.Dynamic].disabled = true
       else {
-        li.asInstanceOf[js.Dynamic].disabled = true
-        li.addEventListener("click", { (e0: dom.Event) =>
-        val e = e0.asInstanceOf[dom.MouseEvent]
-        upgradeHorde(upgradeInfo(x)._1)
-          }, false)
+        li.asInstanceOf[js.Dynamic].disabled = false
       }
     }
     }, e => {
@@ -419,11 +423,15 @@ def loadHorde(): Unit = {
 
 }
 
-def getHordeUpgradesInfo(horde: String): Unit = {
-      val data = models.HordeId(names.indexOf(horde)+1)
-      FetchJson.fetchPost(loadHordeRoute, csrfToken, data, (upgrades: (Int, Int, Int, Boolean, Double, Double)) => {
+def getHordeUpgradesInfo(hordeId:Int): Unit = {
+      val data = hordeId
+      FetchJson.fetchPost(getHordeUpgradesInfoRoute, csrfToken, data, (upgrades: (Int, Int, Int, Boolean, Double, Double)) => {
           upgradeId = upgrades._1
+          upgradeSpeed = upgrades._5
+          upgradeGoldConv = upgrades._6
+          println("in getHordeUpgradeInfo upgradeGoldConv = " + upgradeGoldConv)
           upgradeBool = upgrades._4
+          upgradeCost = upgrades._3
       }, e => {
           println("Fetch error 8: " + e)
     })
@@ -592,13 +600,20 @@ def setVictim(name: String, id:Int) {
 
   //tells the databasae that the user wants to perform
   def upgradeHorde(hordeId: Int): Unit = {
-      println("upgrading hoard scalajs...")
-      val horde = document.getElementById("horde").asInstanceOf[html.Input].value    
-      val data = models.UpgradeHorde(id, itemIncrement, goldConv, upgradeId, upgradeBool)
+      println("upgrading hoard scalajs...") 
+      getHordeUpgradesInfo(hordeId)
+      itemIncrement = upgradeSpeed
+      if(hordeLevel != 0) itemIncrement*hordeLevel
+      goldConv = goldConv/upgradeGoldConv
+      println(upgradeGoldConv)
+      itemStored -= upgradeCost
+      println("finished changing things")
+      val data = models.UpgradeHorde(id, itemIncrement, goldConv, upgradeId, true)
       FetchJson.fetchPost(upgradeHordeRoute, csrfToken, data, (bool: Boolean) => {
          if(bool) {
-            println("successfully upgraded " + horde)
-            getUserInfo()
+            
+            println("successfully upgraded ")
+            loadOneHorde()
         } else {
             document.getElementById("create-message").innerHTML = "Upgrading Horde Failed"
       }

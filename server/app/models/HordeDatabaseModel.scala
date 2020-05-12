@@ -198,6 +198,15 @@ class HordeDatabaseModel(db: Database)(implicit ec: ExecutionContext) {
                                                                   upgradeRows(i).goldmultiplier))}})
     }
 
+    def getOneHoardUpgradeInfo(userid:Int, upgradeId:Int):Future[(Int, Int, Int, Boolean, Double, Double)] = {
+        db.run((for {u <- Hoardupgrade if u.hoardupgradeId === upgradeId} yield {(u.hoardupgradeId, 
+                                                                                  u.upgradeno, 
+                                                                                  u.cost, 
+                                                                                  u.unlocked, 
+                                                                                  u.newspeed, 
+                                                                                  u.goldmultiplier)}))
+    }
+
     //returns: Future[(Seq[Int],Seq[String])]
     //         a list of other userids and usernames, supposedly to be stolen from
     //I think this may need to be changed later on, but the rest might be handled in stealFromUser
@@ -300,7 +309,7 @@ class HordeDatabaseModel(db: Database)(implicit ec: ExecutionContext) {
       * 2. multiply the hoard's gold conversion rate by the conversion rate multiplier (in most cases, it will be 1)
       * 3. decrement # of hoard items in the current hoard
       *     -I think it's hoard items. If these upgrades cost gold, you will have to pass me updated gold as well
-      * 4. set hoardUpgrade unlocked = false
+      * 4. set hoardUpgrade unlocked = true
       * 
       * What I get passed:
       * 1. hoardId
@@ -310,7 +319,11 @@ class HordeDatabaseModel(db: Database)(implicit ec: ExecutionContext) {
       * 5. upgrade's unlocked boolean value (though I could probably just assume this as True) 
       * 
       */
-    def upgradeHoard(userid:Int,  hoardId:Int, newSpeed:Double, newConversionRate:Double, upgradeId:Int, unlocked:Boolean):Future[Int] = {
+    def upgradeHoard(userid:Int,  hoardType:Int, newSpeed:Double, newConversionRate:Double, upgradeId:Int, unlocked:Boolean):Future[Int] = {
+        println("in database upgradeHoard")
+        db.run((for {h <- Hoard if h.userId === userid && h.hoardtype === hoardType} yield {h.productionspeed}).update(newSpeed))
+        db.run((for {h <- Hoard if h.userId === userid && h.hoardtype === hoardType} yield {h.goldconversionrate}).update(newConversionRate))
+        db.run((for {u <- Hoardupgrade if u.hoardupgradeId === upgradeId} yield {u.unlocked}).update(unlocked))
         Future.successful(1)
     }
 
