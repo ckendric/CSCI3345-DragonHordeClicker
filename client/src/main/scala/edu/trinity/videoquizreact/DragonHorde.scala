@@ -56,12 +56,12 @@ object DragonHorde {
     val resetRoute = document.getElementById("resetRoute").asInstanceOf[html.Input].value
 
 
-    val upgradeDescriptions = List[List[String]] (List("You discover pretty rocks, and decide to start collecting.", 
+    val upgradeDescriptions = List[List[String]] (List("You discover pretty rocks, and decide to start collecting.",
                                                     "Buy some shovels and picks to make the collection process faster.", 
                                                     "Tumblers make your rocks shiny, smooth, and pretty. They are more valuable!", 
                                                     "You buy more tools, including some power tools!", 
                                                     "Big machinery makes collecting even more efficient.",
-                                                    "You purchase a mine for maximum rock and mineral collection."), 
+                                                    "You purchase a mine for maximum rock and mineral collection."),
                                                     List("Trash food tastes better than rocks.", 
                                                     "You start pillaging houses for junk food instead of finding it in the wild.", 
                                                     "You read up on some marketing techniques to improve your sales.", 
@@ -361,26 +361,6 @@ def getHordeUpgrades(): Unit = {
   val ul = document.getElementById("upgrade-menu")
   FetchJson.fetchPost(getHordeUpgradesRoute, csrfToken, id, (upgradeInfo:Seq[(Int, Int, Int, Boolean, Double, Double)]) => {
     document.getElementById("upgrade-menu").asInstanceOf[js.Dynamic].innerHTML = ""
-   /* for (x <- 0 until upgradeInfo.length) {
-      val li = document.createElement("li")
-      li.id = upgradeInfo(x)._1.toString()
-      val text = document.createTextNode(upgradeDescriptions(id -1)(x))
-      li.appendChild(text)
-      ul.appendChild(li)
-      li.addEventListener("click", { (e0: dom.Event) =>
-        val e = e0.asInstanceOf[dom.MouseEvent]
-        getHordeUpgradesInfo(upgradeInfo(x)._1)
-        li.asInstanceOf[js.Dynamic].disabled = true
-      }, false)
-      if (itemStored < upgradeInfo(x)._3) {
-          li.asInstanceOf[js.Dynamic].disabled = true
-          println("making this disables")
-      }
-      else {
-        li.asInstanceOf[js.Dynamic].disabled = false
-      }
-    }
-    */
     for (x <- 0 until upgradeInfo.length) {
         val li = document.createElement("li")
         li.id = upgradeInfo(x)._1.toString()
@@ -397,17 +377,19 @@ def getHordeUpgrades(): Unit = {
           println("making this hidden")
         }
         else {
-          li.asInstanceOf[js.Dynamic].hidden = false
+          if(!(upgradeInfo(x)._4)) {
+            li.asInstanceOf[js.Dynamic].hidden = false
+          } else 
+            li.asInstanceOf[js.Dynamic].hidden = true
+          }
         }
-
-    }
     }, e => {
       println("Fetch error 6: " + e)
     })
 
 }
 
-def loadOneHorde(): Unit = {  
+def loadOneHorde(): Unit = { 
       val hordeNumber = names.indexOf(currentHorde)+1
       val data = hordeNumber
       FetchJson.fetchPost(getHordeInfoRoute, csrfToken, data, (horde: (Int, Int, Int, Double, Double, Double, Boolean)) => {
@@ -579,6 +561,7 @@ def setVictim(name: String, id:Int) {
   def addToHorde(): Unit = {
       println("adding to hoard scalajs...")
       if(itemStored < 1000000) itemStored += 1
+      if(itemStored>=upgradeCost) getHordeUpgrades() //costofnext thing)
       document.getElementById("hordeItems").innerHTML = itemStored.toString
       
   }
@@ -647,7 +630,6 @@ def setVictim(name: String, id:Int) {
       val data = models.UpgradeHorde(id, itemIncrement, goldConv, upgradeId, true)
       FetchJson.fetchPost(upgradeHordeRoute, csrfToken, data, (bool: Boolean) => {
          if(bool) {
-            
             println("successfully upgraded ")
             loadOneHorde()
         } else {
