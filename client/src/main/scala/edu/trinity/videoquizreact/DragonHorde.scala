@@ -188,7 +188,6 @@ object DragonHorde {
           if (itemStored < 1000000)
             itemStored += 1*itemIncrement
           document.getElementById("hordeItems").innerHTML = itemStored.toString
-          println("incrimenting items")
         }
         js.timers.setInterval(10000) {
           loadHorde()
@@ -501,7 +500,7 @@ def setVictim(name: String, id:Int) {
       }, e => {
         println("Fetch error 12: " + e)
       })
-      js.timers.setInterval(10000) {
+      js.timers.setInterval(100000) {
         canSteal = true
         println(canSteal)
       }
