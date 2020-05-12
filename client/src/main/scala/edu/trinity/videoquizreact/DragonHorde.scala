@@ -389,6 +389,7 @@ def loadOneHorde(): Unit = {
         id = horde._1
         getHordeUpgrades()
         document.getElementById("conversionRate").innerHTML = goldConv.toString
+        document.getElementById("productionRate").innerHTML = itemIncrement.toString
         document.getElementById("hordeItems").innerHTML = itemStored.toString
         document.getElementById("buttons").asInstanceOf[js.Dynamic].hidden = false
         document.getElementById("dragonimage").asInstanceOf[html.Image].src = "versionedAssets/images/"+mapRoutes(id)
