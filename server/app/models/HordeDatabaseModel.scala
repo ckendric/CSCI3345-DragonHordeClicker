@@ -183,20 +183,16 @@ class HordeDatabaseModel(db: Database)(implicit ec: ExecutionContext) {
     def stealFromUser(userid:Int, username:String, stolen:Int):Future[(String, Double)] = {
         val r = scala.util.Random
         val nrand = (r.nextDouble()) //value to multiply hoard contents by
-    println(nrand)
         val unlockedHoards = db.run((for {hoard <- Hoard if hoard.userId === userid} yield {(hoard.unlocked,hoard.hoarditems,hoard.hoardtype)}).result)
         val victimHoards = db.run((for {hoard <- Hoard if hoard.userId === stolen} yield {(hoard.unlocked,hoard.hoarditems,hoard.hoardtype)}).result)
         val stealAmount = unlockedHoards.flatMap { userHoards =>
             victimHoards.flatMap { victimHoards =>
                 val commonHoards = scala.math.min(userHoards.filter(_._1==true).length,victimHoards.filter(_._1==true).length)
-                println("commonHoards = " + commonHoards)
                 val stealHoardNum = r.nextInt(commonHoards)+1
                 var amountToSteal = 0.0;
                 for(h <- victimHoards){
                     if(h._3 == stealHoardNum) amountToSteal = h._2*nrand
                 }
-                println("stealHoardNum = " + stealHoardNum)
-                println("amountToSteal = " + amountToSteal)
                 val updateVictim = db.run((for {h <- Hoard if h.userId === stolen && h.hoardtype === stealHoardNum} yield {h.hoarditems}).result)
                 updateVictim.flatMap{ victimItems =>
                     db.run((for {h <- Hoard if h.userId === stolen && h.hoardtype === stealHoardNum} yield {h.hoarditems}).update(victimItems.head-amountToSteal))
@@ -229,6 +225,7 @@ class HordeDatabaseModel(db: Database)(implicit ec: ExecutionContext) {
     }
 
     def loadHoardInfo(userid:Int, hoardType:Int, newCost:Int, newLv:Int, items:Double, newSpeed:Double, newConversionRate:Double, unlocked:Boolean):Future[Int] = {
+        println("In database loadhoardinfo")
         db.run((for {h <- Hoard if h.userId === userid && h.hoardtype === hoardType} yield {h.cost}).update(newCost))
         db.run((for {h <- Hoard if h.userId === userid && h.hoardtype === hoardType} yield {h.hoardlevel}).update(newLv))
         db.run((for {h <- Hoard if h.userId === userid && h.hoardtype === hoardType} yield {h.hoarditems}).update(items))

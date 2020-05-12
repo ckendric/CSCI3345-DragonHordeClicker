@@ -64,7 +64,6 @@ class Application @Inject() (protected val dbConfigProvider: DatabaseConfigProvi
 
   def createUserHoards = Action.async { implicit request => {
       val userIdOption = request.session.get("userid").map(userid => userid.toInt)
-      println(userIdOption)
       val emptyInfo = false
       userIdOption.map { userid =>
         model.createUserHoards(userid).map(info => Ok(Json.toJson(info)))
@@ -107,8 +106,6 @@ class Application @Inject() (protected val dbConfigProvider: DatabaseConfigProvi
       val emptyInfo = (0,0,0,0.0,0.0,0.0,false)
       val emptyInfo2 = (0,0,0,0.0,0.0,1.0,false)
       val emptyInfo3 = (0,0,0,0.0,0.0,2.0,false)
-
-      println(userIdOption)
       userIdOption.map { userid =>
         request.body.asJson.map { body =>
           Json.fromJson[Int](body) match { //info will not be a string; this will change a lot
@@ -203,7 +200,7 @@ class Application @Inject() (protected val dbConfigProvider: DatabaseConfigProvi
       request.body.asJson.map { body =>
         Json.fromJson[(Int,Boolean,Int)](body) match { //Int, Bool, Int
           case JsSuccess((hoardtype,unlocked,newgold),path) =>{
-            println("in JSSuccess")
+            println("in JSSuccess addNewHoard")
             model.unlockNewHoard(userid, hoardtype, unlocked, newgold).map(count => Ok(Json.toJson( count > 0 )))}
           case e @ JsError(_) => Future.successful(Redirect(routes.Application.index()))
         }
@@ -219,7 +216,7 @@ class Application @Inject() (protected val dbConfigProvider: DatabaseConfigProvi
       request.body.asJson.map { body =>
         Json.fromJson[models.LevelUpData](body) match { //Int, Bool, Int
           case JsSuccess(data,path) =>{
-            println("in JSSuccess")
+            println("in JSSuccess levelupHoard")
             model.levelUpHoard(userid, data.id, data.level, data.productionSpeed,data.cost,data.gold).map(count => Ok(Json.toJson( count > 0 )))}
           case e @ JsError(_) => Future.successful(Redirect(routes.Application.index()))
         }
@@ -233,7 +230,7 @@ class Application @Inject() (protected val dbConfigProvider: DatabaseConfigProvi
       request.body.asJson.map { body =>
         Json.fromJson[models.UpgradeHorde](body) match { //Int, Bool, Int
           case JsSuccess(data,path) =>{
-            println("in JSSuccess")
+            println("in JSSuccess upgradeHoard")
             model.upgradeHoard(userid, data.hordeId,data.productionSpeed,data.goldConversion,data.upgradeId,data.upgradeBool).map(count => Ok(Json.toJson( count > 0 )))}
           case e @ JsError(_) => Future.successful(Redirect(routes.Application.index()))
         }
@@ -249,7 +246,7 @@ class Application @Inject() (protected val dbConfigProvider: DatabaseConfigProvi
       request.body.asJson.map { body =>
         Json.fromJson[Int](body) match { //Int, Bool, Int
           case JsSuccess(data,path) =>{
-            println("in JSSuccess")
+            println("in JSSuccess getOneHoardUpgradeInfo")
             model.getOneHoardUpgradeInfo(userid, data).map(ret => Ok(Json.toJson(ret)))}
           case e @ JsError(_) => Future.successful(Ok(Json.toJson(blankInfo)))
         }
