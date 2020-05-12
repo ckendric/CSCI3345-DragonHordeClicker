@@ -361,7 +361,7 @@ def getHordeUpgrades(): Unit = {
   val ul = document.getElementById("upgrade-menu")
   FetchJson.fetchPost(getHordeUpgradesRoute, csrfToken, id, (upgradeInfo:Seq[(Int, Int, Int, Boolean, Double, Double)]) => {
     document.getElementById("upgrade-menu").asInstanceOf[js.Dynamic].innerHTML = ""
-    for (x <- 0 until upgradeInfo.length) {
+   /* for (x <- 0 until upgradeInfo.length) {
       val li = document.createElement("li")
       li.id = upgradeInfo(x)._1.toString()
       val text = document.createTextNode(upgradeDescriptions(id -1)(x))
@@ -378,6 +378,21 @@ def getHordeUpgrades(): Unit = {
       }
       else {
         li.asInstanceOf[js.Dynamic].disabled = false
+      }
+    }
+    */
+    for (x <- 0 until upgradeInfo.length) {
+      if (itemStored < upgradeInfo(x)._3) {
+        val li = document.createElement("li")
+        li.id = upgradeInfo(x)._1.toString()
+        val text = document.createTextNode(upgradeDescriptions(id -1)(x))
+        li.appendChild(text)
+        ul.appendChild(li)
+        li.addEventListener("click", { (e0: dom.Event) =>
+        val e = e0.asInstanceOf[dom.MouseEvent]
+        getHordeUpgradesInfo(upgradeInfo(x)._1)
+        li.asInstanceOf[js.Dynamic].disabled = true
+        }, false)
       }
     }
     }, e => {
