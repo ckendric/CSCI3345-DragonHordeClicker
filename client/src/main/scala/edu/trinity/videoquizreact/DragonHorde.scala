@@ -283,9 +283,14 @@ object DragonHorde {
       canSteal = true
       clearHordes()
       js.timers.clearInterval(js.timers.setInterval(1000) {
-          itemStored += 1*upgradeSpeed
+          if (itemStored < 1000000)
+            itemStored += 1*itemIncrement
           document.getElementById("hordeItems").innerHTML = itemStored.toString
           println("incrimenting items")
+        })
+      js.timers.clearInterval(js.timers.setInterval(10000) {
+          loadOneHorde()
+          getHordeUpgrades()
         })
     }, e=> {
       println("Fetch error 3:" + e)
