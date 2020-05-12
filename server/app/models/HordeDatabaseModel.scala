@@ -21,7 +21,7 @@ class HordeDatabaseModel(db: Database)(implicit ec: ExecutionContext) {
     private val hoardUpgradeCosts = List[Int](25, 300, 4000, 7000, 20000, 100000)
         //might be a double
     private val hoardUpgradeNewSpeeds = List[Double](1, 4, 4, 7, 12, 20)
-    private val hoardUpgradeGoldMultipliers = List[Double](1, 1, 2, 1, 1, 1)
+    private val hoardUpgradeGoldMultipliers = List[Double](1, 1, 0.5, 1, 1, 1)
 
 
 
