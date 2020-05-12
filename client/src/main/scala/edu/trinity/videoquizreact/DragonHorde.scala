@@ -191,7 +191,7 @@ object DragonHorde {
           println("incrimenting items")
         }
         js.timers.setInterval(10000) {
-          loadOneHorde()
+          loadHorde()
           getHordeUpgrades()
         }
     }
@@ -326,6 +326,7 @@ object DragonHorde {
         println(names(i))
         li.addEventListener("click", { (e0: dom.Event) =>
           val e = e0.asInstanceOf[dom.MouseEvent]
+          println("is this working?")
           loadHorde()
           setCurrentHorde(names(i))
         }, false)
@@ -354,6 +355,7 @@ def getNewHordeInfo(): Unit = {
     println(names(noUnlocked))
     li.addEventListener("click", { (e0: dom.Event) =>
       val e = e0.asInstanceOf[dom.MouseEvent]
+      loadHorde()
       setCurrentHorde(names(noUnlocked))
     }, false)
     val text = document.createTextNode(names(noUnlocked))
@@ -582,13 +584,12 @@ def setVictim(name: String, id:Int) {
 
   @JSExportTopLevel("unlockNewHorde")
   def unlockNewHorde(): Unit = {
-      println(lastHorde)
+      loadHorde()
       if (lastHorde == "") {
         lastHorde = names(0)
       }
       goldTotal -= cost
       val hoardNumber = names.indexOf(lastHorde)+2
-      println(hoardNumber)
       val data = (hoardNumber, true, goldTotal)
       println("calling unlock new hoard")
       FetchJson.fetchPost(addNewHordeRoute, csrfToken, data, (bool: Boolean) => {
