@@ -261,8 +261,15 @@ object DragonHorde {
       id = 0
       upgradeId = 0
       upgradeBool = true
+      upgradeSpeed = 0.0
+      upgradeGoldConv = 0.0
+      upgradeCost = 0
       lastHorde = ""
       currentHorde = ""
+      username = ""
+      victim = ""
+      victimid = -1
+      canSteal = true
       clearHordes()
     }, e=> {
       println("Fetch error 3:" + e)
@@ -365,8 +372,10 @@ def getHordeUpgrades(): Unit = {
         getHordeUpgradesInfo(upgradeInfo(x)._1)
         li.asInstanceOf[js.Dynamic].disabled = true
       }, false)
-      if (itemStored < upgradeInfo(x)._3) 
+      if (itemStored < upgradeInfo(x)._3) {
           li.asInstanceOf[js.Dynamic].disabled = true
+          println("making this disables")
+      }
       else {
         li.asInstanceOf[js.Dynamic].disabled = false
       }
