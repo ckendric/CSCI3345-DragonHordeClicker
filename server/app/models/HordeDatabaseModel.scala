@@ -12,7 +12,7 @@ class HordeDatabaseModel(db: Database)(implicit ec: ExecutionContext) {
     private val cost = List[Int](100, 1000, 10000, 250000, 1000000, 10000000, 250000000, 1000000000, 0)
     //level upgrade cost multiplier: all 1.35 except Dr. Lewis which is 1
     //collection rate multiplier: all 1.1 except Dr. Lewis which is 1
-    private val conversionRate = List[Double](1.0, 1.0/10.0, 1.0, 20.0, 75.0, 700.0, 15000.0, 40000.0, 1)
+    private val conversionRate = List[Double](1.0/100.0, 1.0/10.0, 1.0, 20.0, 75.0, 700.0, 15000.0, 40000.0, 1)
     //cap: all 100K except Lewis which is 1
     private val names = List[String]("Rocks and Minerals", "Junk Food", "90s Paraphernalia", "Yarn", "Stuffed Animals", "Cats", "Music Boxes", "Coding Textbooks")
 
