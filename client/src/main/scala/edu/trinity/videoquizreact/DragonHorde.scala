@@ -362,7 +362,7 @@ def getHordeUpgrades(): Unit = {
       ul.appendChild(li)
       li.addEventListener("click", { (e0: dom.Event) =>
         val e = e0.asInstanceOf[dom.MouseEvent]
-        upgradeHorde(upgradeInfo(x)._1)
+        getHordeUpgradesInfo(upgradeInfo(x)._1)
       }, false)
       if (itemStored < upgradeInfo(x)._3) 
           li.asInstanceOf[js.Dynamic].disabled = true
@@ -424,15 +424,18 @@ def loadHorde(): Unit = {
 
 }
 
-def getHordeUpgradesInfo(hordeId:Int): Unit = {
-      val data = hordeId
+def getHordeUpgradesInfo(upId:Int): Unit = {
+      val data = upId
+      println(upId)
       FetchJson.fetchPost(getHordeUpgradesInfoRoute, csrfToken, data, (upgrades: (Int, Int, Int, Boolean, Double, Double)) => {
+          println("getHordeUpgradesInfo2")
           upgradeId = upgrades._1
           upgradeSpeed = upgrades._5
           upgradeGoldConv = upgrades._6
           println("in getHordeUpgradeInfo upgradeGoldConv = " + upgradeGoldConv)
           upgradeBool = upgrades._4
           upgradeCost = upgrades._3
+          upgradeHorde(upId)
       }, e => {
           println("Fetch error 8: " + e)
     })
@@ -602,11 +605,11 @@ def setVictim(name: String, id:Int) {
   //tells the databasae that the user wants to perform
   def upgradeHorde(hordeId: Int): Unit = {
       println("upgrading hoard scalajs...") 
-      getHordeUpgradesInfo(hordeId)
+      //getHordeUpgradesInfo(hordeId)
       itemIncrement = upgradeSpeed
       if(hordeLevel != 0) itemIncrement*hordeLevel
       goldConv = goldConv/upgradeGoldConv
-      println(upgradeGoldConv)
+      println("upgradeGoldVonv = " + upgradeGoldConv)
       itemStored -= upgradeCost
       println("finished changing things")
       val data = models.UpgradeHorde(id, itemIncrement, goldConv, upgradeId, true)

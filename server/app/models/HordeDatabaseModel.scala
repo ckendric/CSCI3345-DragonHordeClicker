@@ -18,54 +18,6 @@ class HordeDatabaseModel(db: Database)(implicit ec: ExecutionContext) {
 
     //hoard-specific upgrades
 //these descriptions might not even need to be in here
-    private val rocksAndMineralsDesc = List[String]("You discover pretty rocks, and decide to start collecting.", 
-                                                    "Buy some shovels and picks to make the collection process faster.", 
-                                                    "Tumblers make your rocks shiny, smooth, and pretty. They are more valuable!", 
-                                                    "You buy more tools, including some power tools!", 
-                                                    "Big machinery makes collecting even more efficient.",
-                                                    "You purchase a mine for maximum rock and mineral collection.")
-    private val junkFoodDesc = List[String]("Trash food tastes better than rocks.", 
-                                            "You start pillaging houses for junk food instead of finding it in the wild.", 
-                                            "You read up on some marketing techniques to improve your sales.", 
-                                            "You begin to stake out stores to get bulk packages.", 
-                                            "Stealing from factories is even more efficient than stealing from stores.", 
-                                            "You purchase your own junk food factory.")
-    private val ninetiesParaphernaliaDesc = List[String]("Bright, eye-searing colors attract you.", 
-                                                         "You start finding old toys in your parents' lair", 
-                                                         "For some reason, “90s kids” nostalgia makes a resurgence.", 
-                                                         "You start collecting Dixie® Cup patterns", 
-                                                         "You become obsessed with Tomagachis. You must collect more...", 
-                                                         "You figure out how to hack into Etsy's servers and steal 90s Paraphernalia")
-    private val yarnDesc = List[String]("You discover the joy found in a soft bed of yarn.", 
-                                        "Adopt a sheep!", 
-                                        "You start dying your yarn pretty colors, and it’s value increases.", 
-                                        "Adopt two more sheep. They’re terrified of your fire. ", 
-                                        "Learn advanced shearing techniques. You spin yarn faster.", 
-                                        "Purchase an entire flock of sheep. You like to pat their fluffy heads.")
-    private val stuffedAnimalsDesc = List[String]("You learn to knit with all of that yarn you have. Stuffed animals are adorable, even if all of yours look kind of wonky.", 
-                                                  "You purchase an array of patterns, and they start looking better.", 
-                                                  "You start focusing your marketing strategy to small children. Your sales increase.", 
-                                                  "You learn better stuffing techniques, and stop accidentally creating holes with your claws.", 
-                                                  "You now learn to crochet, and the stuffed-animal world is your oyster.", 
-                                                  "You learn from grandmothers. Their secrets make you a master of stuffed animal knitting and crocheting techniques.")
-    private val catsDesc = List[String]("Oh my god. It’s so adorable.", 
-                                        "Having more cats means having more kittens, you discover. Every single one is purr-fect.", 
-                                        "Your adopt-a-kitten campaign takes off!", 
-                                        "You start baiting cats with fish. They paw-sitively flock to you.", 
-                                        "Learn new petting techniques to attract more cats. Your cats are always feline good.", 
-                                        "Catnip makes cat-napping easier. You don’t worry about the morals of this.")
-    private val musicBoxesDesc = List[String]("The music is so pretty...", 
-                                              "You begin learning how to make music boxes of your own.", 
-                                              "You discover a market for collector’s music boxes.", 
-                                              "Learn techniques for touching up old music boxes to restore broken ones.", 
-                                              "Bionic ears make finding music boxes easier.", 
-                                              "You purchase a factory to build music boxes. How industrious of you!")
-    private val codingTextBooksDesc = List[String]("You’re introduced to the art of programming using Scala.", 
-                                                   "There are languages other than Scala?", 
-                                                   "When you stop drawing in your textbooks, they end up being worth more.", 
-                                                   "You start finding textbooks in the REALLY obscure languages. You’ll probably never use them.", 
-                                                   "Buy a printing press. Print more coding textbooks.", 
-                                                   "Contract professors to write you new coding textbooks.")
         
     private val hoardUpgradeCosts = List[Int](25, 300, 4000, 7000, 20000, 100000)
         //might be a double
@@ -199,12 +151,9 @@ class HordeDatabaseModel(db: Database)(implicit ec: ExecutionContext) {
     }
 
     def getOneHoardUpgradeInfo(userid:Int, upgradeId:Int):Future[(Int, Int, Int, Boolean, Double, Double)] = {
-        db.run((for {u <- Hoardupgrade if u.hoardupgradeId === upgradeId} yield {(u.hoardupgradeId, 
-                                                                                  u.upgradeno, 
-                                                                                  u.cost, 
-                                                                                  u.unlocked, 
-                                                                                  u.newspeed, 
-                                                                                  u.goldmultiplier)}).result)
+        db.run(Hoardupgrade.filter(u => u.hoardupgradeId === upgradeId).result).flatMap{ u =>
+            Future.successful((u.head.hoardupgradeId, u.head.upgradeno, u.head.cost, u.head.unlocked, u.head.newspeed, u.head.goldmultiplier))
+        }
     }
 
     //returns: Future[(Seq[Int],Seq[String])]
