@@ -534,7 +534,7 @@ def setVictim(name: String, id:Int) {
       }, e => {
         println("Fetch error 12: " + e)
       })
-      js.timers.setInterval(10000) {
+      js.timers.setInterval(100000) {
         canSteal = true
         println(canSteal)
       }
