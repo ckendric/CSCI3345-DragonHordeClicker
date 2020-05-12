@@ -183,6 +183,12 @@ object DragonHorde {
         }, e => {
             println("Fetch error 1: " + e)
         })
+
+        js.timers.setInterval(1000) {
+          itemStored += 1*upgradeSpeed
+          document.getElementById("hordeItems").innerHTML = itemStored.toString
+          println("incrimenting items")
+        }
     }
 
     @JSExportTopLevel("createUser")
@@ -271,6 +277,11 @@ object DragonHorde {
       victimid = -1
       canSteal = true
       clearHordes()
+      js.timers.clearInterval(js.timers.setInterval(1000) {
+          itemStored += 1*upgradeSpeed
+          document.getElementById("hordeItems").innerHTML = itemStored.toString
+          println("incrimenting items")
+        })
     }, e=> {
       println("Fetch error 3:" + e)
     })
@@ -411,14 +422,6 @@ def loadOneHorde(): Unit = {
           println("Fetch error 7: " + e)
     })
 
-    js.timers.setInterval(1000) {
-      itemStored += 1*upgradeSpeed
-      document.getElementById("hordeItems").innerHTML = itemStored.toString
-      println("incrimenting items")
-    }
-    js.timers.setInterval(500000) {
-      loadHorde()
-    }
 }
 
 
