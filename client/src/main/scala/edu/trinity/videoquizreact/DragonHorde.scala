@@ -216,7 +216,6 @@ object DragonHorde {
   def createUserHorde() {
         FetchJson.fetchGet(createUserHoardsRoute, (bool: Boolean) => {
         if(bool) {
-            println("created user hordes")
             createUserHordeUpgrades()
         } else {
             document.getElementById("create-message").innerHTML = "User Creation Failed"
@@ -241,10 +240,8 @@ object DragonHorde {
   }
 
   def createUniversalUpgrades() {
-    println("creating universal upgrades scalajs")
     FetchJson.fetchGet(createUniversalUpgradesRoute, (bool: Boolean) => {
     if(bool) {
-        println("created user hordes")
         logout()
     } else {
         document.getElementById("create-message").innerHTML = "User Creation Failed"
@@ -258,7 +255,6 @@ object DragonHorde {
 
   @JSExportTopLevel("logout")
   def logout():Unit = {
-  println("logging out")
     FetchJson.fetchGet(logoutRoute, (bool:Boolean) => {
       document.getElementById("login").asInstanceOf[js.Dynamic].hidden = false
       document.getElementById("dragonHordeContainer").asInstanceOf[js.Dynamic].hidden = true
@@ -286,7 +282,6 @@ object DragonHorde {
           if (itemStored < 1000000)
             itemStored += 1*itemIncrement
           document.getElementById("hordeItems").innerHTML = itemStored.toString
-          println("incrimenting items")
         })
       js.timers.clearInterval(js.timers.setInterval(10000) {
           loadOneHorde()
@@ -320,13 +315,10 @@ object DragonHorde {
       var noUnlocked = 0;
       for(i <- 0 until hordes.length){ if(hordes(i)) noUnlocked+=1 }
       for(i <- 0 until noUnlocked) {
-        println(hordes(i))
         val li = document.createElement("li")
         li.id = idNames(i)
-        println(names(i))
         li.addEventListener("click", { (e0: dom.Event) =>
           val e = e0.asInstanceOf[dom.MouseEvent]
-          println("is this working?")
           loadHorde()
           setCurrentHorde(names(i))
         }, false)
@@ -352,7 +344,6 @@ def getNewHordeInfo(): Unit = {
     for(i <- 0 until hordes.length){ if(hordes(i)) noUnlocked+=1 }
     val li = document.createElement("li")
     li.id = idNames(noUnlocked)
-    println(names(noUnlocked))
     li.addEventListener("click", { (e0: dom.Event) =>
       val e = e0.asInstanceOf[dom.MouseEvent]
       loadHorde()
@@ -366,19 +357,6 @@ def getNewHordeInfo(): Unit = {
       println("Fetch error 5: " + e)
   })
 }
-
-//  upgradeRows(i).hoardupgradeId, 
-//  upgradeRows(i).upgradeno, 
-//  upgradeRows(i).cost, 
-//  upgradeRows(i).unlocked, 
-//  upgradeRows(i).newspeed, 
-//  upgradeRows(i).goldmultiplier))}})
-
-  //    * 1. hoardId
-  //    * 2. hoard productionSpeed
-  //    * 3. hoard goldConversionRate
-   //   * 4. upgradeId
-   //   * 5. upgrade's unlocked boolean value (though I could probably just assume this as True) 
 
 def getHordeUpgrades(): Unit = {
   val ul = document.getElementById("upgrade-menu")
@@ -397,7 +375,6 @@ def getHordeUpgrades(): Unit = {
         }, false)
         if (itemStored < upgradeInfo(x)._3) {
           li.asInstanceOf[js.Dynamic].hidden = true
-          println("making this hidden")
         }
         else {
           if(!(upgradeInfo(x)._4)) {
@@ -417,7 +394,6 @@ def loadOneHorde(): Unit = {
       val data = hordeNumber
       FetchJson.fetchPost(getHordeInfoRoute, csrfToken, data, (horde: (Int, Int, Int, Double, Double, Double, Boolean)) => {
         itemStored = horde._4
-        println(itemStored)
         itemIncrement = horde._5
         goldConv = horde._6
         hordeLevel = horde._3
@@ -455,13 +431,10 @@ def loadHorde(): Unit = {
 
 def getHordeUpgradesInfo(upId:Int): Unit = {
       val data = upId
-      println(upId)
       FetchJson.fetchPost(getHordeUpgradesInfoRoute, csrfToken, data, (upgrades: (Int, Int, Int, Boolean, Double, Double)) => {
-          println("getHordeUpgradesInfo2")
           upgradeId = upgrades._1
           upgradeSpeed = upgrades._5
           upgradeGoldConv = upgrades._6
-          println("in getHordeUpgradeInfo upgradeGoldConv = " + upgradeGoldConv)
           upgradeBool = upgrades._4
           upgradeCost = upgrades._3
           upgradeHorde(upId)
@@ -477,9 +450,6 @@ def setVictim(name: String, id:Int) {
 }
 
   def getStealingInfo(): Unit = {
-    println("loading stealing info scalajs.")
-    // Example from tasks 
-    //this would currently just display the usernames of the vitcims (all users)
     val ul = document.getElementById("stealing-section")
         ul.innerHTML =""
         FetchJson.fetchGet(getStealingInfoRoute, (victims:Seq[(Int, String)]) => {
@@ -488,7 +458,6 @@ def setVictim(name: String, id:Int) {
                       li.id = victim._1.toString
                       li.addEventListener("click", { (e0: dom.Event) =>
                         val e = e0.asInstanceOf[dom.MouseEvent]
-                        println(victim._2)
                         setVictim(victim._2,victim._1)
                       }, false)
                       val text = document.createTextNode("steal from: " + victim._2)
@@ -502,7 +471,6 @@ def setVictim(name: String, id:Int) {
 
   //gets the user's gold amount from database and displays it
   def getGold(): Unit = {
-    println("loading gold scalajs.")
     val txt = document.getElementById("gold")
     FetchJson.fetchGet(getGoldRoute, (gold:Int) => {
       goldTotal = gold
@@ -519,7 +487,6 @@ def setVictim(name: String, id:Int) {
   @JSExportTopLevel("stealFromUser")
   def stealFromUser(): Unit = {
     if (canSteal) {
-        println("stealing from user scalajs")
           val data = victimid
           //returns horde name and amount stolen
           FetchJson.fetchPost(stealFromUserRoute, csrfToken, data, (stolen:(String,  Double)) => {
@@ -528,9 +495,7 @@ def setVictim(name: String, id:Int) {
               println(msg)
               loadOneHorde()
               canSteal = false
-              println(canSteal)
           } else {
-              println("did a bad")
               document.getElementById("create-message").innerHTML = "Stealing Failed"
           }
       }, e => {
@@ -551,7 +516,6 @@ def setVictim(name: String, id:Int) {
   //should calculate the amount of gold.
   @JSExportTopLevel("addGold")
   def addGold(): Unit = {
-    println("adding gold scalajs")
     //amount of gold we should have
     goldTotal += (itemStored * goldConv).toInt
     itemStored = 0
@@ -575,7 +539,6 @@ def setVictim(name: String, id:Int) {
   //updates interface when user clicks on adding to a horde
   @JSExportTopLevel("addToHorde")
   def addToHorde(): Unit = {
-      println("adding to hoard scalajs...")
       if(itemStored < 1000000) itemStored += 1
       if(itemStored>=upgradeCost) getHordeUpgrades() //costofnext thing)
       document.getElementById("hordeItems").innerHTML = itemStored.toString
@@ -591,11 +554,9 @@ def setVictim(name: String, id:Int) {
       goldTotal -= cost
       val hoardNumber = names.indexOf(lastHorde)+2
       val data = (hoardNumber, true, goldTotal)
-      println("calling unlock new hoard")
       FetchJson.fetchPost(addNewHordeRoute, csrfToken, data, (bool: Boolean) => {
         if (bool) {
           document.getElementById("unlockNewHoardButton").asInstanceOf[js.Dynamic].disabled = true
-          println("successfully unlocked new horde")
           getNewHordeInfo()
           getGold()
         }
@@ -610,11 +571,9 @@ def setVictim(name: String, id:Int) {
   
   @JSExportTopLevel("levelUpHorde")
   def levelUpHorde(): Unit = {
-    println("leveling up hoard scalajs")
     val data = models.LevelUpData(id, hordeLevel, itemIncrement, cost, goldTotal)
     FetchJson.fetchPost(levelUpHordeRoute, csrfToken, data, (bool: Boolean) => {
       if (bool) {
-        println("successfully leveled up horde")
         getUserInfo()
       }
       else {
@@ -625,27 +584,15 @@ def setVictim(name: String, id:Int) {
     })
   }
 
-  //    * 1. hoardId
-  //    * 2. hoard productionSpeed
-  //    * 3. hoard goldConversionRate
-   //   * 4. upgradeId
-   //   * 5. upgrade's unlocked boolean value (though I could probably just assume this as True) 
-
-  //tells the databasae that the user wants to perform
   def upgradeHorde(hordeId: Int): Unit = {
-      println("upgrading hoard scalajs...") 
-      //getHordeUpgradesInfo(hordeId)
-      itemIncrement = upgradeSpeed
+      itemIncrement = math.max(itemIncrement,upgradeSpeed)
       if(hordeLevel != 0) itemIncrement*hordeLevel
       goldConv = goldConv/upgradeGoldConv
-      println("upgradeCost: " +upgradeCost)
       itemStored -= upgradeCost
       loadHorde()
-      println("finished changing things")
       val data = models.UpgradeHorde(id, itemIncrement, goldConv, upgradeId, true)
       FetchJson.fetchPost(upgradeHordeRoute, csrfToken, data, (bool: Boolean) => {
          if(bool) {
-            println("successfully upgraded ")
             loadOneHorde()
         } else {
             document.getElementById("create-message").innerHTML = "Upgrading Horde Failed"
@@ -658,11 +605,9 @@ def setVictim(name: String, id:Int) {
   //tells the database that the user wants to perform a universal upgrade
   @JSExportTopLevel("upgradeEverything")
   def upgradeUniversal(): Unit = {
-      println("upgrading everything scalajs...")
       val data = models.User(username)
       FetchJson.fetchPost(upgradeUniversalRoute, csrfToken, data, (bool: Boolean) => {
          if(bool) {
-            println("successfully upgradded eveything")
             getUserInfo()
         } else {
             document.getElementById("create-message").innerHTML = "User Creation Failed"
@@ -678,7 +623,6 @@ def setVictim(name: String, id:Int) {
       val data = models.User(username)
       FetchJson.fetchPost(resetRoute, csrfToken, data, (bool: Boolean) => {
          if(bool) {
-            println("successfully reset eveything")
             getUserInfo()
         } else {
             document.getElementById("create-message").innerHTML = "Resetting Failed"
