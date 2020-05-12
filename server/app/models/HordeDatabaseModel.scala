@@ -204,7 +204,7 @@ class HordeDatabaseModel(db: Database)(implicit ec: ExecutionContext) {
                                                                                   u.cost, 
                                                                                   u.unlocked, 
                                                                                   u.newspeed, 
-                                                                                  u.goldmultiplier)}))
+                                                                                  u.goldmultiplier)}).result)
     }
 
     //returns: Future[(Seq[Int],Seq[String])]

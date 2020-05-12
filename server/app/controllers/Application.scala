@@ -228,7 +228,6 @@ class Application @Inject() (protected val dbConfigProvider: DatabaseConfigProvi
   }}
 
   def upgradeHoard = Action.async { implicit request => {
-    println("in app upgradeHoard")
     val userIdOption = request.session.get("userid").map(userid => userid.toInt)
     userIdOption.map { userid =>
       request.body.asJson.map { body =>
@@ -240,6 +239,22 @@ class Application @Inject() (protected val dbConfigProvider: DatabaseConfigProvi
         }
       }.getOrElse(Future.successful(Ok(Json.toJson(false))))
     }.getOrElse(Future.successful(Ok(Json.toJson(false))))
+  }}
+
+  //(userid:Int, upgradeId:Int):Future[(Int, Int, Int, Boolean, Double, Double)] 
+  def getOneHoardUpgradeInfo = Action.async { implicit request => {
+    val blankInfo = (0,0,0, false, 0.0, 0.0)
+    val userIdOption = request.session.get("userid").map(userid => userid.toInt)
+    userIdOption.map { userid =>
+      request.body.asJson.map { body =>
+        Json.fromJson[Int](body) match { //Int, Bool, Int
+          case JsSuccess(data,path) =>{
+            println("in JSSuccess")
+            model.getOneHoardUpgradeInfo(userid, data).map(ret => Ok(Json.toJson(ret)))}
+          case e @ JsError(_) => Future.successful(Ok(Json.toJson(blankInfo)))
+        }
+      }.getOrElse(Future.successful(Ok(Json.toJson(blankInfo))))
+    }.getOrElse(Future.successful(Ok(Json.toJson(blankInfo))))
   }}
 
   def stealFromUser = Action.async { implicit request => {

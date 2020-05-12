@@ -20,6 +20,7 @@ POST       /loadStealingInfo             controllers.Application.stealFromUser
 POST       /loadHoardInfo                controllers.Application.loadHoardInfo
 POST       /addNewHoard                  controllers.Application.addNewHoard
 POST       /upgradeHoard                 controllers.Application.upgradeHoard
+POST       /getOneHoardUpgradeInfo       controllers.Application.getOneHoardUpgradeInfo
 POST       /levelUpHoard                 controllers.Application.levelUpHoard
 POST       /addGold                      controllers.Application.addGold
 GET        /getGold                      controllers.Application.getGold
