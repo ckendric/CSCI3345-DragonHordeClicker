@@ -382,7 +382,6 @@ def getHordeUpgrades(): Unit = {
     }
     */
     for (x <- 0 until upgradeInfo.length) {
-      if (itemStored < upgradeInfo(x)._3) {
         val li = document.createElement("li")
         li.id = upgradeInfo(x)._1.toString()
         val text = document.createTextNode(upgradeDescriptions(id -1)(x))
@@ -391,9 +390,16 @@ def getHordeUpgrades(): Unit = {
         li.addEventListener("click", { (e0: dom.Event) =>
         val e = e0.asInstanceOf[dom.MouseEvent]
         getHordeUpgradesInfo(upgradeInfo(x)._1)
-        li.asInstanceOf[js.Dynamic].disabled = true
+        li.asInstanceOf[js.Dynamic].hidden = true
         }, false)
-      }
+        if (itemStored < upgradeInfo(x)._3) {
+          li.asInstanceOf[js.Dynamic].hidden = true
+          println("making this hidden")
+        }
+        else {
+          li.asInstanceOf[js.Dynamic].hidden = false
+        }
+
     }
     }, e => {
       println("Fetch error 6: " + e)
@@ -634,7 +640,7 @@ def setVictim(name: String, id:Int) {
       itemIncrement = upgradeSpeed
       if(hordeLevel != 0) itemIncrement*hordeLevel
       goldConv = goldConv/upgradeGoldConv
-      println("upgradeGoldVonv = " + upgradeGoldConv)
+      println("upgradeCost: " +upgradeCost)
       itemStored -= upgradeCost
       loadHorde()
       println("finished changing things")
