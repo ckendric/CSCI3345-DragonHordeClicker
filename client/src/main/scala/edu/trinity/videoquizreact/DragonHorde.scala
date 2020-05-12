@@ -185,9 +185,14 @@ object DragonHorde {
         })
 
         js.timers.setInterval(1000) {
-          itemStored += 1*upgradeSpeed
+          if (itemStored < 1000000)
+            itemStored += 1*itemIncrement
           document.getElementById("hordeItems").innerHTML = itemStored.toString
           println("incrimenting items")
+        }
+        js.timers.setInterval(10000) {
+          loadOneHorde()
+          getHordeUpgrades()
         }
     }
 
