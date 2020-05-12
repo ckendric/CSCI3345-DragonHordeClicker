@@ -414,8 +414,9 @@ def loadOneHorde(): Unit = {
     js.timers.setInterval(100) {
       itemStored += 1*upgradeSpeed
       document.getElementById("hordeItems").innerHTML = itemStored.toString
+      println("incrimenting items")
     }
-    js.timers.setInterval(1000) {
+    js.timers.setInterval(10000) {
       loadHorde()
     }
 }
