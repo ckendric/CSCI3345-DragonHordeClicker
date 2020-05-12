@@ -411,12 +411,12 @@ def loadOneHorde(): Unit = {
           println("Fetch error 7: " + e)
     })
 
-    js.timers.setInterval(100) {
+    js.timers.setInterval(1000) {
       itemStored += 1*upgradeSpeed
       document.getElementById("hordeItems").innerHTML = itemStored.toString
       println("incrimenting items")
     }
-    js.timers.setInterval(10000) {
+    js.timers.setInterval(500000) {
       loadHorde()
     }
 }
