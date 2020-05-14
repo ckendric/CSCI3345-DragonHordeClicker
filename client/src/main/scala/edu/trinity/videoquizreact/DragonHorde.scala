@@ -126,8 +126,8 @@ object DragonHorde {
     var victim = ""
     var victimid = -1
     var canSteal = true
-    private val names = List[String]("Rocks and Minerals", "Junk Food", "90s Paraphernalia", "Yarn", "Stuffed Animals", "Cats", "Music Boxes", "Coding Textbooks")
-    private val idNames = List[String]("Rocks-and-Minerals", "Junk-Food", "90s-Paraphernalia", "Yarn", "Stuffed-Animals", "Cats", "Music-Boxes", "Coding-Textbooks")
+    private val names = List[String]("Rocks and Minerals", "Junk Food", "90s Paraphernalia", "Yarn", "Stuffed Animals", "Cats", "Music Boxes", "Coding Textbooks", "Mark Lewis")
+    private val idNames = List[String]("Rocks-and-Minerals", "Junk-Food", "90s-Paraphernalia", "Yarn", "Stuffed-Animals", "Cats", "Music-Boxes", "Coding-Textbooks", "Mark-Lewis")
     private val mapRoutes = Map[Int,String](1->"rocksandminerals.jpg",
                                             2->"junkfood.jpg",
                                             3->"ninetiesparaphernalia.jpg",
@@ -135,7 +135,7 @@ object DragonHorde {
                                             5->"stuffedanimals.jpg",
                                             6->"cats.jpg",
                                             7->"musicboxes.jpg",
-                                            8->"codingtextbooks.jpg",
+                                            8->"books.jpg",
                                             9->"marklewis.jpg")
   
 
